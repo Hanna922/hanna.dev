@@ -156,7 +156,7 @@ const { activeNav } = Astro.props;
     @apply col-span-1;
   }
   nav a.active {
-    @apply underline decoration-wavy decoration-2 underline-offset-4;
+    @apply underline underline-offset-8;
   }
   nav a.active svg {
     @apply fill-skin-accent;
@@ -188,7 +188,7 @@ const { activeNav } = Astro.props;
     @apply opacity-100;
   }
 </style>
-<!-- 
+
 <script>
   function toggleNav() {
     // Toggle menu
@@ -212,4 +212,4 @@ const { activeNav } = Astro.props;
 
   // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
-</script> -->
+</script>
