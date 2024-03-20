@@ -1,6 +1,6 @@
 {
-  "name": "desktop-hanna-dev",
-  "version": "4.2.0",
+  "name": "hanna.dev",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
