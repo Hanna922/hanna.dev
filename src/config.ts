@@ -1,19 +1,19 @@
 import type { Site, SocialObjects } from "./types";
 
 export const SITE: Site = {
-  website: "https://astro-paper.pages.dev/", // replace this with your deployed domain
+  website: "https://hanna-dev.vercel.app/", // replace domain
   author: "Hanna",
-  desc: "A minimal, responsive and SEO-friendly Astro blog theme.",
+  desc: "Hanna's personal blog & website.",
   title: "Hanna.Dev",
-  ogImage: "astropaper-og.jpg",
+  ogImage: "https://hanna-dev.vercel.app/og-image.png",
   lightAndDarkMode: true,
   postPerPage: 3,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
 };
 
 export const LOCALE = {
-  lang: "ko", // html lang code. Set this empty and default will be "en"
-  langTag: ["ko-KR"], // BCP 47 Language Tags. Set this empty [] to use the environment default
+  lang: "ko",
+  langTag: ["ko-KR"],
 } as const;
 
 export const LOGO_IMAGE = {
