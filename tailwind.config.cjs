@@ -54,6 +54,8 @@ module.exports = {
         transparent: "transparent",
       },
       fontFamily: {
+        sans: ['UI System', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'sans-serif'],
+        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
         mono: ["IBM Plex Mono", "monospace"],
       },
 
