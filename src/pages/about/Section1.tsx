@@ -1,8 +1,9 @@
 import ProfileImage from "assets/images/hanna-profile-image.png";
+import ScrollImage from "assets/images/scroll-down.svg";
 
 export const Section1 = () => {
   return (
-    <section className="min-h-[630px] max-w-5xl px-4 sm:mt-8 sm:flex sm:items-center sm:justify-center sm:px-8 sm:pb-24">
+    <section className="animate-fade-in min-h-[630px] max-w-5xl px-4 sm:mt-8 sm:flex sm:items-center sm:justify-center sm:px-8 sm:pb-24">
       <div className="md:w-80 relative mx-auto flex h-80 w-72 items-center">
         <div className="xs:scale-95 pointer-events-none absolute mx-auto scale-50">
           <img
@@ -15,7 +16,7 @@ export const Section1 = () => {
       </div>
 
       <div className="lg:basis-2/3">
-        <span className="fade-in text-marrsgreen lg:text-lg dark:text-carrigreen font-medium">
+        <span className="animate-fade-in text-marrsgreen lg:text-lg dark:text-carrigreen font-medium">
           Hi my name is
         </span>
         <div className="overflow-hidden">
@@ -38,6 +39,26 @@ export const Section1 = () => {
             위해 노력하고 있습니다.
           </p>
         </div>
+        <div className="flex flex-col flex-wrap">
+          <span className="sm:text-sm">
+            Bachelor Degree. Software Engineering, Soonsil University (2021 ~ )
+          </span>
+          <span className="sm:text-sm">Residence. Seoul, South Korea</span>
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-1/2 mb-4 hidden -translate-x-1/2 transform animate-bounce sm:block">
+        <span
+          className="
+        text-marrsgreen
+        dark:text-carrigreen ml-[-0.3rem] mr-2 font-medium"
+        >
+          Scroll
+        </span>
+        <img
+          className="infinite h-8 w-8"
+          src={ScrollImage.src}
+          alt="Scroll Down"
+        />
       </div>
     </section>
   );
