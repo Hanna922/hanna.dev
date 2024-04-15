@@ -16,8 +16,8 @@
     --color-fill: 0, 0, 0;
     --color-text-base: 234, 237, 243;
     --color-accent: 194, 189, 255;
-    --color-card: 52, 63, 96;
-    --color-card-muted: 138, 51, 2;
+    --color-card: 46, 46, 46;
+    --color-card-muted: 68, 68, 68;
     --color-border: 221, 216, 232;
   }
   #sun-svg,

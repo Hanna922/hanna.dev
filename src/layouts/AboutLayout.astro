@@ -4,6 +4,7 @@ import Footer from "@components/Footer.astro";
 import Header from "@components/Header.astro";
 import Layout from "./Layout.astro";
 import { Section1 } from "@pages/about/Section1.tsx";
+import { Section2 } from "@pages/about/Section2.tsx";
 
 export interface Props {
   frontmatter: {
@@ -18,5 +19,6 @@ const { frontmatter } = Astro.props;
 <Layout title={`${frontmatter.title} | ${SITE.title}`}>
   <Header activeNav="about" />
   <Section1 />
+  <Section2 client:only />
   <Footer />
 </Layout>

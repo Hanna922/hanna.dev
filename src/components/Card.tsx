@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import ydsImage from "@assets/images/YDS.png";
 
 interface Props {
   index: number;
@@ -21,14 +20,13 @@ export const Card = ({ index, project }: Props) => {
       <div className={`project-card project-card-${index}`}>
         <div className="overflow-hidden">
           <img
-            className={`project-image ${project.bgColor} relative aspect-[16/9]
-            `}
-            src={ydsImage.src}
+            className={`project-image ${project.bgColor} relative mb-2 aspect-[16/9]`}
+            src={project.image}
           />
         </div>
         <div className="overflow-hidden">
           <div className="project-text flex items-center justify-between">
-            <h3 className=" text-marrsgreen dark:text-carrigreen my-1 text-lg font-medium">
+            <h3 className="text-marrsgreen dark:text-carrigreen my-1 text-lg font-medium">
               {project.title}
             </h3>
             <div className="my-2 mr-[0.1rem] flex items-center space-x-5 sm:my-0 sm:space-x-3">
@@ -43,7 +41,7 @@ export const Card = ({ index, project }: Props) => {
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
-                  className="dark:fill-bglight scale-150 fill-black opacity-75 hover:-rotate-12 sm:scale-125"
+                  className="dark:bg-carddark scale-150 opacity-75 hover:-rotate-12 hover:bg-gray-300 sm:scale-125 dark:hover:bg-gray-600"
                 >
                   <path
                     fillRule="evenodd"
@@ -86,7 +84,7 @@ export const Card = ({ index, project }: Props) => {
           {project.tags.map(tag => (
             <li
               key={tag}
-              className={`project-tags dark:bg-carddark my-1 mr-2 rounded bg-[#E2EFEF] px-2 py-1`}
+              className="project-tags my-1 mr-2 rounded bg-[color:rgba(var(--color-card),1)] px-2 py-1 dark:bg-[color:rgba(var(--color-card),1)]"
             >
               {tag}
             </li>

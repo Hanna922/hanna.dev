@@ -31,11 +31,16 @@ module.exports = {
           "0%": { opacity: "0", transform: "translateY(-1rem)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "rock": {
+          '0%, 100%': { transform: 'rotate(-5deg)' },
+          '50%': { transform: 'rotate(5deg)' }
+        }
       },
       animation: {
         "fade-in": "fade-in 1.5s ease-out",
         "fade-out": "fade-out 1.5s ease-out",
         "fade-in-down": "fade-in-down 1.5s ease-out",
+        "rock": "rock 2s infinite steps(1, end)"
       },
       textColor: {
         skin: {
