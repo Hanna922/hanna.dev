@@ -12,7 +12,7 @@ tags:
 description: 디자인 시스템 배포를 위한 패키지 세팅을 해보자
 ---
 
-해당 게시글은 vite v4, typescript v5, react v18, storybook v7, yarn 환경에서 작성되었습니다.
+해당 게시글은 vite v4, typescript v5, react v18, storybook v7, pnpm 환경에서 작성되었습니다.
 
 ## Deploy setting
 
