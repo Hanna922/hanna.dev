@@ -4,7 +4,7 @@ import ScrollImage from "assets/images/scroll-down.svg";
 export const Section1 = () => {
   return (
     <section className="min-h-[630px] max-w-5xl animate-fade-in gap-10 px-4 sm:mt-8 sm:flex sm:items-center sm:justify-center sm:px-8 sm:pb-24">
-      <div className="md:w-80 animate-rock relative mx-auto flex h-80 w-72 transform items-center">
+      <div className="md:w-80 relative mx-auto flex h-80 w-72 transform animate-rock items-center">
         <div className="xs:scale-95 pointer-events-none absolute mx-auto">
           <img
             src={ProfileImage.src}

@@ -17,7 +17,7 @@ export const Card = ({ index, project }: Props) => {
 
   return (
     <div ref={sectionRef} className={`md:basis-1/2 md:px-8 md:py-4 py-2`}>
-      <div className={`project-card project-card-${index}`}>
+      <div className={`project-card project-card-${index} w-96`}>
         <div className="overflow-hidden">
           <img
             className={`project-image ${project.bgColor} relative mb-2 aspect-[16/9]`}
