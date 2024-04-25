@@ -20,16 +20,12 @@ module.exports = {
     extend: {
       keyframes: {
         "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+          "0%": { opacity: "0", transform: 'translateY(20px)' },
+          "100%": { opacity: "1", transform: 'translateY(0)' },
         },
         "fade-out": {
           "0%": { opacity: "1" },
           "100%": { opacity: "0" },
-        },
-        "fade-in-down": {
-          "0%": { opacity: "0", transform: "translateY(-1rem)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "rock": {
           '0%, 100%': { transform: 'rotate(-5deg)' },
@@ -37,9 +33,8 @@ module.exports = {
         }
       },
       animation: {
-        "fade-in": "fade-in 1.5s ease-out",
+        "fade-in": "fade-in 1.5s ease-out forwards",
         "fade-out": "fade-out 1.5s ease-out",
-        "fade-in-down": "fade-in-down 1.5s ease-out",
         "rock": "rock 2s infinite steps(1, end)"
       },
       textColor: {

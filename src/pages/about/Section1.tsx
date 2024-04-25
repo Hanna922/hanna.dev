@@ -26,7 +26,7 @@ export const Section1 = () => {
         </div>
         <div className="overflow-hidden">
           <span className="text-animation md:text-3xl lg:text-5xl md:my-3 text-marrsgreen dark:text-carrigreen block text-2xl font-medium">
-            Front-end Enginner
+            Front-end Engineer
           </span>
         </div>
         <div className="md:mb-8 my-4 mt-2">

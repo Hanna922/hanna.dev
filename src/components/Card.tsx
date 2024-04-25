@@ -16,11 +16,11 @@ export const Card = ({ index, project }: Props) => {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={sectionRef} className={`md:basis-1/2 md:px-8 md:py-4 py-2`}>
-      <div className={`project-card project-card-${index} w-96`}>
+    <div ref={sectionRef} className={`py-2 sm:basis-1/2 sm:px-8 sm:py-4`}>
+      <div className={`project-card project-card-${index} min-w-72 sm:w-96`}>
         <div className="overflow-hidden">
           <img
-            className={`project-image ${project.bgColor} relative mb-2 aspect-[16/9]`}
+            className={`project-image ${project.bgColor} sm-2 relative aspect-[16/9]`}
             src={project.image}
           />
         </div>
