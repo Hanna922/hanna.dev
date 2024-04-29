@@ -8,6 +8,8 @@ import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
+import PostComments from "@components/PostComments.astro";
+import PageViews from "@components/PageViews.astro";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -33,6 +35,8 @@ const ogUrl = new URL(
   ogImageUrl ?? `/posts/${slugifyStr(title)}.png`,
   Astro.url.origin
 ).href;
+
+const url = new URL(Astro.url.pathname, Astro.url.origin).href;
 
 const layoutProps = {
   title: `${title} | ${SITE.title}`,
@@ -73,6 +77,7 @@ const layoutProps = {
       size="lg"
       className="my-2"
     />
+    <PageViews url={url} />
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
@@ -81,8 +86,10 @@ const layoutProps = {
       {tags.map(tag => <Tag tag={slugifyStr(tag)} />)}
     </ul>
 
+    <PostComments />
+
     <div
-      class="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row-reverse sm:items-end sm:gap-4"
+      class="mt-12 flex flex-col-reverse items-center justify-between gap-6 sm:flex-row-reverse sm:items-end sm:gap-4"
     >
       <button
         id="back-to-top"
