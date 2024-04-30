@@ -1,11 +1,11 @@
 import type { Site, SocialObjects } from "./types";
 
 export const SITE: Site = {
-  website: "https://hanna-dev.vercel.app/", // replace domain
+  website: "https://hanna-dev.com/", // replace domain
   author: "Hanna",
   desc: "Hanna's personal blog & website.",
   title: "Hanna.Dev",
-  ogImage: "https://hanna-dev.vercel.app/og-image.png",
+  ogImage: "https://hanna-dev.com/og-image.png",
   lightAndDarkMode: true,
   postPerPage: 3,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes

@@ -36,7 +36,7 @@ export const Section3 = () => {
   };
 
   return (
-    <div ref={sectionRef} className="ml-10 sm:mb-8 sm:ml-36 sm:mr-36 sm:mt-28">
+    <div ref={sectionRef} className="mx-5 sm:mb-8 sm:ml-36 sm:mr-36 sm:mt-28">
       <div className="mb-12 animate-fade-in items-center">
         <h1 className="timeline-block text-center text-4xl font-semibold opacity-0">
           Project
