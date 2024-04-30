@@ -12,7 +12,7 @@ tags:
 description: 패키지를 빌드, 테스트 후 배포해 보자
 ---
 
-해당 게시글은 vite v4, typescript v5, react v18, storybook v7, pnpm 환경에서 작성되었습니다.
+해당 게시글은 vite v4, typescript v5, react v18, storybook v8, pnpm v8 환경에서 작성되었습니다.
 
 ## Build & Test
 

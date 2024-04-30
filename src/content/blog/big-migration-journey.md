@@ -37,7 +37,7 @@ description: Node14, Webpack 마이그레이션 경험기 (w. 에러들..)
 - Webpack -> Vite (cjs -> esm)
 - tailwind v1 + twin.macro -> tailwind v3
 - react 16 -> react 18
-  etc...
+- etc...
 
 ## 마주한 에러들
 
@@ -59,7 +59,7 @@ Ref: https://github.com/ben-rogerson/twin.macro/issues/855
 
 2. import-order version update에 따른 사용법 변경
 
-등 자잘한 에러 사항들을 수정하며 버전 업데이트를 진행하였습니다.
+추가로 자잘한 에러 사항들을 수정하며 버전 업데이트를 진행하였습니다.
 
 ## performance
 
