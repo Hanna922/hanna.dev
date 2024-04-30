@@ -1,7 +1,7 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { DetailDialog } from "./Dialog";
 
 interface Props {
-  index: number;
   project: {
     title: string;
     image: string;
@@ -12,21 +12,28 @@ interface Props {
   };
 }
 
-export const Card = ({ index, project }: Props) => {
+export const Card = ({ project }: Props) => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
+
+  const handleOpenDetailDialog = () => {
+    setOpenDetailDialog(true);
+  };
 
   return (
     <div ref={sectionRef} className={`py-2 sm:basis-1/2 sm:px-8 sm:py-4`}>
-      <div className={`project-card project-card-${index} min-w-72 sm:w-96`}>
+      <div className={`project-card min-w-72 sm:w-96`}>
         <div className="overflow-hidden">
           <img
-            className={`project-image ${project.bgColor} sm-2 relative aspect-[16/9]`}
+            className={`project-image ${project.bgColor} sm-2 relative aspect-[16/9] hover:cursor-pointer hover:opacity-80`}
             src={project.image}
+            alt={project.title}
+            onClick={handleOpenDetailDialog}
           />
         </div>
         <div className="overflow-hidden">
           <div className="project-text flex items-center justify-between">
-            <h3 className="text-marrsgreen dark:text-carrigreen my-1 text-lg font-medium">
+            <h3 className="text-marrsgreen dark:text-carrigreen my-2 text-lg font-medium">
               {project.title}
             </h3>
             <div className="my-2 mr-[0.1rem] flex items-center space-x-5 sm:my-0 sm:space-x-3">
@@ -54,7 +61,8 @@ export const Card = ({ index, project }: Props) => {
                 title={`See live demo of '${project.title}'`}
                 target="_blank"
                 rel="noreferrer"
-                className="focus-visible:outline-marrsgreen dark:focus-visible:outline-carrigreen mr-8 rounded-full"
+                className="focus-visible:outline-marrsgreen dark:focus-visible:outline-carrigreen mr-8 rounded-full hover:cursor-pointer"
+                onClick={handleOpenDetailDialog}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -71,6 +79,11 @@ export const Card = ({ index, project }: Props) => {
                   />
                 </svg>
               </a>
+              <DetailDialog
+                title={project.title}
+                open={openDetailDialog}
+                onOpenChange={setOpenDetailDialog}
+              />
             </div>
           </div>
         </div>

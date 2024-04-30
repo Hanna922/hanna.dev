@@ -1,4 +1,5 @@
 import { Card } from "@components/Card";
+import { MajorProject, MinorProject } from "const";
 import { useIntersectionObserver } from "hooks/useIntersectionObserver";
 import { useRef } from "react";
 
@@ -80,10 +81,9 @@ export const Section3 = () => {
           />
         </button>
         <div className="timeline-block flex flex-row gap-10 sm:gap-0 sm:opacity-0">
-          {MajorProject.map((project, index) => (
+          {MajorProject.map(project => (
             <Card
               key={project.title}
-              index={index}
               project={{
                 title: project.title || "",
                 desc: project.desc || "",
@@ -133,10 +133,9 @@ export const Section3 = () => {
           />
         </button>
         <div className="timeline-block flex flex-row gap-10 sm:gap-0 sm:opacity-0">
-          {MinorProject.map((project, index) => (
+          {MinorProject.map(project => (
             <Card
               key={project.title}
-              index={index}
               project={{
                 title: project.title || "",
                 desc: project.desc || "",
@@ -151,65 +150,3 @@ export const Section3 = () => {
     </div>
   );
 };
-
-const MajorProject = [
-  {
-    title: "YDS (Yourssu Design System)",
-    desc: "숭실대학교 중앙동아리 '유어슈' 디자인 시스템 개발",
-    image: "/projects/yds.png",
-    tags: ["Yourssu", "Design System", "React", "Storybook"],
-    githubUrl: "https://github.com/yourssu/YDS-React",
-  },
-  {
-    title: "Soomsil",
-    desc: "숭실대학교 학생들의 편의를 위한 서랍장/검색 서비스",
-    image: "/projects/soomsil-home.png",
-    tags: ["Yourssu", "3-TF", "React", "React Query"],
-    githubUrl: "https://github.com/yourssu/Soomsil-Web",
-  },
-  {
-    title: "All:Chive",
-    desc: "링크부터 스크린샷까지 손쉽게 관리하는 아카이빙 서비스",
-    image: "/projects/allChive.png",
-    tags: ["React Native", "Cross Platform", "React Query"],
-    githubUrl: "https://github.com/ALL-CHIVE/All-Chive-Mobile",
-  },
-  {
-    title: "YLS (Yourssu Logging System)",
-    desc: "숭실대학교 중앙동아리 '유어슈' 로깅 시스템 개발",
-    image: "/projects/yls.png",
-    tags: ["Yourssu", "Logging System", "React", "Crypto"],
-    githubUrl: "https://github.com/yourssu/YLS-Web",
-  },
-];
-
-const MinorProject = [
-  {
-    title: "UniBook",
-    desc: "마크다운 기반의 EBook 판매 서비스",
-    image: "/projects/uniBook.png",
-    tags: ["UniBook", "React", "TailwindCSS"],
-    githubUrl: "https://github.com/unibook-co",
-  },
-  {
-    title: "Real World",
-    desc: "Real World를 2명이서 페어 프로그래밍하는 프로젝트",
-    image: "/projects/real-world.png",
-    tags: ["Yourssu", "React", "React Query", "Pair Programming"],
-    githubUrl: "https://github.com/Hanna922/YourSSU-RealWorld-HH",
-  },
-  {
-    title: "Signature",
-    desc: "Tensorflow hand tracking을 이용한 글씨 흩트리기",
-    image: "/projects/signature.png",
-    tags: ["GDSC", "Tensorflow", "React", "Canvas", "PixiJS"],
-    githubUrl: "https://github.com/gdsc-ssu/signature",
-  },
-  {
-    title: "I-Got-It",
-    desc: "아가리 파이터들을 위한 결심 공유 프로젝트",
-    image: "/projects/i-got-it-mail.png",
-    tags: ["Yourssu", "React", "React Query", "Recoil"],
-    githubUrl: "https://github.com/yourssu/i-got-it-frontend",
-  },
-];
