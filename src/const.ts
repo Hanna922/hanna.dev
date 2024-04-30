@@ -6,10 +6,11 @@ export const DetailDialogContent = [
     image: "/projects/yds.png",
     date: "2023.09 ~ ",
     team: "Web Frontend(3명)",
-    role: `- BoxButton, PlainButton, CheckBox, ListItem, SuffixTextField, PasswordTextField 구현
+    role: `- BoxButton, PlainButton, CheckBox, ListItem, SuffixTextField, PasswordTextField 개발
 - Polymorphic Component 를 위한 설계 (apply forwardRef, extends HTMLElement)
 - Storybook 문서화
-- GitHub Action을 활용한 Storybook 버전별 배포 자동화 & NPM Package 배포 자동화 (with AWS S3 Bucket Versioning)
+- Storybook 버전별 배포 자동화 (with GitHub Action, AWS S3 Bucket Versioning)
+- NPM Package 배포 자동화 (with GitHub Action)
 - yarn classic -> pnpm migration`,
     experience: `Coming Soon...`,
     tech: "TypeScript, React, Storybook, Styled-Component, Vite, swc",
@@ -44,12 +45,12 @@ export const DetailDialogContent = [
     date: "2024.02 ~ ",
     team: "Web Frontend(8명)",
     role: `- Soomsil Project Initial Setting (3개의 TF가 동시 개발을 할 수 있도록 구조 설정)
-- Drawer Main Page 구현
-- Drawer Service Upload Page 구현
-- Common Button/Footer Component 구현
+- Drawer Main Page 개발
+- Drawer Service Upload Page 개발
+- Common Button/Footer Component 개발
 - yarn classic -> pnpm migration`,
     experience: `Coming Soon...`,
-    tech: "TypeScript, React, React Query, Recoil, Styled-Component, Vite",
+    tech: "TypeScript, React, TanStack Query, Recoil, Styled-Component, Vite",
     link: [
       {
         title: "Github",
@@ -64,17 +65,17 @@ export const DetailDialogContent = [
     image: "/projects/allChive.png",
     date: "2023.06 ~ 2023.08",
     team: "Web Frontend(2명) / 5명",
-    role: `- Archiving & Contents Upload 기능 구현
-- Archiving & Contents Search 기능 구현
-- Tag 생성, 수정, 삭제 등 관리 및 필터링 기능 구현
-- 카테고리 별 아카이빙 필터링 기능 구현
-- 마이페이지 내부 기능(아카이빙 관리, 태그 관리, 차단 관리, 휴지통) 구현
+    role: `- Archiving & Contents Upload 기능 개발
+- Archiving & Contents Search 기능 개발
+- Tag 생성, 수정, 삭제 등 관리 및 필터링 기능 개발
+- 카테고리 별 아카이빙 필터링 기능 개발
+- 마이페이지 내부 기능(아카이빙 관리, 태그 관리, 차단 관리, 휴지통) 개발
 - 약관 및 고객센터 인앱브라우저 연결
 - Android 배포 및 개발 환경 분리`,
     experience: `Coming Soon...`,
     performance: `- App Store 'Productivity' 랭킹 94위 달성
 - 디스콰이엇 트렌딩 프로덕트 1위 달성`,
-    tech: "TypeScript, React Native, React Query, Recoil, Emotion",
+    tech: "TypeScript, React Native, TanStack Query, Recoil, Emotion",
     link: [
       {
         title: "Github",
@@ -98,7 +99,7 @@ export const DetailDialogContent = [
     date: "2024.01 ~ 2024.02",
     team: "Web Frontend(2명)",
     role: `- Logging 로직을 선언적으로 관리할 수 있도록 패키지 구조 설정 (export React Component)
-- LogClick(유저의 클릭 이벤트 감지) 구현
+- LogClick(유저의 클릭 이벤트 감지) 개발
 - Logging System 내에서 유저를 식별할 수 없도록 로직 설계
 - 로그인 / 비로그인 유저의 userId / randomId 값을 바탕으로 sha256 암호화
 - NPM Package 배포`,
@@ -124,7 +125,7 @@ export const DetailDialogContent = [
     team: "Web Frontend(2명)",
     role: `Coming Soon...`,
     experience: `Coming Soon...`,
-    tech: "TypeScript, React, React Query, TailwindCSS, Shadcn-ui, Vite, swc",
+    tech: "TypeScript, React, TanStack Query, TailwindCSS, Shadcn-ui, Vite, swc",
     link: [
       {
         title: "Github",
@@ -143,9 +144,9 @@ export const DetailDialogContent = [
     image: "/projects/real-world.png",
     date: "2023.05.23 ~ 2023.07.05",
     team: "Web Frontend(2명)",
-    role: `Article, Comment, Tag, Pagination 등 기능 구현`,
+    role: `Article, Comment, Tag, Pagination 등 기능 개발`,
     experience: `Coming Soon...`,
-    tech: "TypeScript, React, React Query, Recoil, React Hook Form, Vite",
+    tech: "TypeScript, React, TanStack Query, Recoil, React Hook Form, Vite",
     link: [
       {
         title: "Github",
@@ -160,8 +161,8 @@ export const DetailDialogContent = [
     image: "/projects/signature.png",
     date: "2023.12.16 ~ 2023.12.28",
     team: "Web Frontend(3명)",
-    role: `- Kinetic Typo 구현
-- Text Drawing 구현`,
+    role: `- Kinetic Typo 개발
+- Text Drawing 개발`,
     experience: `Coming Soon...`,
     tech: "TypeScript, React, TensorFlow.js, Canvas, PixiJS, Vite",
     link: [
@@ -178,9 +179,9 @@ export const DetailDialogContent = [
     image: "/projects/i-got-it-mail.png",
     date: "2023.04.21 ~ 2023.05.12",
     team: "Web Frontend(2명) / 9명",
-    role: `- 결심, 편지, 응원 메시지 생성 등 기능 구현`,
+    role: `- 결심, 편지, 응원 메시지 생성 등 기능 개발`,
     experience: `Coming Soon...`,
-    tech: "TypeScript, React, React Query, Recoil, Sass, Radix-ui, Vite",
+    tech: "TypeScript, React, TanStack Query, Recoil, Sass, Radix-ui, Vite",
     link: [
       {
         title: "Github",
@@ -206,14 +207,14 @@ export const MajorProject = [
     title: "Soomsil",
     desc: "숭실대학교 학생들의 편의를 위한 서랍장/검색 서비스",
     image: "/projects/soomsil-home.png",
-    tags: ["Yourssu", "3-TF", "React", "React Query"],
+    tags: ["Yourssu", "3-TF", "React", "TanStack Query"],
     githubUrl: "https://github.com/yourssu/Soomsil-Web",
   },
   {
     title: "All:Chive",
     desc: "링크부터 스크린샷까지 손쉽게 관리하는 아카이빙 서비스",
     image: "/projects/allChive.png",
-    tags: ["React Native", "Cross Platform", "React Query"],
+    tags: ["React Native", "Cross Platform", "TanStack Query"],
     githubUrl: "https://github.com/ALL-CHIVE/All-Chive-Mobile",
   },
   {
@@ -237,7 +238,7 @@ export const MinorProject = [
     title: "Real World",
     desc: "Real World를 2명이서 페어 프로그래밍하는 프로젝트",
     image: "/projects/real-world.png",
-    tags: ["Yourssu", "React", "React Query", "Pair Programming"],
+    tags: ["Yourssu", "React", "TanStack Query", "Pair Programming"],
     githubUrl: "https://github.com/Hanna922/YourSSU-RealWorld-HH",
   },
   {
@@ -251,7 +252,7 @@ export const MinorProject = [
     title: "I-Got-It",
     desc: "아가리 파이터들을 위한 결심 공유 프로젝트",
     image: "/projects/i-got-it-mail.png",
-    tags: ["Yourssu", "React", "React Query", "Recoil"],
+    tags: ["Yourssu", "React", "TanStack Query", "Recoil"],
     githubUrl: "https://github.com/yourssu/i-got-it-frontend",
   },
 ];

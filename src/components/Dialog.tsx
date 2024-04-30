@@ -24,7 +24,7 @@ export const DetailDialog = ({
             scrollbarWidth: "thin",
             scrollbarColor: "#d6d6d6 #f3f4f6",
           }}
-          className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-5/6 w-2/3 max-w-[700px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-2xl bg-white p-10"
+          className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-5/6 w-1/2 -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-2xl bg-white p-10"
         >
           <div className="flex h-1/2 justify-center">
             <img src={content?.image} alt={title} className="rounded-md" />
@@ -36,11 +36,11 @@ export const DetailDialog = ({
             {content?.overview}
           </Dialog.Description>
           <div className="mt-2 flex justify-between">
-            <span>진행기간</span>
+            <span className="font-semibold">진행기간</span>
             <span>{content?.date}</span>
           </div>
           <div className="mt-2 flex justify-between">
-            <span>팀원</span>
+            <span className="font-semibold">팀원</span>
             <span>{content?.team}</span>
           </div>
           <div className="mt-3 border-t-2" />

@@ -35,8 +35,8 @@ export const Section1 = () => {
             <br />
             퍼포먼스 최적화에 관심이 많으며 효율적인 코드 작성을 지향합니다.
             <br />
-            UX에 더불어 DX 향상을 주도하는 프론트엔드 플랫폼 엔지니어가 되기
-            위해 노력하고 있습니다.
+            UX에 더불어 DX 향상을 주도하는 프론트엔드 엔지니어가 되기 위해
+            노력하고 있습니다.
           </p>
         </div>
         <div className="flex flex-col flex-wrap">

@@ -16,17 +16,18 @@ export const TimelineBlock = ({
   return (
     <div className="relative">
       <div className="flex items-center">
-        <p className="absolute pl-3.5 text-sm dark:text-gray-400">
-          * {startDate} ~ {endDate}
+        <p className="absolute pl-2">🍀</p>
+        <p className="absolute pl-14 text-sm dark:text-gray-400">
+          {startDate} ~ {endDate}
         </p>
-        <div className="ml-4 rounded-sm border-l-4 pb-5 pl-52 pt-5">
+        <div className="ml-4 rounded-sm border-l-2 border-gray-200 pb-5 pl-60 pt-5">
           <a
             href={link}
             target="_blank"
             rel="noreferrer"
             className="text-marrsgreen dark:text-carrigreen font-medium"
           >
-            {title}
+            {title} 🔗
           </a>
           <p className="text-sm dark:text-gray-400">{desc}</p>
         </div>
