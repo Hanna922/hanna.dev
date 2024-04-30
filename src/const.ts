@@ -6,7 +6,7 @@ export const DetailDialogContent = [
     image: "/projects/yds.png",
     date: "2023.09 ~ ",
     team: "Web Frontend(3명)",
-    role: `- BoxButton, PlainButton, CheckBox, ListItem, SuffixTextField, PasswordTextField 개발
+    role: `- BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 개발
 - Polymorphic Component 를 위한 설계 (apply forwardRef, extends HTMLElement)
 - Storybook 문서화
 - Storybook 버전별 배포 자동화 (with GitHub Action, AWS S3 Bucket Versioning)
