@@ -45,7 +45,7 @@ description: Node14, Webpack 마이그레이션 경험기 (w. 에러들..)
 
 노드 버전을 20으로 올리고 번들러를 Vite으로 갈아끼우니 모든 파일에서 에러가 발생하였다. twin.macro와 emotion을 결합하여 사용하고 있었는데, twin.macro에서 custom property를 찾지 못한다는 문제였다.
 
-<img style="width:600px;height:450px;" src="/blog/big-migration-journey/twin.macro-error.png"/>
+<img src="/blog/big-migration-journey/twin.macro-error.png"/>
 
 custom property를 사용하려면 tailwindcss className 내에 속성을 명시해주거나, tailwind.config.ts에 따로 추가해주어야 했다.
 
@@ -80,13 +80,13 @@ Ref: https://github.com/ben-rogerson/twin.macro/issues/855
 (왼쪽 사진은 마이그레이션 전, 오른쪽은 마이그레이션 후 성능 비교이다.)
 
 <div style="display:grid; grid-template-columns: 1fr 1fr">
-  <img style="width:600px;height:300px;" src="/blog/big-migration-journey/before1.png" />
-  <img style="width:300px;height:160px;" src="/blog/big-migration-journey/after1.png" />
+  <img src="/blog/big-migration-journey/before1.png" />
+  <img src="/blog/big-migration-journey/after1.png" />
 </div>
 
 <div style="display:grid; grid-template-columns: 1fr 1fr">
-  <img style="width:250px;height:430px;" src="/blog/big-migration-journey/before2.png" />
-  <img style="width:250px;height:430px;" src="/blog/big-migration-journey/after2.png" />
+  <img src="/blog/big-migration-journey/before2.png" />
+  <img src="/blog/big-migration-journey/after2.png" />
 </div>
 
 번들러 마이그레이션과 불필요한 패키지를 삭제하는 것만으로도 자그마한 성능 이점을 볼 수 있었으며 전체 프로젝트의 성능이 향상됨에따라 더 많은 시도를 빠르게 할 수 있게 되었다.

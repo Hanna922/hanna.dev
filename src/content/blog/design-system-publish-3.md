@@ -24,7 +24,7 @@ YDS는 github action을 활용하여 storybook을 버전 별로 aws s3에 배포
 
 Storybook을 버전 별로 배포하기 위해 먼저 AWS S3 버킷 버전 관리를 활성화한다.
 
-<img style="width:1000px;height:310px;" src="/blog/design-system-publish/bucket-versioning.png" />
+<img src="/blog/design-system-publish/bucket-versioning.png" />
 
 YDS는 `{주소}/v0.1.0/*` 형태로 Storybook을 배포하고 있다!
 
@@ -49,14 +49,14 @@ YDS는 `{주소}/v0.1.0/*` 형태로 Storybook을 배포하고 있다!
 
 3. Repository secrets 등록
 
-<img style="width:1000px;height:230px;" src="/blog/design-system-publish/repo-secrets.png" />
+<img src="/blog/design-system-publish/repo-secrets.png" />
 
 4. .npmrc 설정
 
 로컬에서 npm publish를 진행할 때는 로그인이 되어있는 상태였기 때문에 문제가 발생하지 않았지만,
 github action에서는 로그인 NPM_TOKEN을 넣어주지 않을 시 인증 에러가 발생하였다.
 
-<img style="width:1000px;height:130px;" src="/blog/design-system-publish/build-fail-1.png" />
+<img src="/blog/design-system-publish/build-fail-1.png" />
 
 따라서 root 경로에 .npmrc 파일을 생성하고, yml에서 사용하는 NPM_TOKEN을 넣어주었다.
 
@@ -81,11 +81,11 @@ YDS는 원래 yarn을 사용하고 있었지만 최근 pnpm으로 마이그레�
 
 #### Set Up을 하지 않았을 경우
 
-<img style="width:1000px;height:160px;" src="/blog/design-system-publish/build-fail-2.png" />
+<img src="/blog/design-system-publish/build-fail-2.png" />
 
 #### PackageManager, Version 명시를 하지 않았을 경우
 
-<img style="width:1000px;height:300px;" src="/blog/design-system-publish/build-fail-3.png" />
+<img src="/blog/design-system-publish/build-fail-3.png" />
 
 ```yml
 # 전체 코드 (packageManager: pnpm)

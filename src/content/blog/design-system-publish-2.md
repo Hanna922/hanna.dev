@@ -22,7 +22,7 @@ description: 패키지를 빌드, 테스트 후 배포해 보자
 
 드디어 build ଘ(੭ˊ꒳ˋ)੭✧
 
-<img style="width:1000px;height:230px;" src="/blog/design-system-publish/build.png" />
+<img src="/blog/design-system-publish/build.png" />
 
 안정적인 배포를 위해서는 빌드 후 바로 배포하지 않고, 테스트를 진행하는 것이 좋다.
 
@@ -44,7 +44,7 @@ npm, yarn 사용 시에도 동일하게 [pack 명령어](https://pnpm.io/cli/pac
 
 이제 테스트 프로젝트에 tgz 파일을 복사하고, 설치를 진행하자.
 
-<img style="width:1000px;height:100px;" src="/blog/design-system-publish/tgz-example.png"/>
+<img src="/blog/design-system-publish/tgz-example.png"/>
 
 라이브러리를 만들 때 peerDependency로 설정한 라이브러리가 있다면, 해당 라이브러리도 설치해주어야 한다.
 
@@ -71,6 +71,6 @@ private 배포는 유료이므로, 무료로 배포하려면 public 배포 설�
 > npm publish --access=public
 ```
 
-<img style="width:1000px;height:380px;" src="/blog/design-system-publish/npm.png" />
+<img src="/blog/design-system-publish/npm.png" />
 
 성공적으로 배포된다면 이렇게 NPM에서 확인할 수 있다. ✌(-‿-)✌

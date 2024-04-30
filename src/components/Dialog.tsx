@@ -23,6 +23,7 @@ export const DetailDialog = ({
           style={{
             scrollbarWidth: "thin",
             scrollbarColor: "#d6d6d6 #f3f4f6",
+            overflowWrap: "break-word",
           }}
           className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-4/5 w-5/6 -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl bg-white p-4 sm:h-5/6 sm:w-1/2 sm:rounded-2xl sm:p-10"
         >
