@@ -5,7 +5,7 @@ export const DetailDialogContent = [
       "유어슈에서는 뷰 컴포넌트 재사용성 향상, 일관된 디자인 퀄리티 보장을 위해 자체 디자인 시스템을 활용합니다.",
     image: "/projects/yds.png",
     date: "2023.09 ~ ",
-    team: "Web Frontend(3명)",
+    team: "Web Frontend(2명)",
     role: `- BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 개발
 - Polymorphic Component 를 위한 설계 (apply forwardRef, extends HTMLElement)
 - Storybook 문서화
@@ -25,7 +25,7 @@ export const DetailDialogContent = [
       },
       {
         title: "Storybook",
-        url: "https://yds-react-storybook.s3.ap-northeast-2.amazonaws.com/1.0.2/index.html",
+        url: "https://yds-react-storybook.s3.ap-northeast-2.amazonaws.com/1.1.1/index.html",
       },
       {
         title: "Figma",
