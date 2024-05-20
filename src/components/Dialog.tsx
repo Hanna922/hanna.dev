@@ -33,54 +33,54 @@ export const DetailDialog = ({
           <Dialog.Title className="DialogTitle mt-2 font-mono text-sm font-semibold text-black sm:mt-5 sm:text-2xl">
             {title}
           </Dialog.Title>
-          <Dialog.Description className="DialogDescription sm:text-md mt-2 text-sm">
+          <Dialog.Description className="DialogDescription sm:text-md mt-2 text-sm text-black">
             {content?.overview}
           </Dialog.Description>
-          <div className="sm:text-md mt-2 flex justify-between text-sm">
+          <div className="sm:text-md mt-2 flex justify-between text-sm text-black">
             <span className="font-semibold">진행기간</span>
             <span>{content?.date}</span>
           </div>
-          <div className="sm:text-md mt-2 flex justify-between text-sm">
+          <div className="sm:text-md mt-2 flex justify-between text-sm text-black">
             <span className="font-semibold">팀원</span>
             <span>{content?.team}</span>
           </div>
           <div className="mt-3 border-t-2" />
-          <span className="sm:text-md my-2 font-mono text-sm font-semibold">
+          <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             역할
           </span>
-          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm leading-6">
+          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm leading-6 text-black">
             {content?.role}
           </span>
           <div className="mt-3 border-t-2" />
-          <span className="sm:text-md my-2 font-mono text-sm font-semibold">
+          <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             시행착오
           </span>
-          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm">
+          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
             {content?.experience}
           </span>
           <div className="mt-3 border-t-2" />
-          <span className="sm:text-md my-2 font-mono text-sm font-semibold">
+          <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             기술스택
           </span>
-          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm">
+          <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
             {content?.tech}
           </span>
           {content?.performance && (
             <>
               <div className="mt-3 border-t-2" />
-              <span className="sm:text-md my-2 font-mono text-sm font-semibold">
+              <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
                 성과
               </span>
-              <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm">
+              <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
                 {content?.performance}
               </span>
             </>
           )}
           <div className="mt-3 border-t-2" />
-          <span className="sm:text-md my-2 font-mono text-sm font-semibold">
+          <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             관련 링크
           </span>
-          <span className="sm:text-md ml-4 text-sm leading-6">
+          <span className="sm:text-md ml-4 text-sm leading-6 text-black">
             {content?.link.map(link => (
               <React.Fragment key={link.url}>
                 <span className="font-semibold">{`- ${link.title}: `}</span>
