@@ -71,7 +71,7 @@ React는 Reconciliation(재조정) 과정 동안 두 개의 Fiber 트리를 유�
 
 아래 이미지에서는 커밋된 트리와 작업 진행 중인 트리 모두 표시된다. 파란색 외곽선이 있는 직사각형은 업데이트 된 노드를 나타낸다.
 
-![Committed Tree & Work-in-progress Tree](image.png)
+<img src="/public/blog/building-a-custom-react-renderer/image.png" alt="Committed Tree & Work-in-progress Tree" />
 
 ### Reconciliation(재조정) 알고리즘 (Reconciliation Algorithm)
 
@@ -91,7 +91,7 @@ Custom React Renderer를 구축하려면 이러한 단계를 이해하는 것이
 
 아래 이미지는 Fiber 노드의 수명주기를 보여주는 순서도이다.
 
-![Fiber Node LifeCycle](image-1.png)
+<src img="/public/blog/building-a-custom-react-renderer/image-1.png" alt="Fiber Node LifeCycle" />
 
 ## 사용자 정의(커스텀) React 렌더러를 구축하는 단계 (Steps to Build a Custom React Renderer)
 
@@ -161,7 +161,7 @@ ReactDOMCustom.render(<App />, document.getElementById("root")!);
 
 이렇게 변경하게 되면 앱이 중단되고 브라우저 콘솔에 오류가 표시된다.
 
-![ReactDOM Error](image-2.png)
+<src img="/public/blog/building-a-custom-react-renderer/image-2.png" alt="ReactDOM Error" />
 
 우리의 React 앱이 브라우저에서 예상대로 작동하도록 커스텀 렌더러의 기본 로직을 구현해보자.
 
@@ -371,7 +371,7 @@ export default ReactDOMCustom;
 
 성공적으로 커스텀 렌더러가 구성되었다면, 브라우저에서 아래와 같은 결과를 확인할 수 있다.
 
-![success custom renderer](image-3.png)
+<src img="/public/blog/building-a-custom-react-renderer/image-3.png" alt="Success Custom Renderer" />
 
 ## 실제 사례 (Real-World Examples)
 
@@ -441,7 +441,7 @@ clearContainer() {
 
 다음과 같은 에러가 발생한다.
 
-![custom-renderer-error1](image-4.png)
+<src img="/public/blog/building-a-custom-react-renderer/image-4.png" alt="Custom Renderer Error1" />
 
 에러 메시지를 읽어보면 removeChildFromContainer, clearContainer, detachDeletedInstance 메서드를 추가해야 한다는 것을 알 수 있다. 이러한 메서드들은 커스텀 렌더러 내에서 요소들의 생명 주기를 관리하는 데 필요하다.
 
