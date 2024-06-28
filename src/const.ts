@@ -59,6 +59,28 @@ export const DetailDialogContent = [
     ],
   },
   {
+    title: "Yrano (Yourssu Resourceful and Noteworthy Operations)",
+    overview:
+      "Yourssu에서 사용하는 TypeScript/JavaScript Package들을 Monorepo 형태로 관리합니다.",
+    image: "/projects/yrano.png",
+    date: "2024.05.27 ~ ",
+    team: "Web Frontend(3명)",
+    role: `- Initial Setting (monorepo, turborepo, tsup, pnpm)
+- apply changeset with github action
+- create YLS(Yourssu Logging System) package (@yourssu/logging-system)
+- create useSecTimer, useMediaQuery (@yourssu/react)
+- create debounce, throttle function (@yourssu/utils)
+- create useDebounce, useThrottle (@yourssu/react)`,
+    experience: `Coming Soon...`,
+    tech: "TypeScript, React, Vitest, Turborepo, Tsup, Pnpm",
+    link: [
+      {
+        title: "Github",
+        url: "https://github.com/yourssu/Yrano",
+      },
+    ],
+  },
+  {
     title: "All:Chive",
     overview:
       "링크부터 스크린샷까지 손쉽게 관리하고 큐레이션하는 아카이빙 서비스입니다.",
@@ -198,10 +220,24 @@ export const DetailDialogContent = [
 export const MajorProject = [
   {
     title: "YDS (Yourssu Design System)",
-    desc: "숭실대학교 중앙동아리 '유어슈' 디자인 시스템 개발",
+    desc: "Development of Design System for the Central Club 'Yourssu' at Soongsil University",
     image: "/projects/yds.png",
     tags: ["Yourssu", "Design System", "React", "Storybook"],
     githubUrl: "https://github.com/yourssu/YDS-React",
+  },
+  {
+    title: "Yrano (Yourssu Resourceful and Noteworthy Operations)",
+    desc: "TypeScript/JavaScript Package들을 관리하는 Monorepo Project",
+    image: "/projects/yrano.png",
+    tags: [
+      "Yourssu",
+      "Packages",
+      "Monorepo",
+      "Tsup",
+      "Logging System",
+      "Utils",
+    ],
+    githubUrl: "https://github.com/yourssu/Yrano",
   },
   {
     title: "Soomsil",
@@ -216,13 +252,6 @@ export const MajorProject = [
     image: "/projects/allChive.png",
     tags: ["React Native", "Cross Platform", "TanStack Query"],
     githubUrl: "https://github.com/ALL-CHIVE/All-Chive-Mobile",
-  },
-  {
-    title: "YLS (Yourssu Logging System)",
-    desc: "숭실대학교 중앙동아리 '유어슈' 로깅 시스템 개발",
-    image: "/projects/yls.png",
-    tags: ["Yourssu", "Logging System", "React", "Crypto"],
-    githubUrl: "https://github.com/yourssu/YLS-Web",
   },
 ];
 
