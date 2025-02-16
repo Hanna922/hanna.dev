@@ -41,7 +41,7 @@ const Experiences = [
     desc: "Front-end Engineer (Intern)",
     link: "https://www.techlabs.co.kr/",
     startDate: "2024.03",
-    endDate: "Current",
+    endDate: "2024.06",
   },
   {
     title: "Yourssu",
@@ -55,7 +55,7 @@ const Experiences = [
     desc: "Web/Mobile Part",
     link: "https://gdsc.community.dev/soongsil-university-seoul-south-korea/",
     startDate: "2023.10",
-    endDate: "2024.08",
+    endDate: "Current",
   },
   {
     title: "Central MakeUs Challenge",
