@@ -1,5 +1,29 @@
 export const DetailDialogContent = [
   {
+    title: "Stock Condition Analysis",
+    overview:
+      "본 프로젝트는 개인 투자자가 실시간 주식 데이터와 AI 기반 뉴스 분석을 통해 보다 빠르고 객관적인 투자 판단을 내릴 수 있도록 지원하기 위해 기획되었습니다.",
+    image: "/projects/stock.png",
+    date: "2025.03 ~ 2025.06",
+    team: "Web Frontend(2명) / 5명",
+    role: `- 프로젝트 전반의 UI/UX 및 화면 구조 설계
+- Next.js 기반 프론트엔드 아키텍처 및 페이지 개발
+- 나스닥 100 종목 실시간 주가, 기술적 지표, 뉴스 및 AI 요약 데이터 시각화 구현
+- 종목별 대시보드 및 시장 현황 페이지 UI 개발`,
+    experience: `Coming Soon...`,
+    tech: "TypeScript, Next.js, tailwindcss, recharts, swc",
+    link: [
+      {
+        title: "Github",
+        url: "https://github.com/stock-condition-analysis",
+      },
+      {
+        title: "Github of Base Project (data pipeline)",
+        url: "https://github.com/HwanGonJang/stock-streaming-data-pipeline",
+      },
+    ],
+  },
+  {
     title: "YDS (Yourssu Design System)",
     overview:
       "유어슈에서는 뷰 컴포넌트 재사용성 향상, 일관된 디자인 퀄리티 보장을 위해 자체 디자인 시스템을 활용합니다.",
@@ -218,6 +242,13 @@ export const DetailDialogContent = [
 ];
 
 export const MajorProject = [
+  {
+    title: "Stock Condition Analysis",
+    desc: "A real-time stock condition analysis platform integrating live trading data, technical indicators, and AI-based news sentiment.",
+    image: "/projects/stock.png",
+    tags: ["Capstone", "Next.js", "TailwindCSS", "Recharts"],
+    githubUrl: "https://github.com/stock-condition-analysis",
+  },
   {
     title: "YDS (Yourssu Design System)",
     desc: "Development of Design System for the Central Club 'Yourssu' at Soongsil University",
