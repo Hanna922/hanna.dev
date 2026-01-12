@@ -1,9 +1,22 @@
-export const DetailDialogContent = [
+export type DetailDialogItem = {
+  title: string;
+  overview: string;
+  images?: string[];
+  date: string;
+  team: string;
+  role: string;
+  experience: string;
+  tech: string;
+  performance?: string;
+  link: { title: string; url: string }[];
+};
+
+export const DetailDialogContent: DetailDialogItem[] = [
   {
     title: "Stock Condition Analysis",
     overview:
       "본 프로젝트는 개인 투자자가 실시간 주식 데이터와 AI 기반 뉴스 분석을 통해 보다 빠르고 객관적인 투자 판단을 내릴 수 있도록 지원하기 위해 기획되었습니다.",
-    image: "/projects/stock.png",
+    images: ["/projects/stock.png", "/projects/stock-architecture.png"],
     date: "2025.03 ~ 2025.06",
     team: "Web Frontend(2명) / 5명",
     role: `- 프로젝트 전반의 UI/UX 및 화면 구조 설계
@@ -27,7 +40,7 @@ export const DetailDialogContent = [
     title: "YDS (Yourssu Design System)",
     overview:
       "유어슈에서는 뷰 컴포넌트 재사용성 향상, 일관된 디자인 퀄리티 보장을 위해 자체 디자인 시스템을 활용합니다.",
-    image: "/projects/yds.png",
+    images: ["/projects/yds.png"],
     date: "2023.09 ~ ",
     team: "Web Frontend(2명)",
     role: `- BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 개발
@@ -65,7 +78,7 @@ export const DetailDialogContent = [
     title: "Soomsil",
     overview:
       "숭실대학교 학생들의 편의를 위한 서랍장/검색 서비스이며, 3개의 TF 단위(Drawer, Search, Home)로 작업합니다.",
-    image: "/projects/soomsil-home.png",
+    images: ["/projects/soomsil-home.png"],
     date: "2024.02 ~ ",
     team: "Web Frontend(8명)",
     role: `- Soomsil Project Initial Setting (3개의 TF가 동시 개발을 할 수 있도록 구조 설정)
@@ -86,7 +99,7 @@ export const DetailDialogContent = [
     title: "Yrano (Yourssu Resourceful and Noteworthy Operations)",
     overview:
       "Yourssu에서 사용하는 TypeScript/JavaScript Package들을 Monorepo 형태로 관리합니다.",
-    image: "/projects/yrano.png",
+    images: ["/projects/yrano.png"],
     date: "2024.05.27 ~ ",
     team: "Web Frontend(3명)",
     role: `- Initial Setting (monorepo, turborepo, tsup, pnpm)
@@ -108,7 +121,7 @@ export const DetailDialogContent = [
     title: "All:Chive",
     overview:
       "링크부터 스크린샷까지 손쉽게 관리하고 큐레이션하는 아카이빙 서비스입니다.",
-    image: "/projects/allChive.png",
+    images: ["/projects/allChive.png"],
     date: "2023.06 ~ 2023.08",
     team: "Web Frontend(2명) / 5명",
     role: `- Archiving & Contents Upload 기능 개발
@@ -141,7 +154,7 @@ export const DetailDialogContent = [
     title: "YLS (Yourssu Logging System)",
     overview:
       "Soomsil 사용자의 행동을 로깅하여 Back-end로 전송, Kibana로 시각화합니다.",
-    image: "/projects/yls.png",
+    images: ["/projects/yls.png"],
     date: "2024.01 ~ 2024.02",
     team: "Web Frontend(2명)",
     role: `- Logging 로직을 선언적으로 관리할 수 있도록 패키지 구조 설정 (export React Component)
@@ -166,7 +179,7 @@ export const DetailDialogContent = [
     title: "UniBook",
     overview:
       "마크다운을 기반으로 EBook을 작성 및 판매할 수 있으며, 책을 구매하는 사람은 편리하게 읽을 수 있는 서비스입니다.",
-    image: "/projects/uniBook.png",
+    images: ["/projects/uniBook.png"],
     date: "2024.05 ~ ",
     team: "Web Frontend(2명)",
     role: `Coming Soon...`,
@@ -187,7 +200,7 @@ export const DetailDialogContent = [
     title: "Real World",
     overview:
       "Real World(https://github.com/gothinkster/realworld)를 2명이서 페어 프로그래밍하는 프로젝트입니다.",
-    image: "/projects/real-world.png",
+    images: ["/projects/real-world.png"],
     date: "2023.05.23 ~ 2023.07.05",
     team: "Web Frontend(2명)",
     role: `Article, Comment, Tag, Pagination 등 기능 개발`,
@@ -204,7 +217,7 @@ export const DetailDialogContent = [
     title: "Signature",
     overview:
       "TensorFlow hand tracking을 이용하여 글씨를 흐트러뜨려볼 수 있습니다.",
-    image: "/projects/signature.png",
+    images: ["/projects/signature.png"],
     date: "2023.12.16 ~ 2023.12.28",
     team: "Web Frontend(3명)",
     role: `- Kinetic Typo 개발
@@ -222,7 +235,7 @@ export const DetailDialogContent = [
     title: "I-Got-It",
     overview:
       "결심을 세우고 3주 후 이메일로 받을 '미래의 자신에게 보내는 편지'를 작성하며, 자신이 세운 결심을 공유하고 친구들이 응원 메시지를 담으로써 결심을 이룰 수 있도록 도와주는 서비스입니다.",
-    image: "/projects/i-got-it-mail.png",
+    images: ["/projects/i-got-it-mail.png"],
     date: "2023.04.21 ~ 2023.05.12",
     team: "Web Frontend(2명) / 9명",
     role: `- 결심, 편지, 응원 메시지 생성 등 기능 개발`,

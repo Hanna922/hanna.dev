@@ -15,6 +15,8 @@ export const DetailDialog = ({
 }: DetailDialogProps) => {
   const content = DetailDialogContent.find(item => item.title === title);
 
+  const images = content?.images?.length ? content.images : [];
+
   return (
     <Dialog.Root modal={true} open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -27,9 +29,28 @@ export const DetailDialog = ({
           }}
           className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-4/5 w-5/6 -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl bg-white p-4 sm:h-5/6 sm:w-1/2 sm:rounded-2xl sm:p-10"
         >
-          <div className="flex h-1/2 justify-center">
-            <img src={content?.image} alt={title} className="rounded-md" />
-          </div>
+          {images.length > 0 && (
+            <div className="flex w-full flex-col gap-3">
+              {images.length === 1 ? (
+                <img
+                  src={images[0]}
+                  alt={title}
+                  className="rounded-md object-contain"
+                />
+              ) : (
+                <div className="flex w-full flex-col gap-3">
+                  {images.map((src, idx) => (
+                    <img
+                      key={`${src}-${idx}`}
+                      src={src}
+                      alt={`${title}-${idx + 1}`}
+                      className="w-full rounded-md object-contain"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <Dialog.Title className="DialogTitle mt-2 font-mono text-sm font-semibold text-black sm:mt-5 sm:text-2xl">
             {title}
           </Dialog.Title>
