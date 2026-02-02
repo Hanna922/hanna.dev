@@ -37,6 +37,13 @@ export const Section2 = () => {
 
 const Experiences = [
   {
+    title: "Woori FIS Academy",
+    desc: "클라우드 서비스 개발 과정 6th",
+    link: "https://www.woorifisa.com/",
+    startDate: "2026.01",
+    endDate: "2026.06",
+  },
+  {
     title: "TechLabs",
     desc: "Front-end Engineer (Intern)",
     link: "https://www.techlabs.co.kr/",
@@ -48,18 +55,18 @@ const Experiences = [
     desc: "Front-end Engineer",
     link: "https://yourssu.com",
     startDate: "2023.03",
-    endDate: "Current",
+    endDate: "2025.07",
   },
   {
     title: "Google Developer Student Club",
-    desc: "Web/Mobile Part",
+    desc: "Web/Mobile Part 3th",
     link: "https://gdsc.community.dev/soongsil-university-seoul-south-korea/",
     startDate: "2023.10",
-    endDate: "Current",
+    endDate: "2024.09",
   },
   {
     title: "Central MakeUs Challenge",
-    desc: "Front-end Engineer",
+    desc: "Front-end Engineer 13th",
     link: "https://cmc.makeus.in/",
     startDate: "2023.06",
     endDate: "2023.09",
