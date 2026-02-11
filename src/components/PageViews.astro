@@ -2,10 +2,4 @@
 export interface Props {
   url: string;
 }
-const { url = "" } = Astro.props;
-
-const encodedUrl = encodeURIComponent(url);
-const counterUrl = `https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=${encodedUrl}&count_bg=%23C2BDFF&title_bg=%23C2BDFF&icon=&icon_color=%23FFFFFF&title=Reads&edge_flat=false`;
 ---
-
-<img src={counterUrl} class="w-24" id="views-badge" />
