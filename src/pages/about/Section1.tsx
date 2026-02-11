@@ -26,22 +26,23 @@ export const Section1 = () => {
         </div>
         <div className="overflow-hidden">
           <span className="text-animation md:text-3xl lg:text-5xl md:my-3 text-marrsgreen dark:text-carrigreen block text-2xl font-medium">
-            Front-end Engineer
+            Software Engineer
           </span>
         </div>
         <div className="md:mb-8 my-4 mt-2">
           <p>
-            안녕하세요. 프론트엔드 개발자 김나영 입니다.
+            안녕하세요. Software Engineer 김나영 입니다.
             <br />
             퍼포먼스 최적화에 관심이 많으며 효율적인 코드 작성을 지향합니다.
             <br />
-            UX에 더불어 DX 향상을 주도하는 프론트엔드 엔지니어가 되기 위해
-            노력하고 있습니다.
+            UX에 더불어 DX, AX 향상을 주도하는 엔지니어가 되기 위해 노력하고
+            있습니다.
           </p>
         </div>
         <div className="flex flex-col flex-wrap">
           <span className="sm:text-sm">
-            Bachelor Degree. Software Engineering, Soongsil University (2021 ~ )
+            Bachelor Degree. Software Engineering, Soongsil University (2021.03
+            ~ 2026.02)
           </span>
           <span className="sm:text-sm">Residence. Seoul, South Korea</span>
         </div>

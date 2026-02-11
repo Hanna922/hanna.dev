@@ -60,6 +60,19 @@ npm, yarn 사용 시에도 동일하게 [pack 명령어](https://pnpm.io/cli/pac
 
 npm 계정 로그인 후, publish 명령어만 실행해주면 성!공! 🎉
 
+> **warning**
+>
+> 최근(2025년 12월 9일 이후) npm 보안 정책이 강화되면서 Classic 토큰이 사라지고 Granular(세분화) 토큰 + 2FA 기반 인증 체계로 변경되었다.
+> npm 공식 발표에 따르면, 기존 Classic 토큰은 2025년 11월 19일까지 유효했고 이후 영구 폐기되도록 설계 되었으며, 기존 Classic 토큰을 계속 사용할 경우 `Access token expired or revoked…`가 발생한다.
+>
+> 또한, GitHub Actions과 함께 적용하려면 npm Granular Access Token 생성 시 Bypass 2FA: Enabled (비대화형 CI publish용) 옵션을 선택하여 발급 받아야 한다.
+> 이후 GitHub Secrets에 NPM_TOKEN을 저장하고, 워크플로에서 NODE_AUTH_TOKEN으로 publish 단계에 주입한다.(setup-node + registry-url 구성)
+
+```
+// .npmrc
+//registry.npmjs.org/:\_authToken=${NODE_AUTH_TOKEN}
+```
+
 ```
 > npm publish
 ```
