@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useCompletion } from "@ai-sdk/react";
 import type { BlogPost, LLMSearchModalProps } from "./types";
 import {
+  useStreamingText,
   useKeyboardShortcut,
   useBodyScrollLock,
   useLLMSearchEvent,
@@ -39,6 +40,33 @@ const DEFAULT_EXAMPLES: string[] = [
   "마이그레이션 경험에서 겪은 에러는?",
   "대표 프로젝트 몇 가지를 설명해주세요",
 ];
+
+// Mock 모드 체크
+const IS_MOCK_MODE = import.meta.env.PUBLIC_LLM_MOCK_MODE === "true";
+
+// Mock 데이터
+const MOCK_POSTS: BlogPost[] = [
+  {
+    title: "React Fiber in Reconcile Phase",
+    slug: "/posts/react-fiber-in-reconcile-phase/",
+  },
+  {
+    title: "Building a Custom React Renderer",
+    slug: "/posts/building-a-custom-react-renderer/",
+  },
+];
+
+const MOCK_ANSWER = `React Fiber는 React 16에서 도입된 새로운 재조정(Reconciliation) 엔진입니다. 기존 Stack Reconciler의 한계를 극복하기 위해 설계되었으며, 작업을 작은 단위(fiber)로 나누어 비동기적으로 처리할 수 있는 것이 핵심입니다.
+
+블로그 글에서 다룬 주요 내용은 다음과 같습니다:
+
+• **Fiber 노드 구조**: 컴포넌트의 인스턴스와 1:1로 매핑되며, type, stateNode, child, sibling, return 등의 속성을 가집니다.
+
+• **Reconcile Phase**: beginWork()와 completeWork() 두 단계를 거쳐 변경사항을 수집하고, Commit Phase에서 실제 DOM에 반영합니다.
+
+• **비동기 처리**: 작업 우선순위 지정과 중단/재개가 가능해져, 사용자 인터랙션에 더 빠르게 반응할 수 있습니다.
+
+이러한 구조 덕분에 React는 대규모 애플리케이션에서도 부드러운 사용자 경험을 제공할 수 있게 되었습니다.`;
 
 // ============================================
 // Helpers
@@ -165,18 +193,20 @@ export default function LLMSearchModal({
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [mockLoading, setMockLoading] = useState(false);
+  const [mockCompletion, setMockCompletion] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // ---- useCompletion ----
+  // ---- useCompletion (실제 API 모드) ----
   const {
     input,
     setInput,
     handleInputChange,
     handleSubmit: submitToAPI,
     completion,
-    isLoading,
+    isLoading: apiIsLoading,
     error,
     stop,
   } = useCompletion({
@@ -190,16 +220,53 @@ export default function LLMSearchModal({
     },
   });
 
+  // ---- Mock 모드 처리 ----
+  const simulateMockResponse = useCallback((query: string) => {
+    setMockLoading(true);
+    setMockCompletion("");
+
+    // 1. Thinking 단계 (1초)
+    setTimeout(() => {
+      // 2. 전체 응답을 즉시 설정 (useStreamingText가 타이핑 효과 처리)
+      const fullResponse =
+        MOCK_ANSWER + SOURCES_SEPARATOR + JSON.stringify(MOCK_POSTS);
+      setMockCompletion(fullResponse);
+
+      // 3. 타이핑 효과가 끝날 시간을 계산하여 완료 처리
+      const typingDuration = MOCK_ANSWER.length * 12; // 12ms per character
+      setTimeout(() => {
+        const { content, sources } = parseResponse(fullResponse);
+        setMessages(prev => [
+          ...prev,
+          { id: generateId(), role: "assistant", content, sources },
+        ]);
+        setMockLoading(false);
+        setMockCompletion("");
+      }, typingDuration + 500); // 타이핑 완료 후 0.5초 여유
+    }, 1000);
+  }, []);
+
+  // ---- 모드에 따른 상태 선택 ----
+  const isLoading = IS_MOCK_MODE ? mockLoading : apiIsLoading;
+  const currentCompletion = IS_MOCK_MODE ? mockCompletion : completion;
+
   // ---- 스트리밍 중 표시할 텍스트 (소스 구분자 이전만) ----
-  const streamingText = useMemo(() => {
-    if (!completion) return "";
-    return parseResponse(completion).content;
-  }, [completion]);
+  const rawStreamingText = useMemo(() => {
+    if (!currentCompletion) return "";
+    return parseResponse(currentCompletion).content;
+  }, [currentCompletion]);
+
+  // ---- 타이핑 효과 적용 ----
+  const { displayed: streamingText } = useStreamingText(
+    rawStreamingText,
+    12, // 속도 (ms) - 낮을수록 빠름
+    isLoading && !!currentCompletion
+  );
 
   // ---- 상태 파생 ----
   const isIdle = messages.length === 0 && !isLoading;
-  const isThinking = isLoading && !completion;
-  const isStreaming = isLoading && !!completion;
+  const isThinking = isLoading && !currentCompletion;
+  const isStreaming = isLoading && !!currentCompletion;
 
   // ---- Modal ----
   const toggleModal = useCallback(() => setIsOpen(p => !p), []);
@@ -246,14 +313,26 @@ export default function LLMSearchModal({
       { id: generateId(), role: "user", content: trimmed },
     ]);
 
-    setInput("");
-    triggerSubmit();
+    if (IS_MOCK_MODE) {
+      // Mock 모드: 시뮬레이션 실행
+      simulateMockResponse(trimmed);
+      setInput("");
+    } else {
+      // 실제 API 모드
+      setInput("");
+      triggerSubmit();
+    }
   };
 
   const handleReset = () => {
     setInput("");
     setMessages([]);
-    stop();
+    if (IS_MOCK_MODE) {
+      setMockLoading(false);
+      setMockCompletion("");
+    } else {
+      stop();
+    }
   };
 
   const handleExampleClick = (q: string) => {
@@ -264,13 +343,20 @@ export default function LLMSearchModal({
       { id: generateId(), role: "user", content: q },
     ]);
 
-    setTimeout(() => {
-      const form = document.getElementById(
-        "llm-search-form"
-      ) as HTMLFormElement | null;
-      if (form) form.requestSubmit();
+    if (IS_MOCK_MODE) {
+      // Mock 모드
+      simulateMockResponse(q);
       setInput("");
-    }, 0);
+    } else {
+      // 실제 API 모드
+      setTimeout(() => {
+        const form = document.getElementById(
+          "llm-search-form"
+        ) as HTMLFormElement | null;
+        if (form) form.requestSubmit();
+        setInput("");
+      }, 0);
+    }
   };
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -401,7 +487,7 @@ export default function LLMSearchModal({
               )}
 
               {/* Error */}
-              {error && messages.length > 0 && (
+              {!IS_MOCK_MODE && error && messages.length > 0 && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
                     <SparkleIcon size={14} />
@@ -441,6 +527,11 @@ export default function LLMSearchModal({
                 </button>
               </div>
               <div className="llm-disclaimer">
+                {IS_MOCK_MODE && (
+                  <span style={{ color: "#f59e0b", fontWeight: 600 }}>
+                    🧪 MOCK 모드 ·{" "}
+                  </span>
+                )}
                 AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다
               </div>
             </div>
