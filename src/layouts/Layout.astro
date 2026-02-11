@@ -1,4 +1,5 @@
 ---
+import { LLMSearchModal } from "@components/llm-search";
 import { LOCALE, SITE } from "@config";
 import "@styles/base.css";
 import { ClientRouter } from "astro:transitions";
@@ -118,5 +119,6 @@ const socialImageURL = new URL(ogImage).href;
   </head>
   <body>
     <slot />
+    <LLMSearchModal client:load />
   </body>
 </html>

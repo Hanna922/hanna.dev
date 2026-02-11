@@ -4,7 +4,7 @@ import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
 
 export interface Props {
-  activeNav?: "posts" | "tags" | "about" | "search";
+  activeNav?: "posts" | "tags" | "about" | "searchWithAI" | "search";
 }
 
 const { activeNav } = Astro.props;
@@ -71,6 +71,14 @@ const { activeNav } = Astro.props;
             </a>
           </li>
           <li>
+            <a
+              href="/searchWithAI/"
+              class={activeNav === "searchWithAI" ? "active" : ""}
+            >
+              SearchWithAI
+            </a>
+          </li>
+          <li>
             <LinkButton
               href="/search/"
               className={`focus-outline p-3 sm:p-1 ${
@@ -88,6 +96,27 @@ const { activeNav } = Astro.props;
               </svg>
               <span class="sr-only">Search</span>
             </LinkButton>
+          </li>
+          <li>
+            <button
+              id="llm-search-trigger"
+              class="llm-nav-trigger focus-outline"
+              aria-label="AI 검색"
+              title="AI 검색 (⌘K)"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"
+                ></path>
+              </svg>
+              <span>AI</span>
+              <kbd>⌘K</kbd>
+            </button>
           </li>
           {
             SITE.lightAndDarkMode && (
@@ -175,6 +204,18 @@ const { activeNav } = Astro.props;
     @apply scale-125 hover:rotate-12 sm:scale-100;
   }
 
+  .llm-nav-trigger {
+    @apply inline-flex items-center gap-1 rounded-lg border border-skin-line bg-transparent px-2 py-1 text-sm text-skin-base transition-all duration-200 hover:border-skin-accent hover:text-skin-accent sm:gap-1.5 sm:px-2.5;
+  }
+
+  .llm-nav-trigger svg {
+    @apply h-3.5 w-3.5;
+  }
+
+  .llm-nav-trigger kbd {
+    @apply ml-0.5 rounded border border-skin-line bg-skin-card px-1 py-0.5 font-mono text-xs;
+  }
+
   .menu-icon line {
     @apply transition-opacity duration-75 ease-in-out;
   }
@@ -212,4 +253,18 @@ const { activeNav } = Astro.props;
 
   // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
+
+  // AI 검색 모달 열기
+  function setupLLMSearchTrigger() {
+    document
+      .getElementById("llm-search-trigger")
+      ?.addEventListener("click", () => {
+        window.dispatchEvent(new CustomEvent("llm-search:open"));
+      });
+  }
+
+  setupLLMSearchTrigger();
+
+  // Runs on view transitions navigation
+  document.addEventListener("astro:after-swap", setupLLMSearchTrigger);
 </script>
