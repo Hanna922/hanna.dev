@@ -118,6 +118,12 @@
   flex-direction: column;
   overflow: hidden;
   margin: 0 16px;
+  box-sizing: border-box;
+}
+
+/* 모든 자식 요소에 box-sizing 적용 */
+.llm-modal * {
+  box-sizing: border-box;
 }
 
 /* ---- Modal Header ---- */
@@ -187,8 +193,10 @@
 .llm-modal-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px 20px 20px;
   min-height: 0;
+  max-width: 100%;
 }
 
 /* ---- Idle State ---- */
@@ -251,7 +259,8 @@
   font-size: 14px;
   max-width: 80%;
   line-height: 1.5;
-  word-break: keep-all;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ---- Assistant Message ---- */
@@ -288,7 +297,31 @@
   color: rgb(var(--color-text-base));
   line-height: 1.5;
   white-space: pre-wrap;
-  word-break: keep-all;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* ReactMarkdown 내부 요소들도 줄바꿈 처리 */
+.llm-assistant-bubble * {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* 코드 블록 처리 */
+.llm-assistant-bubble pre,
+.llm-assistant-bubble code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* 링크 처리 */
+.llm-assistant-bubble a {
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .llm-thinking-label {
@@ -383,6 +416,9 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 /* ---- Footer ---- */
