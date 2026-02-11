@@ -187,7 +187,7 @@
 .llm-modal-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 20px 0;
+  padding: 20px 20px 20px;
   min-height: 0;
 }
 
@@ -286,7 +286,7 @@
   border: 1px solid rgba(var(--color-border), 0.6);
   font-size: 14px;
   color: rgb(var(--color-text-base));
-  line-height: 1.7;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: keep-all;
 }

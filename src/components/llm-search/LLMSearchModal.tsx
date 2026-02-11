@@ -14,6 +14,7 @@ import {
 } from "./hooks";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import "./llm-search.css";
+import ReactMarkdown from "react-markdown";
 
 // ============================================
 // Types
@@ -33,10 +34,10 @@ type ChatMessage = {
 const SOURCES_SEPARATOR = "<!-- SOURCES -->";
 
 const DEFAULT_EXAMPLES: string[] = [
-  "YDS 프로젝트에 대해 설명해주세요.",
-  "Yrano 프로젝트에 대해 설명해주세요.",
+  "YDS 프로젝트에 대해 설명해주세요",
+  "Yrano 프로젝트에 대해 설명해주세요",
   "마이그레이션 경험에서 겪은 에러는?",
-  "대표 프로젝트 몇 가지를 설명해주세요.",
+  "대표 프로젝트 몇 가지를 설명해주세요",
 ];
 
 // ============================================
@@ -138,7 +139,9 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
         <SparkleIcon size={14} />
       </div>
       <div className="llm-assistant-content">
-        <div className="llm-assistant-bubble">{message.content}</div>
+        <div className="llm-assistant-bubble">
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        </div>
         {message.sources && message.sources.length > 0 && (
           <div className="llm-sources">
             <div className="llm-sources-label">📎 참고한 글</div>
@@ -390,7 +393,7 @@ export default function LLMSearchModal({
                   </div>
                   <div className="llm-assistant-content">
                     <div className="llm-assistant-bubble">
-                      {streamingText}
+                      <ReactMarkdown>{streamingText}</ReactMarkdown>
                       <span className="llm-cursor" />
                     </div>
                   </div>
@@ -398,7 +401,7 @@ export default function LLMSearchModal({
               )}
 
               {/* Error */}
-              {error && (
+              {error && messages.length > 0 && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
                     <SparkleIcon size={14} />
