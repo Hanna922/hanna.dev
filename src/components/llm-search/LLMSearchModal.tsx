@@ -1,13 +1,13 @@
 // ============================================
 // LLMSearchModal.tsx
-// 메인 AI 검색 모달 + FAB 버튼
+// 멀티턴 AI 검색 채팅 모달 + FAB 버튼
 // Astro Layout에서 client:load 로 사용
 // ============================================
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import type { SearchPhase, BlogPost, LLMSearchModalProps } from "./types";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useCompletion } from "@ai-sdk/react";
+import type { BlogPost, LLMSearchModalProps } from "./types";
 import {
-  useStreamingText,
   useKeyboardShortcut,
   useBodyScrollLock,
   useLLMSearchEvent,
@@ -16,10 +16,57 @@ import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import "./llm-search.css";
 
 // ============================================
+// Types
+// ============================================
+
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: BlogPost[];
+};
+
+// ============================================
+// Constants
+// ============================================
+
+const SOURCES_SEPARATOR = "<!-- SOURCES -->";
+
+const DEFAULT_EXAMPLES: string[] = [
+  "YDS 프로젝트에 대해 설명해주세요.",
+  "Yrano 프로젝트에 대해 설명해주세요.",
+  "마이그레이션 경험에서 겪은 에러는?",
+  "대표 프로젝트 몇 가지를 설명해주세요.",
+];
+
+// ============================================
+// Helpers
+// ============================================
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+/** 응답 텍스트에서 본문과 소스를 분리 */
+function parseResponse(text: string): {
+  content: string;
+  sources: BlogPost[];
+} {
+  if (!text.includes(SOURCES_SEPARATOR)) {
+    return { content: text, sources: [] };
+  }
+  const [content, sourcesRaw] = text.split(SOURCES_SEPARATOR);
+  try {
+    return { content: content.trim(), sources: JSON.parse(sourcesRaw.trim()) };
+  } catch {
+    return { content: content.trim(), sources: [] };
+  }
+}
+
+// ============================================
 // Sub-components
 // ============================================
 
-/** 타이핑 인디케이터 */
 function TypingDots() {
   return (
     <div className="llm-typing-dots">
@@ -30,7 +77,6 @@ function TypingDots() {
   );
 }
 
-/** 참고 글 소스 카드 */
 function SourceCard({
   post,
   index,
@@ -57,7 +103,6 @@ function SourceCard({
   );
 }
 
-/** 예시 질문 버튼 */
 function ExampleButton({
   question,
   onClick,
@@ -77,41 +122,37 @@ function ExampleButton({
   );
 }
 
-// ============================================
-// 기본 예시 질문
-// ============================================
-const DEFAULT_EXAMPLES: string[] = [
-  "React Fiber가 뭔가요?",
-  "Yrano 프로젝트에 대해 알려주세요",
-  "마이그레이션 경험에서 겪은 에러는?",
-  "Custom Renderer는 어떻게 만드나요?",
-];
+/** 저장된 채팅 메시지 렌더링 */
+function ChatMessageBubble({ message }: { message: ChatMessage }) {
+  if (message.role === "user") {
+    return (
+      <div className="llm-user-msg-row">
+        <div className="llm-user-bubble">{message.content}</div>
+      </div>
+    );
+  }
 
-// ============================================
-// Mock 데이터 (실제 구현 시 API 호출로 교체)
-// ============================================
-const MOCK_ANSWER = `React Fiber는 React 16에서 도입된 새로운 재조정(Reconciliation) 엔진입니다. 기존 Stack Reconciler의 한계를 극복하기 위해 설계되었으며, 작업을 작은 단위(fiber)로 나누어 비동기적으로 처리할 수 있는 것이 핵심입니다.
-
-블로그 글에서 다룬 주요 내용은 다음과 같습니다:
-
-• Fiber 노드는 컴포넌트의 인스턴스와 1:1로 매핑되며, type, stateNode, child, sibling, return 등의 속성을 가집니다.
-
-• Reconcile Phase에서 Fiber는 beginWork()와 completeWork() 두 단계를 거쳐 변경사항을 수집하고, Commit Phase에서 실제 DOM에 반영합니다.
-
-• 이 구조 덕분에 작업 우선순위 지정과 중단/재개가 가능해져, 사용자 인터랙션에 더 빠르게 반응할 수 있습니다.`;
-
-const MOCK_SOURCES: BlogPost[] = [
-  {
-    title: "React Fiber in Reconcile Phase",
-    slug: "/posts/react-fiber-in-reconcile-phase/",
-    date: "2024.05.25",
-  },
-  {
-    title: "Building a Custom React Renderer",
-    slug: "/posts/building-a-custom-react-renderer/",
-    date: "2024.05.20",
-  },
-];
+  return (
+    <div className="llm-assistant-row">
+      <div className="llm-avatar">
+        <SparkleIcon size={14} />
+      </div>
+      <div className="llm-assistant-content">
+        <div className="llm-assistant-bubble">{message.content}</div>
+        {message.sources && message.sources.length > 0 && (
+          <div className="llm-sources">
+            <div className="llm-sources-label">📎 참고한 글</div>
+            <div className="llm-sources-list">
+              {message.sources.map((post, i) => (
+                <SourceCard key={i} post={post} index={i} visible={true} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ============================================
 // Main Component
@@ -120,87 +161,124 @@ export default function LLMSearchModal({
   exampleQuestions = DEFAULT_EXAMPLES,
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [phase, setPhase] = useState<SearchPhase>("idle");
-  const [showSources, setShowSources] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const answerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // ---- Hooks ----
-  const { displayed: streamedText, done: streamDone } = useStreamingText(
-    MOCK_ANSWER,
-    14,
-    phase === "answering"
-  );
+  // ---- useCompletion ----
+  const {
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit: submitToAPI,
+    completion,
+    isLoading,
+    error,
+    stop,
+  } = useCompletion({
+    api: "/api/search",
+    onFinish: (_prompt, result) => {
+      const { content, sources } = parseResponse(result);
+      setMessages(prev => [
+        ...prev,
+        { id: generateId(), role: "assistant", content, sources },
+      ]);
+    },
+  });
 
-  const toggleModal = useCallback(() => {
-    setIsOpen(prev => !prev);
-  }, []);
+  // ---- 스트리밍 중 표시할 텍스트 (소스 구분자 이전만) ----
+  const streamingText = useMemo(() => {
+    if (!completion) return "";
+    return parseResponse(completion).content;
+  }, [completion]);
 
-  const closeModal = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+  // ---- 상태 파생 ----
+  const isIdle = messages.length === 0 && !isLoading;
+  const isThinking = isLoading && !completion;
+  const isStreaming = isLoading && !!completion;
+
+  // ---- Modal ----
+  const toggleModal = useCallback(() => setIsOpen(p => !p), []);
+  const closeModal = useCallback(() => setIsOpen(false), []);
 
   useKeyboardShortcut(toggleModal, closeModal);
   useBodyScrollLock(isOpen);
   useLLMSearchEvent(useCallback(() => setIsOpen(true), []));
 
-  // ---- Effects ----
-  useEffect(() => {
-    if (streamDone) setPhase("done");
-  }, [streamDone]);
-
-  useEffect(() => {
-    if (phase === "done") {
-      const timer = setTimeout(() => setShowSources(true), 200);
-      return () => clearTimeout(timer);
+  // ---- Auto-scroll ----
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [phase]);
+  }, []);
 
   useEffect(() => {
-    if (isOpen) {
+    scrollToBottom();
+  }, [messages, completion, isLoading, scrollToBottom]);
+
+  // ---- Focus input when ready ----
+  useEffect(() => {
+    if (isOpen && !isLoading) {
       const timer = setTimeout(() => inputRef.current?.focus(), 100);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (answerRef.current) {
-      answerRef.current.scrollTop = answerRef.current.scrollHeight;
-    }
-  }, [streamedText]);
+  }, [isOpen, isLoading]);
 
   // ---- Handlers ----
+  const triggerSubmit = useCallback(() => {
+    const form = document.getElementById(
+      "llm-search-form"
+    ) as HTMLFormElement | null;
+    if (form) form.requestSubmit();
+  }, []);
+
   const handleSubmit = () => {
-    if (!query.trim() || phase !== "idle") return;
-    setPhase("thinking");
-    // TODO: 실제 LLM API 호출로 교체
-    setTimeout(() => setPhase("answering"), 1500);
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+
+    // user 메시지를 히스토리에 즉시 추가
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), role: "user", content: trimmed },
+    ]);
+
+    setInput("");
+    triggerSubmit();
   };
 
   const handleReset = () => {
-    setQuery("");
-    setPhase("idle");
-    setShowSources(false);
-    inputRef.current?.focus();
+    setInput("");
+    setMessages([]);
+    stop();
   };
 
   const handleExampleClick = (q: string) => {
-    setQuery(q);
-    setPhase("thinking");
-    setTimeout(() => setPhase("answering"), 1500);
+    if (isLoading) return;
+    setInput(q);
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), role: "user", content: q },
+    ]);
+
+    setTimeout(() => {
+      const form = document.getElementById(
+        "llm-search-form"
+      ) as HTMLFormElement | null;
+      if (form) form.requestSubmit();
+      setInput("");
+    }, 0);
   };
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      setIsOpen(false);
-      handleReset();
-    }
+    if (e.target === e.currentTarget) setIsOpen(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSubmit();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   // ============================================
@@ -208,7 +286,17 @@ export default function LLMSearchModal({
   // ============================================
   return (
     <>
-      {/* FAB (Floating Action Button) */}
+      {/* Hidden form for useCompletion */}
+      <form
+        id="llm-search-form"
+        onSubmit={e => {
+          e.preventDefault();
+          submitToAPI(e);
+        }}
+        style={{ display: "none" }}
+      />
+
+      {/* FAB */}
       {!isOpen && (
         <button
           type="button"
@@ -220,7 +308,7 @@ export default function LLMSearchModal({
         </button>
       )}
 
-      {/* Modal Overlay */}
+      {/* Modal */}
       {isOpen && (
         <div className="llm-backdrop" onClick={handleBackdropClick}>
           <div className="llm-modal" role="dialog" aria-modal="true">
@@ -233,23 +321,31 @@ export default function LLMSearchModal({
                 <span className="llm-modal-title">Hanna.Dev AI</span>
                 <span className="llm-badge">BETA</span>
               </div>
-              <button
-                type="button"
-                className="llm-close-btn"
-                onClick={() => {
-                  setIsOpen(false);
-                  handleReset();
-                }}
-                aria-label="닫기"
-              >
-                <CloseIcon size={18} />
-              </button>
+              <div className="llm-header-actions">
+                <button
+                  type="button"
+                  className="llm-reset-inline-btn"
+                  onClick={handleReset}
+                  aria-label="대화 초기화"
+                  title="대화 초기화"
+                >
+                  ↻
+                </button>
+                <button
+                  type="button"
+                  className="llm-close-btn"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="닫기"
+                >
+                  <CloseIcon size={18} />
+                </button>
+              </div>
             </div>
 
-            {/* ---- Content ---- */}
-            <div ref={answerRef} className="llm-modal-content">
+            {/* ---- Chat Content ---- */}
+            <div ref={scrollRef} className="llm-modal-content">
               {/* Idle: 예시 질문 */}
-              {phase === "idle" && (
+              {isIdle && (
                 <div className="llm-idle-state">
                   <p className="llm-idle-subtitle">
                     블로그 글에 대해 무엇이든 물어보세요
@@ -266,15 +362,13 @@ export default function LLMSearchModal({
                 </div>
               )}
 
-              {/* User message bubble */}
-              {phase !== "idle" && (
-                <div className="llm-user-msg-row">
-                  <div className="llm-user-bubble">{query}</div>
-                </div>
-              )}
+              {/* 대화 히스토리 */}
+              {messages.map(msg => (
+                <ChatMessageBubble key={msg.id} message={msg} />
+              ))}
 
-              {/* Thinking */}
-              {phase === "thinking" && (
+              {/* Thinking (로딩 시작, 아직 토큰 없음) */}
+              {isThinking && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
                     <SparkleIcon size={14} />
@@ -288,74 +382,61 @@ export default function LLMSearchModal({
                 </div>
               )}
 
-              {/* Answer */}
-              {(phase === "answering" || phase === "done") && (
+              {/* Streaming (토큰이 들어오는 중) */}
+              {isStreaming && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
                     <SparkleIcon size={14} />
                   </div>
                   <div className="llm-assistant-content">
                     <div className="llm-assistant-bubble">
-                      {streamedText}
-                      {phase === "answering" && <span className="llm-cursor" />}
+                      {streamingText}
+                      <span className="llm-cursor" />
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    {/* Sources */}
-                    {(phase === "done" || showSources) && (
-                      <div className="llm-sources">
-                        <div className="llm-sources-label">📎 참고한 글</div>
-                        <div className="llm-sources-list">
-                          {MOCK_SOURCES.map((post, i) => (
-                            <SourceCard
-                              key={i}
-                              post={post}
-                              index={i}
-                              visible={showSources}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              {/* Error */}
+              {error && (
+                <div className="llm-assistant-row">
+                  <div className="llm-avatar">
+                    <SparkleIcon size={14} />
+                  </div>
+                  <div className="llm-assistant-bubble">
+                    <div className="llm-error-label">
+                      오류가 발생했습니다: {error.message}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* ---- Input Area ---- */}
+            {/* ---- Input (항상 하단에 고정, 항상 활성) ---- */}
             <div className="llm-modal-footer">
-              {phase === "done" ? (
+              <div
+                className={`llm-input-wrapper ${isLoading ? "llm-input-active" : ""}`}
+              >
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="블로그에 대해 질문해 보세요..."
+                  disabled={isLoading}
+                  className="llm-input"
+                />
                 <button
                   type="button"
-                  className="llm-reset-btn"
-                  onClick={handleReset}
+                  className={`llm-send-btn ${input.trim() && !isLoading ? "llm-send-active" : ""}`}
+                  onClick={handleSubmit}
+                  disabled={!input.trim() || isLoading}
+                  aria-label="전송"
                 >
-                  ↻ 새 질문하기
+                  <SendIcon size={15} />
                 </button>
-              ) : (
-                <div
-                  className={`llm-input-wrapper ${phase !== "idle" ? "llm-input-active" : ""}`}
-                >
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="블로그에 대해 질문해 보세요..."
-                    disabled={phase !== "idle"}
-                    className="llm-input"
-                  />
-                  <button
-                    type="button"
-                    className={`llm-send-btn ${query.trim() && phase === "idle" ? "llm-send-active" : ""}`}
-                    onClick={handleSubmit}
-                    disabled={!query.trim() || phase !== "idle"}
-                    aria-label="전송"
-                  >
-                    <SendIcon size={15} />
-                  </button>
-                </div>
-              )}
+              </div>
               <div className="llm-disclaimer">
                 AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다
               </div>

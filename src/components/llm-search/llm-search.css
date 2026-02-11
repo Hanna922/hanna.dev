@@ -497,3 +497,28 @@
     height: 48px;
   }
 }
+
+/* ---- Header Actions ---- */
+.llm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.llm-reset-inline-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: rgba(var(--color-text-base), 0.5);
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  transition: all 0.15s;
+}
+
+.llm-reset-inline-btn:hover {
+  background: rgba(var(--color-text-base), 0.06);
+  color: rgb(var(--color-text-base));
+}
