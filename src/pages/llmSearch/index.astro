@@ -1,0 +1,9 @@
+---
+// AI 검색 전용 페이지
+import Layout from "@layouts/Layout.astro";
+import { LLMSearchPage } from "@components/llm-search";
+---
+
+<Layout title="AI 검색 — Hanna.Dev">
+  <LLMSearchPage client:load />
+</Layout>

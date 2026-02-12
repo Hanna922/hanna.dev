@@ -1,0 +1,620 @@
+// ============================================
+// LLMSearchPage.tsx
+// 블로그 AI 검색 전용 페이지
+// "내 블로그 콘텐츠 기반 AI" 를 최대한 어필
+// ============================================
+
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useCompletion } from "@ai-sdk/react";
+import type { BlogPost } from "./types";
+import { useThrottledValue } from "./hooks";
+import { SparkleIcon, SendIcon, ExternalLinkIcon } from "./Icons";
+import ReactMarkdown, { type Components } from "react-markdown";
+import "./llm-search-page.css";
+
+// ============================================
+// Types
+// ============================================
+
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: BlogPost[];
+};
+
+// ============================================
+// Constants
+// ============================================
+
+const EXAMPLE_QUESTIONS: string[] = [
+  "Stock Condition Analysis 프로젝트에 대해 설명해주세요.",
+  "YDS 프로젝트에 대해 설명해주세요",
+  "Yrano 프로젝트에 대해 설명해주세요",
+  "마이그레이션 경험에서 겪은 에러는?",
+  "대표 프로젝트 몇 가지를 설명해주세요",
+  "블로그에서 다룬 기술 스택은?",
+];
+
+// ============================================
+// Helpers
+// ============================================
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+const SOURCES_START = "<!-- SOURCES_START -->";
+const SOURCES_END = "<!-- SOURCES_END -->";
+
+function parseResponse(text: string): {
+  content: string;
+  sources: BlogPost[];
+} {
+  if (text.includes(SOURCES_START) && text.includes(SOURCES_END)) {
+    const startIdx = text.indexOf(SOURCES_START) + SOURCES_START.length;
+    const endIdx = text.indexOf(SOURCES_END);
+    const content = text
+      .slice(text.indexOf(SOURCES_END) + SOURCES_END.length)
+      .trim();
+    try {
+      const sources = JSON.parse(text.slice(startIdx, endIdx));
+      return { content, sources };
+    } catch {
+      return { content, sources: [] };
+    }
+  }
+
+  if (text.includes("<!-- SOURCES -->")) {
+    const [content, sourcesRaw] = text.split("<!-- SOURCES -->");
+    try {
+      return {
+        content: content.trim(),
+        sources: JSON.parse(sourcesRaw.trim()),
+      };
+    } catch {
+      return { content: content.trim(), sources: [] };
+    }
+  }
+
+  return { content: text, sources: [] };
+}
+
+function linkifySources(content: string, sources: BlogPost[]): string {
+  if (!sources || sources.length === 0) return content;
+
+  const pattern =
+    /\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
+
+  const usedNumbers: number[] = [];
+  let match;
+  const patternForScan = new RegExp(pattern.source, pattern.flags);
+  while ((match = patternForScan.exec(content)) !== null) {
+    const num = parseInt(match[1], 10);
+    if (!isNaN(num) && !usedNumbers.includes(num)) {
+      usedNumbers.push(num);
+    }
+  }
+
+  const numberToSource = new Map<number, BlogPost>();
+  usedNumbers.forEach((num, idx) => {
+    if (idx < sources.length) {
+      numberToSource.set(num, sources[idx]);
+    }
+  });
+
+  return content.replace(pattern, (original, numStr, quotedText) => {
+    const num = parseInt(numStr, 10);
+    const source = numberToSource.get(num);
+    if (!source) return original;
+    const label = quotedText ? quotedText : `출처 ${numStr}`;
+    return `[↗ ${label}](${source.slug})`;
+  });
+}
+
+// ============================================
+// Sub-components
+// ============================================
+
+function TypingDots() {
+  return (
+    <div className="lsp-typing-dots">
+      <span className="lsp-dot" style={{ animationDelay: "0s" }} />
+      <span className="lsp-dot" style={{ animationDelay: "0.15s" }} />
+      <span className="lsp-dot" style={{ animationDelay: "0.3s" }} />
+    </div>
+  );
+}
+
+function SourceCard({
+  post,
+  index,
+  visible,
+}: {
+  post: BlogPost;
+  index: number;
+  visible: boolean;
+}) {
+  return (
+    <a
+      href={post.slug}
+      className="lsp-source-card"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(8px)",
+        transitionDelay: `${index * 80}ms`,
+      }}
+    >
+      <span className="lsp-source-index">{index + 1}</span>
+      <span className="lsp-source-title">{post.title}</span>
+      <ExternalLinkIcon size={13} />
+    </a>
+  );
+}
+
+function ChatMessageBubble({ message }: { message: ChatMessage }) {
+  const markdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="lsp-source-inline"
+            target="_self"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
+  );
+
+  if (message.role === "user") {
+    return (
+      <div className="lsp-user-msg-row">
+        <div className="lsp-user-bubble">{message.content}</div>
+      </div>
+    );
+  }
+
+  const linkedContent = message.sources?.length
+    ? linkifySources(message.content, message.sources)
+    : message.content;
+
+  return (
+    <div className="lsp-assistant-row">
+      <div className="lsp-avatar">
+        <SparkleIcon size={14} />
+      </div>
+      <div className="lsp-assistant-content">
+        <div className="lsp-assistant-bubble">
+          <ReactMarkdown components={markdownComponents}>
+            {linkedContent}
+          </ReactMarkdown>
+        </div>
+        {message.sources && message.sources.length > 0 && (
+          <div className="lsp-sources">
+            <div className="lsp-sources-label">📎 참고한 글</div>
+            <div className="lsp-sources-list">
+              {message.sources.map((post, i) => (
+                <SourceCard key={i} post={post} index={i} visible={true} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Main Page Component
+// ============================================
+export default function LLMSearchPage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // ---- useCompletion ----
+  const {
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit: submitToAPI,
+    completion,
+    isLoading: apiIsLoading,
+    error,
+    stop,
+  } = useCompletion({
+    api: "/api/search",
+    streamProtocol: "text",
+    body: {
+      history: messages.map(({ role, content }) => ({ role, content })),
+    },
+    onFinish: (_prompt, result) => {
+      const { content, sources } = parseResponse(result);
+      setMessages(prev => [
+        ...prev,
+        { id: generateId(), role: "assistant", content, sources },
+      ]);
+    },
+  });
+
+  const { content: streamContent, sources: streamSources } = useMemo(() => {
+    if (!completion) return { content: "", sources: [] };
+    return parseResponse(completion);
+  }, [completion]);
+
+  const linkedStreamingText = useMemo(() => {
+    if (!streamContent) return "";
+    if (streamSources.length > 0) {
+      return linkifySources(streamContent, streamSources);
+    }
+    return streamContent;
+  }, [streamContent, streamSources]);
+
+  const throttledStreamingText = useThrottledValue(linkedStreamingText, 100);
+
+  const markdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="lsp-source-inline"
+            target="_self"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
+  );
+
+  // ---- 상태 파생 ----
+  const isLoading = apiIsLoading;
+  const isThinking = isLoading && !streamContent;
+  const isStreaming = isLoading && !!streamContent;
+
+  // ---- Auto-scroll ----
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, completion, isLoading, scrollToBottom]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  // ---- Handlers ----
+  const triggerSubmit = useCallback(() => {
+    const form = document.getElementById(
+      "lsp-search-form"
+    ) as HTMLFormElement | null;
+    if (form) form.requestSubmit();
+  }, []);
+
+  const handleSubmit = () => {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+
+    if (!hasStarted) setHasStarted(true);
+
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), role: "user", content: trimmed },
+    ]);
+    triggerSubmit();
+    requestAnimationFrame(() => setInput(""));
+  };
+
+  const handleReset = () => {
+    setInput("");
+    setMessages([]);
+    setHasStarted(false);
+    stop();
+  };
+
+  const handleExampleClick = (q: string) => {
+    if (isLoading) return;
+    if (!hasStarted) setHasStarted(true);
+
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), role: "user", content: q },
+    ]);
+    setInput(q);
+    setTimeout(() => {
+      triggerSubmit();
+      requestAnimationFrame(() => setInput(""));
+    }, 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  // ============================================
+  // Render
+  // ============================================
+  return (
+    <div className="lsp-page">
+      {/* Hidden form */}
+      <form
+        id="lsp-search-form"
+        onSubmit={e => {
+          e.preventDefault();
+          submitToAPI(e);
+        }}
+        style={{ display: "none" }}
+      />
+
+      {/* ---- Hero Section (대화 시작 전) ---- */}
+      {!hasStarted && (
+        <div className="lsp-hero">
+          {/* 배경 장식 */}
+          <div className="lsp-hero-glow" />
+          <div className="lsp-hero-grid" />
+
+          <div className="lsp-hero-inner">
+            {/* 뱃지 */}
+            <div className="lsp-hero-badge">
+              <SparkleIcon size={14} color="rgb(var(--color-accent))" />
+              <span>Blog-Powered AI</span>
+            </div>
+
+            {/* 메인 타이틀 */}
+            <h1 className="lsp-hero-title">
+              💬 면접 전에 저와 먼저 만나보세요
+            </h1>
+
+            {/* 설명 */}
+            <p className="lsp-hero-desc">
+              저의 프로젝트 경험, 기술적 고민, 문제 해결 과정이 궁금하신가요?
+              <br />이 AI는 제가 직접 작성한{" "}
+              <mark className="lsp-highlight">블로그 글과 저를 학습</mark>하여
+              답변합니다.
+            </p>
+
+            {/* 데이터 소스 시각화 */}
+            <div className="lsp-data-flow">
+              <div className="lsp-data-node lsp-data-blog">
+                <div className="lsp-data-node-icon">📝</div>
+                <div className="lsp-data-node-label">블로그 글</div>
+              </div>
+              <div className="lsp-data-arrow">
+                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                  <path
+                    d="M0 12H32M32 12L24 4M32 12L24 20"
+                    stroke="rgb(var(--color-accent))"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray="4 3"
+                  />
+                </svg>
+              </div>
+              <div className="lsp-data-node lsp-data-index">
+                <div className="lsp-data-node-icon">🧠</div>
+                <div className="lsp-data-node-label">검색 인덱스</div>
+              </div>
+              <div className="lsp-data-arrow">
+                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                  <path
+                    d="M0 12H32M32 12L24 4M32 12L24 20"
+                    stroke="rgb(var(--color-accent))"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray="4 3"
+                  />
+                </svg>
+              </div>
+              <div className="lsp-data-node lsp-data-ai">
+                <div className="lsp-data-node-icon">✨</div>
+                <div className="lsp-data-node-label">AI 답변</div>
+              </div>
+            </div>
+
+            {/* 입력 영역 */}
+            <div className="lsp-hero-input-section">
+              <div className="lsp-hero-input-wrapper">
+                <SparkleIcon size={18} color="rgb(var(--color-accent))" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="예: YDS 프로젝트에 대해 알려주세요"
+                  className="lsp-hero-input"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className={`lsp-hero-send-btn ${input.trim() ? "active" : ""}`}
+                  onClick={handleSubmit}
+                  disabled={!input.trim()}
+                  aria-label="전송"
+                >
+                  <SendIcon size={16} />
+                </button>
+              </div>
+              <div className="lsp-hero-disclaimer">
+                AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다
+              </div>
+            </div>
+
+            {/* 예시 질문 */}
+            <div className="lsp-examples">
+              <div className="lsp-examples-label">
+                이런 것도 물어볼 수 있어요
+              </div>
+              <div className="lsp-examples-grid">
+                {EXAMPLE_QUESTIONS.map((q, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="lsp-example-chip"
+                    onClick={() => handleExampleClick(q)}
+                    style={{ animationDelay: `${0.3 + i * 0.05}s` }}
+                  >
+                    <span className="lsp-example-chip-arrow">→</span>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---- Chat Section (대화 시작 후) ---- */}
+      {hasStarted && (
+        <div className="lsp-chat-page">
+          {/* Chat Header */}
+          <div className="lsp-chat-header">
+            <div className="lsp-chat-header-left">
+              <div className="lsp-chat-header-icon">
+                <SparkleIcon size={14} color="#fff" />
+              </div>
+              <div>
+                <div className="lsp-chat-header-title">Hanna.Dev AI</div>
+                <div className="lsp-chat-header-sub">
+                  블로그 글을 기반으로 답변합니다
+                </div>
+              </div>
+            </div>
+            <div className="lsp-chat-header-actions">
+              <div className="lsp-chat-header-badge">
+                <span className="lsp-badge-dot" />
+                블로그 데이터 연동
+              </div>
+              <button
+                type="button"
+                className="lsp-chat-reset-btn"
+                onClick={handleReset}
+                title="새 대화"
+              >
+                ↻ 새 대화
+              </button>
+            </div>
+          </div>
+
+          {/* 데이터 소스 배너 */}
+          <div className="lsp-source-banner">
+            <span className="lsp-source-banner-icon">📚</span>
+            <span>
+              이 AI는 <strong>hanna-dev.co.kr의 블로그 글</strong>만을 참고하여
+              답변합니다. 외부 데이터나 일반 지식을 사용하지 않습니다.
+            </span>
+          </div>
+
+          {/* Chat Messages */}
+          <div ref={scrollRef} className="lsp-chat-messages">
+            {messages.map(msg => (
+              <ChatMessageBubble key={msg.id} message={msg} />
+            ))}
+
+            {/* Thinking */}
+            {isThinking && (
+              <div className="lsp-assistant-row">
+                <div className="lsp-avatar">
+                  <SparkleIcon size={14} />
+                </div>
+                <div className="lsp-assistant-bubble">
+                  <div className="lsp-thinking-label">
+                    블로그 글을 분석하고 있어요...
+                  </div>
+                  <TypingDots />
+                </div>
+              </div>
+            )}
+
+            {/* Streaming */}
+            {isStreaming && (
+              <div className="lsp-assistant-row">
+                <div className="lsp-avatar">
+                  <SparkleIcon size={14} />
+                </div>
+                <div className="lsp-assistant-content">
+                  <div className="lsp-assistant-bubble">
+                    <ReactMarkdown components={markdownComponents}>
+                      {throttledStreamingText}
+                    </ReactMarkdown>
+                    <span className="lsp-cursor" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error */}
+            {error && messages.length > 0 && (
+              <div className="lsp-assistant-row">
+                <div className="lsp-avatar">
+                  <SparkleIcon size={14} />
+                </div>
+                <div className="lsp-assistant-bubble">
+                  <div className="lsp-error-label">
+                    오류가 발생했습니다: {error.message}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chat Input */}
+          <div className="lsp-chat-footer">
+            <div
+              className={`lsp-chat-input-wrapper ${isLoading ? "active" : ""}`}
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="후속 질문을 입력해 보세요..."
+                disabled={isLoading}
+                className="lsp-chat-input"
+              />
+              <button
+                type="button"
+                className={`lsp-chat-send-btn ${input.trim() && !isLoading ? "active" : ""}`}
+                onClick={handleSubmit}
+                disabled={!input.trim() || isLoading}
+                aria-label="전송"
+              >
+                <SendIcon size={15} />
+              </button>
+            </div>
+            <div className="lsp-chat-footer-info">
+              <span>📚 블로그 콘텐츠 기반 답변</span>
+              <span>·</span>
+              <span>부정확할 수 있습니다</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
