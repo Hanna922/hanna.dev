@@ -12,10 +12,11 @@ import {
   useKeyboardShortcut,
   useBodyScrollLock,
   useLLMSearchEvent,
+  useThrottledValue,
 } from "./hooks";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import "./llm-search.css";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 
 // ============================================
 // Types
@@ -76,20 +77,89 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-/** 응답 텍스트에서 본문과 소스를 분리 */
+const SOURCES_START = "<!-- SOURCES_START -->";
+const SOURCES_END = "<!-- SOURCES_END -->";
+
+/** 응답 텍스트에서 본문과 소스를 분리 (소스가 앞에 옴) */
 function parseResponse(text: string): {
   content: string;
   sources: BlogPost[];
 } {
-  if (!text.includes(SOURCES_SEPARATOR)) {
-    return { content: text, sources: [] };
+  // 새 포맷: 소스가 앞에 오는 경우
+  if (text.includes(SOURCES_START) && text.includes(SOURCES_END)) {
+    const startIdx = text.indexOf(SOURCES_START) + SOURCES_START.length;
+    const endIdx = text.indexOf(SOURCES_END);
+    const content = text
+      .slice(text.indexOf(SOURCES_END) + SOURCES_END.length)
+      .trim();
+
+    try {
+      const sources = JSON.parse(text.slice(startIdx, endIdx));
+      return { content, sources };
+    } catch {
+      return { content, sources: [] };
+    }
   }
-  const [content, sourcesRaw] = text.split(SOURCES_SEPARATOR);
-  try {
-    return { content: content.trim(), sources: JSON.parse(sourcesRaw.trim()) };
-  } catch {
-    return { content: content.trim(), sources: [] };
+
+  // 기존 포맷 호환 (소스가 뒤에 오는 경우)
+  if (text.includes("<!-- SOURCES -->")) {
+    const [content, sourcesRaw] = text.split("<!-- SOURCES -->");
+    try {
+      return {
+        content: content.trim(),
+        sources: JSON.parse(sourcesRaw.trim()),
+      };
+    } catch {
+      return { content: content.trim(), sources: [] };
+    }
   }
+
+  return { content: text, sources: [] };
+}
+
+/** 본문 내 Source/출처 참조를 클릭 가능한 링크로 변환 */
+function linkifySources(content: string, sources: BlogPost[]): string {
+  if (!sources || sources.length === 0) return content;
+
+  // 매칭할 패턴들:
+  // (Source [1])           → 기본 영문
+  // (출처 1)               → 한글, 대괄호 없음
+  // (출처 [1])             → 한글, 대괄호 있음
+  // ([Source 1] "설명")    → 대괄호 + 인용 텍스트
+  // [Source 1]             → 소괄호 없이 대괄호만
+  // (Source 1, 2)          → 복수 참조 (개별 처리는 아래서)
+  const pattern =
+    /\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
+
+  // 1. 등장하는 번호를 순서대로 수집
+  const usedNumbers: number[] = [];
+  let match;
+  const patternForScan = new RegExp(pattern.source, pattern.flags);
+  while ((match = patternForScan.exec(content)) !== null) {
+    const num = parseInt(match[1], 10);
+    if (!isNaN(num) && !usedNumbers.includes(num)) {
+      usedNumbers.push(num);
+    }
+  }
+
+  // 2. 등장 순서대로 sources 배열에 매핑
+  const numberToSource = new Map<number, BlogPost>();
+  usedNumbers.forEach((num, idx) => {
+    if (idx < sources.length) {
+      numberToSource.set(num, sources[idx]);
+    }
+  });
+
+  // 3. 변환
+  return content.replace(pattern, (original, numStr, quotedText) => {
+    const num = parseInt(numStr, 10);
+    const source = numberToSource.get(num);
+    if (!source) return original;
+
+    // 인용 텍스트가 있으면 그걸 링크 텍스트로, 없으면 "출처 N"
+    const label = quotedText ? quotedText : `출처 ${numStr}`;
+    return `[↗ ${label}](${source.slug})`;
+  });
 }
 
 // ============================================
@@ -161,6 +231,30 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
     );
   }
 
+  // Source 참조를 클릭 가능한 링크로 변환
+  const linkedContent = message.sources?.length
+    ? linkifySources(message.content, message.sources)
+    : message.content;
+
+  const markdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="llm-source-inline"
+            target="_self"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
+  );
+
   return (
     <div className="llm-assistant-row">
       <div className="llm-avatar">
@@ -168,7 +262,9 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
       </div>
       <div className="llm-assistant-content">
         <div className="llm-assistant-bubble">
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <ReactMarkdown components={markdownComponents}>
+            {linkedContent}
+          </ReactMarkdown>
         </div>
         {message.sources && message.sources.length > 0 && (
           <div className="llm-sources">
@@ -211,8 +307,14 @@ export default function LLMSearchModal({
     stop,
   } = useCompletion({
     api: "/api/search",
+    streamProtocol: "text",
+    body: {
+      // 서버에 이전 대화 히스토리 전달
+      history: messages.map(({ role, content }) => ({ role, content })),
+    },
     onFinish: (_prompt, result) => {
       const { content, sources } = parseResponse(result);
+      console.log("parsed sources:", sources);
       setMessages(prev => [
         ...prev,
         { id: generateId(), role: "assistant", content, sources },
@@ -256,17 +358,57 @@ export default function LLMSearchModal({
     return parseResponse(currentCompletion).content;
   }, [currentCompletion]);
 
-  // ---- 타이핑 효과 적용 ----
-  const { displayed: streamingText } = useStreamingText(
+  // ---- 타이핑 효과 적용 (Mock 모드에서만) ----
+  const { displayed: typedText } = useStreamingText(
     rawStreamingText,
     12, // 속도 (ms) - 낮을수록 빠름
-    isLoading && !!currentCompletion
+    IS_MOCK_MODE && isLoading && !!currentCompletion
+  );
+
+  // Mock 모드: 타이핑 효과 적용, 실제 API: 스트리밍 그대로 사용
+  const streamingText = IS_MOCK_MODE ? typedText : rawStreamingText;
+
+  // ---- 스트리밍 중 소스와 본문을 실시간으로 분리 ----
+  const { streamContent, streamSources } = useMemo(() => {
+    if (!currentCompletion) return { streamContent: "", streamSources: [] };
+    const parsed = parseResponse(currentCompletion);
+    return { streamContent: parsed.content, streamSources: parsed.sources };
+  }, [currentCompletion]);
+
+  // ---- 스트리밍 중 텍스트에 소스 링크 적용 ----
+  const linkedStreamingText = useMemo(() => {
+    if (!streamContent) return "";
+    if (streamSources.length > 0) {
+      return linkifySources(streamContent, streamSources);
+    }
+    return streamContent;
+  }, [streamContent, streamSources]);
+
+  const throttledStreamingText = useThrottledValue(linkedStreamingText, 100);
+
+  const markdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="llm-source-inline"
+            target="_self"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
   );
 
   // ---- 상태 파생 ----
   const isIdle = messages.length === 0 && !isLoading;
-  const isThinking = isLoading && !currentCompletion;
-  const isStreaming = isLoading && !!currentCompletion;
+  const isThinking = isLoading && !streamContent;
+  const isStreaming = isLoading && !!streamContent;
 
   // ---- Modal ----
   const toggleModal = useCallback(() => setIsOpen(p => !p), []);
@@ -318,9 +460,10 @@ export default function LLMSearchModal({
       simulateMockResponse(trimmed);
       setInput("");
     } else {
-      // 실제 API 모드
-      setInput("");
+      // 실제 API: submit 먼저, input 클리어는 나중에
       triggerSubmit();
+      // requestSubmit()이 동기적으로 form의 현재 input 값을 캡처한 후 비움
+      requestAnimationFrame(() => setInput(""));
     }
   };
 
@@ -337,24 +480,19 @@ export default function LLMSearchModal({
 
   const handleExampleClick = (q: string) => {
     if (isLoading) return;
-    setInput(q);
+
     setMessages(prev => [
       ...prev,
       { id: generateId(), role: "user", content: q },
     ]);
 
     if (IS_MOCK_MODE) {
-      // Mock 모드
       simulateMockResponse(q);
-      setInput("");
     } else {
-      // 실제 API 모드
+      setInput(q);
       setTimeout(() => {
-        const form = document.getElementById(
-          "llm-search-form"
-        ) as HTMLFormElement | null;
-        if (form) form.requestSubmit();
-        setInput("");
+        triggerSubmit();
+        requestAnimationFrame(() => setInput(""));
       }, 0);
     }
   };
@@ -479,7 +617,9 @@ export default function LLMSearchModal({
                   </div>
                   <div className="llm-assistant-content">
                     <div className="llm-assistant-bubble">
-                      <ReactMarkdown>{streamingText}</ReactMarkdown>
+                      <ReactMarkdown components={markdownComponents}>
+                        {throttledStreamingText}
+                      </ReactMarkdown>
                       <span className="llm-cursor" />
                     </div>
                   </div>

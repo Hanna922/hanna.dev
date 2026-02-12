@@ -52,8 +52,13 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const { mini } = await loadIndex(request.url);
-
   const hits = mini.search(prompt);
+
+  // 클라이언트에 보낼 소스 정보 준비
+  const sourcesForClient = hits.slice(0, 5).map(h => ({
+    title: h.title,
+    slug: h.path,
+  }));
 
   // MiniSearch 결과를 LLM 컨텍스트로 변환
   const sources = hits
@@ -63,7 +68,17 @@ export const POST: APIRoute = async ({ request }) => {
     })
     .join("\n\n");
 
-  const llmPrompt = `QUERY: ${prompt}\n\nSOURCES:\n${sources}\n\nANSWER:`;
+  const llmPrompt = `QUERY: ${prompt}
+
+SOURCES:
+${sources}
+
+INSTRUCTIONS:
+- 답변 시 참고한 소스는 반드시 (출처 N) 형식으로 표기하세요. 예: (출처 1)
+- 인용 텍스트를 포함하지 마세요.
+- 마크다운 형식으로 답변하세요.
+
+ANSWER:`;
 
   // Gemini는 AI SDK의 google() 프로바이더로 호출.
   // apiKey는 기본적으로 GOOGLE_GENERATIVE_AI_API_KEY env를 사용.
@@ -73,6 +88,35 @@ export const POST: APIRoute = async ({ request }) => {
     prompt: llmPrompt,
   });
 
-  // useCompletion에서 streamProtocol: 'text'로 받을 것이므로 text stream으로 반환
-  return result.toUIMessageStreamResponse();
+  // LLM 스트림 끝에 소스 구분자 + JSON을 붙여서 반환
+  const originalStream = result.textStream;
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+
+      // ✅ 소스 정보를 스트림 맨 앞에 보냄
+      if (sourcesForClient.length > 0) {
+        const sourcesPrefix =
+          "<!-- SOURCES_START -->" +
+          JSON.stringify(sourcesForClient) +
+          "<!-- SOURCES_END -->\n";
+        controller.enqueue(encoder.encode(sourcesPrefix));
+      }
+
+      // LLM 응답 스트리밍
+      for await (const chunk of originalStream) {
+        controller.enqueue(encoder.encode(chunk));
+      }
+
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Transfer-Encoding": "chunked",
+    },
+  });
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /**
  * 스트리밍 텍스트 효과 훅
@@ -91,4 +91,38 @@ export function useLLMSearchEvent(onOpen: () => void) {
     window.addEventListener("llm-search:open", handler);
     return () => window.removeEventListener("llm-search:open", handler);
   }, [onOpen]);
+}
+
+export function useThrottledValue<T>(value: T, interval: number): T {
+  const [throttled, setThrottled] = useState(value);
+  const lastUpdated = useRef(Date.now());
+  const pendingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const now = Date.now();
+    const elapsed = now - lastUpdated.current;
+
+    if (elapsed >= interval) {
+      setThrottled(value);
+      lastUpdated.current = now;
+    } else {
+      if (pendingTimer.current) clearTimeout(pendingTimer.current);
+      pendingTimer.current = setTimeout(() => {
+        setThrottled(value);
+        lastUpdated.current = Date.now();
+        pendingTimer.current = null;
+      }, interval - elapsed);
+    }
+
+    return () => {
+      if (pendingTimer.current) clearTimeout(pendingTimer.current);
+    };
+  }, [value, interval]);
+
+  // value가 최종값으로 확정되면 즉시 반영 (스트리밍 종료 시)
+  useEffect(() => {
+    return () => setThrottled(value);
+  }, []);
+
+  return throttled;
 }

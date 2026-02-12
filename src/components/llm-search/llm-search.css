@@ -295,33 +295,93 @@
   border: 1px solid rgba(var(--color-border), 0.6);
   font-size: 14px;
   color: rgb(var(--color-text-base));
-  line-height: 1.5;
-  white-space: pre-wrap;
+  line-height: 1.6;
   word-break: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  contain: content;
 }
 
-/* ReactMarkdown 내부 요소들도 줄바꿈 처리 */
-.llm-assistant-bubble * {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
+.llm-assistant-bubble p,
+.llm-assistant-bubble ul,
+.llm-assistant-bubble ol,
+.llm-assistant-bubble li,
+.llm-assistant-bubble strong {
+  animation: llm-content-fade 0.15s ease-out;
 }
 
-/* 코드 블록 처리 */
-.llm-assistant-bubble pre,
+@keyframes llm-content-fade {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+/* ---- ReactMarkdown 내부 스타일 ---- */
+.llm-assistant-bubble p {
+  margin: 0 0 8px 0;
+}
+
+.llm-assistant-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.llm-assistant-bubble strong {
+  font-weight: 600;
+  color: rgb(var(--color-text-base));
+}
+
+.llm-assistant-bubble ul,
+.llm-assistant-bubble ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.llm-assistant-bubble li {
+  margin-bottom: 4px;
+}
+
+.llm-assistant-bubble li:last-child {
+  margin-bottom: 0;
+}
+
 .llm-assistant-bubble code {
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
+  font-size: 13px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(var(--color-text-base), 0.06);
 }
 
-/* 링크 처리 */
-.llm-assistant-bubble a {
-  word-break: break-all;
-  overflow-wrap: break-word;
+.llm-assistant-bubble pre {
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(var(--color-text-base), 0.06);
+  overflow-x: auto;
+}
+
+.llm-assistant-bubble pre code {
+  padding: 0;
+  background: none;
+}
+
+/* Source 인라인 링크 */
+.llm-source-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgb(var(--color-accent));
+  background: rgba(var(--color-accent), 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  vertical-align: baseline;
+  transition: all 0.15s;
+}
+
+.llm-source-inline:hover {
+  background: rgba(var(--color-accent), 0.16);
+  text-decoration: none;
 }
 
 .llm-thinking-label {
