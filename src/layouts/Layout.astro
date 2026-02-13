@@ -29,6 +29,7 @@ const {
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage).href;
+const faviconURL = new URL("favicon.ico", SITE.website).href;
 ---
 
 <!doctype html>
@@ -39,16 +40,7 @@ const socialImageURL = new URL(ogImage).href;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="google-site-verification"
-      content="FzNGiBMOEv0HVK6SpVjNM7s7LSAL_Mk7-ndz3fUrJXY"
-    />
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="https://hanna-dev.com/favicon.ico"
-      sizes="48x48"
-    />
+    <link rel="icon" type="image/x-icon" href={faviconURL} sizes="48x48" />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 
