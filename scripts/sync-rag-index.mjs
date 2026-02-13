@@ -11,6 +11,18 @@ const root = path.resolve(__dirname, "..");
 const blogDir = path.join(root, "src", "content", "blog");
 const customDocsFile = path.join(root, "src", "content", "rag", "custom-documents.json");
 const outFile = path.join(root, "public", "rag-index.json");
+const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
+
+function normalizeEmbeddingModel(value) {
+  if (!value) return DEFAULT_EMBEDDING_MODEL;
+  const normalized = String(value).trim();
+
+  if (normalized === "text-embedding-001" || normalized === "text-embedding-004") {
+    return DEFAULT_EMBEDDING_MODEL;
+  }
+
+  return normalized;
+}
 
 function slugify(input) {
   return String(input)
@@ -76,7 +88,7 @@ async function main() {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
 
-  const modelName = process.env.RAG_EMBEDDING_MODEL ?? "text-embedding-004";
+  const modelName = normalizeEmbeddingModel(process.env.RAG_EMBEDDING_MODEL);
   const files = await walk(blogDir);
   const chunks = [];
 
@@ -102,6 +114,7 @@ async function main() {
 
   const google = createGoogleGenerativeAI({ apiKey });
   const model = google.textEmbeddingModel(modelName);
+  console.log(`embeddingModel=${modelName}`);
   const result = await embedMany({
     model,
     values: chunks.map(chunk => chunk.text),

@@ -17,9 +17,7 @@ export async function embedChunks(
   if (chunks.length === 0) return [];
 
   const google = createGoogleGenerativeAI({ apiKey: options.apiKey });
-  const model = google.textEmbeddingModel(
-    options.model as "text-embedding-004"
-  );
+  const model = google.textEmbeddingModel(options.model);
 
   const embedded: EmbeddedChunk[] = [];
 
