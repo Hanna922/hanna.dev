@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { isRAGEnabled, runRAGSearch } from "lib/rag/index";
 import { loadIndex } from "@utils/llm-search/indexLoader";
 import { createMockStream } from "@utils/llm-search/mock";
 import {
@@ -12,7 +13,7 @@ import {
   createTextStreamResponse,
   mergeSourcesAndStream,
 } from "@utils/llm-search/streaming";
-import type { SearchRequestBody } from "@utils/llm-search/types";
+import type { SearchRequestBody, SourceRef } from "@utils/llm-search/types";
 
 export const prerender = false;
 
@@ -39,11 +40,30 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const { mini } = await loadIndex(request.url);
-  const hits = searchDocs(prompt, mini);
+  let sourcesForClient: SourceRef[];
+  let llmPrompt: string;
 
-  const sourcesForClient = toSourceRefs(hits);
-  const llmPrompt = buildLLMPrompt(prompt, hits);
+  try {
+    if (isRAGEnabled()) {
+      const rag = await runRAGSearch(prompt, {
+        apiKey,
+        originRequestUrl: request.url,
+      });
+      sourcesForClient = rag.sources;
+      llmPrompt = rag.prompt;
+    } else {
+      const { mini } = await loadIndex(request.url);
+      const hits = searchDocs(prompt, mini);
+      sourcesForClient = toSourceRefs(hits);
+      llmPrompt = buildLLMPrompt(prompt, hits);
+    }
+  } catch (error) {
+    console.warn("RAG search failed; falling back to MiniSearch", error);
+    const { mini } = await loadIndex(request.url);
+    const hits = searchDocs(prompt, mini);
+    sourcesForClient = toSourceRefs(hits);
+    llmPrompt = buildLLMPrompt(prompt, hits);
+  }
 
   const result = streamText({
     model: google("gemini-2.5-flash-lite"),
