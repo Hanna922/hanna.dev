@@ -17,7 +17,7 @@ export async function semanticSearch(
 
   const google = createGoogleGenerativeAI({ apiKey: options.apiKey });
   const { embedding } = await embed({
-    model: google.textEmbeddingModel(options.model as "text-embedding-004"),
+    model: google.textEmbeddingModel(options.model as "gemini-embedding-001"),
     value: query,
   });
 

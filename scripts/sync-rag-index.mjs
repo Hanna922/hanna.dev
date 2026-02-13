@@ -76,7 +76,7 @@ async function main() {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
 
-  const modelName = process.env.RAG_EMBEDDING_MODEL ?? "text-embedding-004";
+  const modelName = process.env.RAG_EMBEDDING_MODEL ?? "gemini-embedding-001";
   const files = await walk(blogDir);
   const chunks = [];
 

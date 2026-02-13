@@ -8,7 +8,8 @@ function getNumber(value: string | undefined, fallback: number) {
 export function getRAGConfig(): RAGConfig {
   return {
     enabled: import.meta.env.RAG_ENABLED === "true",
-    embeddingModel: import.meta.env.RAG_EMBEDDING_MODEL ?? "text-embedding-004",
+    embeddingModel:
+      import.meta.env.RAG_EMBEDDING_MODEL ?? "gemini-embedding-001",
     chunkSize: getNumber(import.meta.env.RAG_CHUNK_SIZE, 700),
     chunkOverlap: getNumber(import.meta.env.RAG_CHUNK_OVERLAP, 120),
     topK: getNumber(import.meta.env.RAG_TOP_K, 5),
