@@ -13,6 +13,36 @@ const customDocsFile = path.join(root, "src", "content", "rag", "custom-document
 const outFile = path.join(root, "public", "rag-index.json");
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
 
+async function loadEnvFile(filePath) {
+  const raw = await readFile(filePath, "utf-8").catch(() => "");
+  if (!raw) return;
+
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    const eqIndex = trimmed.indexOf("=");
+    if (eqIndex <= 0) continue;
+
+    const key = trimmed.slice(0, eqIndex).trim();
+    const value = trimmed
+      .slice(eqIndex + 1)
+      .trim()
+      .replace(/^['\"]|['\"]$/g, "");
+
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
+
+async function loadEnv() {
+  await loadEnvFile(path.join(root, ".env"));
+  await loadEnvFile(path.join(root, ".env.local"));
+  await loadEnvFile(path.join(root, ".env.development"));
+  await loadEnvFile(path.join(root, ".env.development.local"));
+}
+
 function normalizeEmbeddingModel(value) {
   if (!value) return DEFAULT_EMBEDDING_MODEL;
   const normalized = String(value).trim();
@@ -85,8 +115,17 @@ async function loadCustomDocuments() {
 }
 
 async function main() {
+  await loadEnv();
+
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+  if (!apiKey) {
+    throw new Error(
+      [
+        "Missing GOOGLE_GENERATIVE_AI_API_KEY.",
+        "Set it in your shell or in one of: .env, .env.local, .env.development, .env.development.local",
+      ].join(" ")
+    );
+  }
 
   const modelName = normalizeEmbeddingModel(process.env.RAG_EMBEDDING_MODEL);
   const files = await walk(blogDir);
