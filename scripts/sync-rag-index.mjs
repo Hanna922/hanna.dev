@@ -11,6 +11,48 @@ const root = path.resolve(__dirname, "..");
 const blogDir = path.join(root, "src", "content", "blog");
 const customDocsFile = path.join(root, "src", "content", "rag", "custom-documents.json");
 const outFile = path.join(root, "public", "rag-index.json");
+const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
+
+async function loadEnvFile(filePath) {
+  const raw = await readFile(filePath, "utf-8").catch(() => "");
+  if (!raw) return;
+
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    const eqIndex = trimmed.indexOf("=");
+    if (eqIndex <= 0) continue;
+
+    const key = trimmed.slice(0, eqIndex).trim();
+    const value = trimmed
+      .slice(eqIndex + 1)
+      .trim()
+      .replace(/^['\"]|['\"]$/g, "");
+
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
+
+async function loadEnv() {
+  await loadEnvFile(path.join(root, ".env"));
+  await loadEnvFile(path.join(root, ".env.local"));
+  await loadEnvFile(path.join(root, ".env.development"));
+  await loadEnvFile(path.join(root, ".env.development.local"));
+}
+
+function normalizeEmbeddingModel(value) {
+  if (!value) return DEFAULT_EMBEDDING_MODEL;
+  const normalized = String(value).trim();
+
+  if (normalized === "gemini-embedding-001") {
+    return DEFAULT_EMBEDDING_MODEL;
+  }
+
+  return normalized;
+}
 
 function slugify(input) {
   return String(input)
@@ -73,10 +115,19 @@ async function loadCustomDocuments() {
 }
 
 async function main() {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+  await loadEnv();
 
-  const modelName = process.env.RAG_EMBEDDING_MODEL ?? "gemini-embedding-001";
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      [
+        "Missing GOOGLE_GENERATIVE_AI_API_KEY.",
+        "Set it in your shell or in one of: .env, .env.local, .env.development, .env.development.local",
+      ].join(" ")
+    );
+  }
+
+  const modelName = normalizeEmbeddingModel(process.env.RAG_EMBEDDING_MODEL);
   const files = await walk(blogDir);
   const chunks = [];
 
@@ -102,6 +153,7 @@ async function main() {
 
   const google = createGoogleGenerativeAI({ apiKey });
   const model = google.textEmbeddingModel(modelName);
+  console.log(`embeddingModel=${modelName}`);
   const result = await embedMany({
     model,
     values: chunks.map(chunk => chunk.text),
