@@ -671,7 +671,10 @@ export default function LLMSearchPage() {
           aria-label="LLM 동작 방식 안내"
         >
           <div className="lsp-help-header">
-            <strong>LLM이 답변하는 방식</strong>
+            <div className="lsp-help-title-wrap">
+              <span className="lsp-help-pill">RAG Pipeline</span>
+              <strong>LLM이 답변하는 방식</strong>
+            </div>
             <button
               type="button"
               className="lsp-help-close"
