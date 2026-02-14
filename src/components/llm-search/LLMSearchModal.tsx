@@ -133,6 +133,10 @@ function linkifySources(content: string, sources: BlogPost[]): string {
   });
 }
 
+function isLLMSearchPath(pathname: string): boolean {
+  return pathname === "/llmSearch" || pathname === "/llmSearch/";
+}
+
 // ============================================
 // Sub-components
 // ============================================
@@ -260,6 +264,9 @@ export default function LLMSearchModal({
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [pathname, setPathname] = useState(
+    typeof window === "undefined" ? "" : window.location.pathname
+  );
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -332,6 +339,29 @@ export default function LLMSearchModal({
   const isIdle = messages.length === 0 && !isLoading;
   const isThinking = isLoading && !streamContent;
   const isStreaming = isLoading && !!streamContent;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleRouteChange = () => setPathname(window.location.pathname);
+
+    handleRouteChange();
+    window.addEventListener("popstate", handleRouteChange);
+    window.addEventListener(
+      "astro:page-load",
+      handleRouteChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener("popstate", handleRouteChange);
+      window.removeEventListener(
+        "astro:page-load",
+        handleRouteChange as EventListener
+      );
+    };
+  }, []);
+
+  const shouldHideGlobalModal = isLLMSearchPath(pathname);
 
   // ---- Modal ----
   const toggleModal = useCallback(() => setIsOpen(p => !p), []);
@@ -414,6 +444,8 @@ export default function LLMSearchModal({
   // ============================================
   // Render
   // ============================================
+  if (shouldHideGlobalModal) return null;
+
   return (
     <>
       {/* Hidden form for useCompletion */}
