@@ -68,7 +68,20 @@ function titleFromSlug(slug: string) {
 function isMeaningfulTitle(value: string) {
   const normalized = value.trim().toLowerCase();
   if (!normalized) return false;
-  return normalized !== "untitled" && normalized !== "제목 없음";
+
+  const compact = normalized.replace(/[^a-z0-9가-힣]/g, "");
+  const placeholders = new Set(["untitled", "notitle", "제목없음", "제목미정"]);
+
+  return !placeholders.has(compact);
+}
+
+function getDisplayTitle(post: BlogPost) {
+  if (isMeaningfulTitle(post.title)) return post.title.trim();
+
+  const fallback = titleFromSlug(post.slug);
+  if (isMeaningfulTitle(fallback)) return fallback;
+
+  return post.slug || "Untitled";
 }
 
 function normalizeSources(rawSources: unknown): BlogPost[] {
@@ -215,7 +228,7 @@ function SourceCard({
       }}
     >
       <span className="llm-source-index">{index + 1}</span>
-      <span className="llm-source-title">{post.title}</span>
+      <span className="llm-source-title">{getDisplayTitle(post)}</span>
       <ExternalLinkIcon size={13} />
     </a>
   );
