@@ -65,6 +65,12 @@ function titleFromSlug(slug: string) {
     .join(" ");
 }
 
+function isMeaningfulTitle(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return false;
+  return normalized !== "untitled" && normalized !== "제목 없음";
+}
+
 function normalizeSources(rawSources: unknown): BlogPost[] {
   if (!Array.isArray(rawSources)) return [];
 
@@ -95,7 +101,7 @@ function normalizeSources(rawSources: unknown): BlogPost[] {
 
       return {
         slug,
-        title: title.trim() || titleFromSlug(slug),
+        title: isMeaningfulTitle(title) ? title.trim() : titleFromSlug(slug),
       };
     })
     .filter((source): source is BlogPost => source !== null);
