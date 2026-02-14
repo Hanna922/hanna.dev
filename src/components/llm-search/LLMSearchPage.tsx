@@ -36,7 +36,7 @@ const EXAMPLE_QUESTIONS: string[] = [
   "블로그에서 다룬 기술 스택은?",
 ];
 
-const HELP_MODAL_MARKDOWN = `## LLM + RAG 동작 방식 (Developer View)
+const HELP_MODAL_MARKDOWN = `## Hanna's LLM은 어떻게 동작하나요?
 
 이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
 
@@ -671,10 +671,6 @@ export default function LLMSearchPage() {
           aria-label="LLM 동작 방식 안내"
         >
           <div className="lsp-help-header">
-            <div className="lsp-help-title-wrap">
-              <span className="lsp-help-pill">RAG Pipeline</span>
-              <strong>LLM이 답변하는 방식</strong>
-            </div>
             <button
               type="button"
               className="lsp-help-close"
