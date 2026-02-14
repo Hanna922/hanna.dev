@@ -36,7 +36,7 @@ const EXAMPLE_QUESTIONS: string[] = [
   "블로그에서 다룬 기술 스택은?",
 ];
 
-const HELP_MODAL_MARKDOWN = `## Hanna's LLM은 어떻게 동작하나요?
+const HELP_MODAL_MARKDOWN = `
 
 이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
 
@@ -258,6 +258,9 @@ export default function LLMSearchPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const helpFabRef = useRef<HTMLButtonElement>(null);
+  const helpPopoverRef = useRef<HTMLDivElement>(null);
+
   // ---- useCompletion ----
   const {
     input,
@@ -339,6 +342,23 @@ export default function LLMSearchPage() {
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!isHelpOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isInsidePopover = helpPopoverRef.current?.contains(target);
+      const isOnFab = helpFabRef.current?.contains(target);
+
+      if (!isInsidePopover && !isOnFab) {
+        setIsHelpOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, [isHelpOpen]);
 
   // ---- Handlers ----
   const triggerSubmit = useCallback(() => {
@@ -671,6 +691,9 @@ export default function LLMSearchPage() {
           aria-label="LLM 동작 방식 안내"
         >
           <div className="lsp-help-header">
+            <div className="lsp-help-title-wrap">
+              <strong>Hanna's LLM은 어떻게 동작하나요?</strong>
+            </div>
             <button
               type="button"
               className="lsp-help-close"

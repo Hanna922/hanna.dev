@@ -997,6 +997,7 @@
 .lsp-help-close {
   width: 28px;
   height: 28px;
+  margin-left: auto;
   border: 1px solid rgba(var(--color-border), 0.6);
   border-radius: 8px;
   background: rgba(var(--color-fill), 0.8);
