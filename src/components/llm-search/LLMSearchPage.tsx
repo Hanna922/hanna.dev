@@ -47,6 +47,56 @@ function generateId() {
 const SOURCES_START = "<!-- SOURCES_START -->";
 const SOURCES_END = "<!-- SOURCES_END -->";
 
+function titleFromSlug(slug: string) {
+  const cleaned = slug
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .replace(/^\/+|\/+$/g, "");
+  const lastSegment = cleaned.split("/").filter(Boolean).pop();
+  if (!lastSegment) return "Untitled";
+
+  return lastSegment
+    .split("-")
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normalizeSources(rawSources: unknown): BlogPost[] {
+  if (!Array.isArray(rawSources)) return [];
+
+  return rawSources
+    .map((raw): BlogPost | null => {
+      if (!raw || typeof raw !== "object") return null;
+
+      const candidate = raw as Record<string, unknown>;
+      const slug =
+        typeof candidate.slug === "string"
+          ? candidate.slug
+          : typeof candidate.url === "string"
+            ? candidate.url
+            : typeof candidate.path === "string"
+              ? candidate.path
+              : "";
+
+      if (!slug) return null;
+
+      const title =
+        typeof candidate.title === "string"
+          ? candidate.title
+          : typeof candidate.name === "string"
+            ? candidate.name
+            : typeof candidate.postTitle === "string"
+              ? candidate.postTitle
+              : "";
+
+      return {
+        slug,
+        title: title.trim() || titleFromSlug(slug),
+      };
+    })
+    .filter((source): source is BlogPost => source !== null);
+}
+
 function parseResponse(text: string): {
   content: string;
   sources: BlogPost[];
@@ -58,7 +108,9 @@ function parseResponse(text: string): {
       .slice(text.indexOf(SOURCES_END) + SOURCES_END.length)
       .trim();
     try {
-      const sources = JSON.parse(text.slice(startIdx, endIdx));
+      const sources = normalizeSources(
+        JSON.parse(text.slice(startIdx, endIdx))
+      );
       return { content, sources };
     } catch {
       return { content, sources: [] };
@@ -70,7 +122,7 @@ function parseResponse(text: string): {
     try {
       return {
         content: content.trim(),
-        sources: JSON.parse(sourcesRaw.trim()),
+        sources: normalizeSources(JSON.parse(sourcesRaw.trim())),
       };
     } catch {
       return { content: content.trim(), sources: [] };
@@ -83,33 +135,35 @@ function parseResponse(text: string): {
 function linkifySources(content: string, sources: BlogPost[]): string {
   if (!sources || sources.length === 0) return content;
 
+  const sourceByNumber = (num: number) => sources[num - 1];
   const pattern =
-    /\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
+    /\((?:Source|출처)\s*((?:\d+\s*,\s*)*\d+)\)|\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
 
-  const usedNumbers: number[] = [];
-  let match;
-  const patternForScan = new RegExp(pattern.source, pattern.flags);
-  while ((match = patternForScan.exec(content)) !== null) {
-    const num = parseInt(match[1], 10);
-    if (!isNaN(num) && !usedNumbers.includes(num)) {
-      usedNumbers.push(num);
+  return content.replace(
+    pattern,
+    (original, groupedNums, singleNum, quotedText) => {
+      if (groupedNums) {
+        const links = String(groupedNums)
+          .split(",")
+          .map(part => parseInt(part.trim(), 10))
+          .filter(num => !Number.isNaN(num))
+          .map(num => {
+            const source = sourceByNumber(num);
+            return source ? `[↗ 출처 ${num}](${source.slug})` : null;
+          })
+          .filter((link): link is string => Boolean(link));
+
+        return links.length > 0 ? links.join(", ") : original;
+      }
+
+      const num = parseInt(String(singleNum), 10);
+      const source = sourceByNumber(num);
+      if (!source) return original;
+
+      const label = quotedText ? quotedText : `출처 ${num}`;
+      return `[↗ ${label}](${source.slug})`;
     }
-  }
-
-  const numberToSource = new Map<number, BlogPost>();
-  usedNumbers.forEach((num, idx) => {
-    if (idx < sources.length) {
-      numberToSource.set(num, sources[idx]);
-    }
-  });
-
-  return content.replace(pattern, (original, numStr, quotedText) => {
-    const num = parseInt(numStr, 10);
-    const source = numberToSource.get(num);
-    if (!source) return original;
-    const label = quotedText ? quotedText : `출처 ${numStr}`;
-    return `[↗ ${label}](${source.slug})`;
-  });
+  );
 }
 
 // ============================================
