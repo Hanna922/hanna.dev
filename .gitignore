@@ -36,5 +36,4 @@ pnpm-debug.log*
 example/
 
 # rag
-rag-index.json
-custom-documents.json
+public/rag-index.json
