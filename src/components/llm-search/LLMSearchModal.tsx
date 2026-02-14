@@ -51,6 +51,75 @@ function generateId() {
 const SOURCES_START = "<!-- SOURCES_START -->";
 const SOURCES_END = "<!-- SOURCES_END -->";
 
+function titleFromSlug(slug: string) {
+  const cleaned = slug
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .replace(/^\/+|\/+$/g, "");
+  const lastSegment = cleaned.split("/").filter(Boolean).pop();
+  if (!lastSegment) return "Untitled";
+
+  return lastSegment
+    .split("-")
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function isMeaningfulTitle(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return false;
+
+  const compact = normalized.replace(/[^a-z0-9가-힣]/g, "");
+  const placeholders = new Set(["untitled", "notitle", "제목없음", "제목미정"]);
+
+  return !placeholders.has(compact);
+}
+
+function getDisplayTitle(post: BlogPost) {
+  if (isMeaningfulTitle(post.title)) return post.title.trim();
+
+  const fallback = titleFromSlug(post.slug);
+  if (isMeaningfulTitle(fallback)) return fallback;
+
+  return post.slug || "Untitled";
+}
+
+function normalizeSources(rawSources: unknown): BlogPost[] {
+  if (!Array.isArray(rawSources)) return [];
+
+  return rawSources
+    .map((raw): BlogPost | null => {
+      if (!raw || typeof raw !== "object") return null;
+
+      const candidate = raw as Record<string, unknown>;
+      const slug =
+        typeof candidate.slug === "string"
+          ? candidate.slug
+          : typeof candidate.url === "string"
+            ? candidate.url
+            : typeof candidate.path === "string"
+              ? candidate.path
+              : "";
+
+      if (!slug) return null;
+
+      const title =
+        typeof candidate.title === "string"
+          ? candidate.title
+          : typeof candidate.name === "string"
+            ? candidate.name
+            : typeof candidate.postTitle === "string"
+              ? candidate.postTitle
+              : "";
+
+      return {
+        slug,
+        title: isMeaningfulTitle(title) ? title.trim() : titleFromSlug(slug),
+      };
+    })
+    .filter((source): source is BlogPost => source !== null);
+}
+
 /** 응답 텍스트에서 본문과 소스를 분리 (소스가 앞에 옴) */
 function parseResponse(text: string): {
   content: string;
@@ -65,7 +134,9 @@ function parseResponse(text: string): {
       .trim();
 
     try {
-      const sources = JSON.parse(text.slice(startIdx, endIdx));
+      const sources = normalizeSources(
+        JSON.parse(text.slice(startIdx, endIdx))
+      );
       return { content, sources };
     } catch {
       return { content, sources: [] };
@@ -78,7 +149,7 @@ function parseResponse(text: string): {
     try {
       return {
         content: content.trim(),
-        sources: JSON.parse(sourcesRaw.trim()),
+        sources: normalizeSources(JSON.parse(sourcesRaw.trim())),
       };
     } catch {
       return { content: content.trim(), sources: [] };
@@ -92,45 +163,35 @@ function parseResponse(text: string): {
 function linkifySources(content: string, sources: BlogPost[]): string {
   if (!sources || sources.length === 0) return content;
 
-  // 매칭할 패턴들:
-  // (Source [1])           → 기본 영문
-  // (출처 1)               → 한글, 대괄호 없음
-  // (출처 [1])             → 한글, 대괄호 있음
-  // ([Source 1] "설명")    → 대괄호 + 인용 텍스트
-  // [Source 1]             → 소괄호 없이 대괄호만
-  // (Source 1, 2)          → 복수 참조 (개별 처리는 아래서)
+  const sourceByNumber = (num: number) => sources[num - 1];
   const pattern =
-    /\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
+    /\((?:Source|출처)\s*((?:\d+\s*,\s*)*\d+)\)|\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
 
-  // 1. 등장하는 번호를 순서대로 수집
-  const usedNumbers: number[] = [];
-  let match;
-  const patternForScan = new RegExp(pattern.source, pattern.flags);
-  while ((match = patternForScan.exec(content)) !== null) {
-    const num = parseInt(match[1], 10);
-    if (!isNaN(num) && !usedNumbers.includes(num)) {
-      usedNumbers.push(num);
+  return content.replace(
+    pattern,
+    (original, groupedNums, singleNum, quotedText) => {
+      if (groupedNums) {
+        const links = String(groupedNums)
+          .split(",")
+          .map(part => parseInt(part.trim(), 10))
+          .filter(num => !Number.isNaN(num))
+          .map(num => {
+            const source = sourceByNumber(num);
+            return source ? `[↗ 출처 ${num}](${source.slug})` : null;
+          })
+          .filter((link): link is string => Boolean(link));
+
+        return links.length > 0 ? links.join(", ") : original;
+      }
+
+      const num = parseInt(String(singleNum), 10);
+      const source = sourceByNumber(num);
+      if (!source) return original;
+
+      const label = quotedText ? quotedText : `출처 ${num}`;
+      return `[↗ ${label}](${source.slug})`;
     }
-  }
-
-  // 2. 등장 순서대로 sources 배열에 매핑
-  const numberToSource = new Map<number, BlogPost>();
-  usedNumbers.forEach((num, idx) => {
-    if (idx < sources.length) {
-      numberToSource.set(num, sources[idx]);
-    }
-  });
-
-  // 3. 변환
-  return content.replace(pattern, (original, numStr, quotedText) => {
-    const num = parseInt(numStr, 10);
-    const source = numberToSource.get(num);
-    if (!source) return original;
-
-    // 인용 텍스트가 있으면 그걸 링크 텍스트로, 없으면 "출처 N"
-    const label = quotedText ? quotedText : `출처 ${numStr}`;
-    return `[↗ ${label}](${source.slug})`;
-  });
+  );
 }
 
 // ============================================
@@ -167,7 +228,7 @@ function SourceCard({
       }}
     >
       <span className="llm-source-index">{index + 1}</span>
-      <span className="llm-source-title">{post.title}</span>
+      <span className="llm-source-title">{getDisplayTitle(post)}</span>
       <ExternalLinkIcon size={13} />
     </a>
   );

@@ -1,0 +1,81 @@
+[
+  {
+    "id": "profile-overview",
+    "title": "김나영 프로필 요약",
+    "description": "소프트웨어 엔지니어 김나영의 핵심 소개와 연락처",
+    "tags": ["profile", "contact", "summary"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 퍼포먼스 최적화에 관심이 많고 효율적인 코드 작성을 지향하는 Software Engineer입니다. UX뿐 아니라 DX, AX 향상을 주도하는 엔지니어를 목표로 합니다. 이메일은 p.ping0922@gmail.com, GitHub는 github.com/Hanna922, 블로그는 hanna-dev.co.kr 입니다."
+  },
+  {
+    "id": "project-stock-condition-analysis",
+    "title": "캡스톤 프로젝트: Stock Condition Analysis",
+    "description": "실시간 주식 데이터와 AI 뉴스 감성 분석을 결합한 서비스",
+    "tags": [
+      "project",
+      "capstone",
+      "nextjs",
+      "langchain",
+      "ollama",
+      "spark",
+      "kafka"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "2025.03~2025.06 캡스톤 프로젝트로 Stock Condition Analysis를 개발했습니다. 실시간 주식 데이터와 AI 기반 뉴스 감성 분석을 통합한 서비스입니다. Finnhub API로 수집한 실시간 주식 데이터를 Kafka와 Spark로 처리했고, LangChain과 sLM(Ollama) 기반 감성 분석을 적용했습니다. 프론트엔드는 Next.js와 SWR로 대시보드/실시간 차트/AI 분석 결과를 시각화했습니다. 주요 기여는 기술적 지표 차트 구현, SWR 기반 실시간 업데이트와 캐싱 최적화, Tailwind CSS 기반 반응형 UI 구현입니다."
+  },
+  {
+    "id": "experience-techlabs-intern",
+    "title": "TechLabs AI부서 인턴십",
+    "description": "사내 성과 대시보드 개발 및 Node/Webpack에서 Vite 마이그레이션",
+    "tags": [
+      "experience",
+      "internship",
+      "react",
+      "typescript",
+      "vite",
+      "migration"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "2024.03~2024.06 TechLabs AI 부서 개발팀 인턴으로 근무했습니다. 사내 서비스 성과를 지표로 보여주는 어드민 페이지를 개발했고, 그래프를 공통 컴포넌트화해 DX를 개선했습니다. Node 14 + Webpack 환경을 Node 20 + Vite로 마이그레이션했고, yarn time을 1/5로 단축하고 프로젝트 사이즈를 1/2로 경량화했습니다. 클릭/세션 기반 이용 성과, 매출/구매전환율 지표를 그래프/표로 시각화하는 기능을 구현했습니다."
+  },
+  {
+    "id": "project-yrano-monorepo",
+    "title": "Yrano: Yourssuu 패키지 모노레포",
+    "description": "재사용성과 DX를 높이기 위한 TypeScript/JavaScript 패키지 모노레포",
+    "tags": ["project", "monorepo", "turborepo", "tsup", "react", "typescript"],
+    "url": "https://github.com/yourssu/Yrano",
+    "content": "2023.03~2025.07 동안 Yourssuu에서 사용하는 TypeScript/JavaScript 패키지를 모노레포 형태로 관리했습니다. utils/hooks 등 공통 자산을 TF 간 재사용 가능하게 설계했고 성능 최적화와 DX 향상에 집중했습니다. crypto-js sha256 함수를 별도 패키지화해 모듈 사이즈를 경량화했습니다. CJS/ESM/DTS 지원을 위해 Rollup과 tsup를 비교해 tsup를 채택했습니다. 주요 작업은 @yourssu/logging-system-react, @yourssu/utils, @yourssu/react 개발과 기존 logging-system의 Yrano 마이그레이션입니다."
+  },
+  {
+    "id": "project-yds-design-system",
+    "title": "YDS (Yourssu Design System)",
+    "description": "일관된 UI 품질과 재사용성 향상을 위한 디자인 시스템",
+    "tags": ["project", "design-system", "storybook", "react", "typescript"],
+    "url": "https://github.com/yourssu/YDS-React",
+    "content": "YDS 프로젝트에서는 UI 컴포넌트 재사용성과 일관된 디자인 퀄리티 확보에 집중했습니다. forwardRef와 HTML 속성 확장 등 Polymorphic Component 개발을 진행했고, webfontloader 기반 비동기 폰트 로딩 최적화를 적용했습니다. Button, Checkbox, TextField 계열 컴포넌트를 개발했으며 Storybook 버전별 배포 자동화/NPM 배포 자동화, 문서화, release template 설정을 구축했습니다. yarn classic에서 pnpm으로 마이그레이션도 수행했습니다."
+  },
+  {
+    "id": "project-soomsil-and-allchive",
+    "title": "Soomsil / All:Chive 프로젝트",
+    "description": "웹/모바일 제품 개발 경험",
+    "tags": ["project", "react", "react-native", "tanstack-query", "recoil"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "Soomsil은 숭실대 학생 편의용 서랍장/검색 서비스로, Drawer/Search/Home 3개 TF 분업 구조에서 개발했습니다. Suspense와 Error Boundary를 활용해 선언형 코드를 작성했고 토큰 갱신 인터셉터, 메인/업로드 페이지, 공통 컴포넌트를 구현했습니다. All:Chive(23.06.18~23.08.31)는 링크/스크린샷 아카이빙 서비스로 App Store 생산성 카테고리 94위, Disquiet Trending Product 1위를 달성했습니다. 아카이빙 업로드/검색, 태그 및 필터링, 마이페이지 관리 기능, InAppBrowser 연결, dev/prod 환경 분리와 Android 배포 설정을 담당했습니다."
+  },
+  {
+    "id": "opensource-study-seminar",
+    "title": "오픈소스 기여 및 커뮤니티 활동",
+    "description": "오픈소스 기여, 스터디 리드, 세미나 발표",
+    "tags": ["opensource", "community", "seminar", "study"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "오픈소스 기여로는 toss/es-toolkit(AbortSignal in debounce/delay), storybookjs/storybook 이슈 리포트, TanStack/query 오타 수정, reactjs/ko.react.dev 번역 기여가 있습니다. 또한 Google Developer Student Club(2023.10~2024.09) Web/Mobile 파트에서 활동했고, English Article Study를 리드했습니다. 발표 주제로는 Optimization of SEO/GEO(우리FISA 아카데미 기술 세미나), Next.js Hydration(CMC 세미나), FE에서 개발자를 위한 개발하기(GDSC 세미나)가 있습니다."
+  },
+  {
+    "id": "skills-stack",
+    "title": "기술 스택 요약",
+    "description": "이력서 기반 핵심 기술 스택 정리",
+    "tags": ["skills", "tech-stack"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "주요 기술 스택은 React, TypeScript, Next.js, SWR, TanStack Query, Recoil, React Native, Tailwind CSS, Styled-Components, Emotion, Storybook, Vite, SWC, FastAPI, LangChain, Ollama, Turborepo, tsup, Vitest입니다. 실시간 데이터 처리/시각화, 디자인 시스템 구축, 프론트엔드 성능 최적화와 마이그레이션, 모노레포 운영 경험이 있습니다."
+  }
+]
