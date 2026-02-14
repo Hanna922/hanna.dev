@@ -11,7 +11,7 @@ import type { EmbeddedChunk, RAGChunk } from "./types";
 import { InMemoryVectorStore } from "./vector-store";
 
 const vectorStore = new InMemoryVectorStore();
-let isIngested = false;
+let isIngested = false; // module level flag
 
 export function isRAGEnabled() {
   return getRAGConfig().enabled;
@@ -29,7 +29,10 @@ async function loadPrebuiltIndex(originRequestUrl: string) {
   return chunks;
 }
 
-function toDocumentChunks(): Promise<RAGChunk[]> {
+/*
+  Blog + Custom Docs를 chunk 형태로 반환합니다.
+*/
+async function toDocumentChunks(): Promise<RAGChunk[]> {
   return loadRAGDocuments().then(docs =>
     docs.map(doc => ({
       id: doc.id,
@@ -44,12 +47,21 @@ function toDocumentChunks(): Promise<RAGChunk[]> {
   );
 }
 
+/*
+  vector index가 아직 메모리에 없다면, 먼저 prebuilt 파일을 불러보고,
+  prebuilt 파일도 없으면 문서를 embedding 해서 메모리 vector store를 채웁니다.
+  => 즉, 검색 전에 vector index 준비 상태를 보장하는 함수입니다.
+*/
 async function ingestIfNeeded(apiKey: string, originRequestUrl: string) {
+  /*
+    이미 index가 적재된 프로세스에서는 매 요청마다 embedding을 반복하지 않도록 즉시 return
+    => 즉, embedding API 재호출 방지
+  */
   if (isIngested) return;
 
   const prebuilt = await loadPrebuiltIndex(originRequestUrl);
   if (prebuilt) {
-    await vectorStore.upsert(prebuilt);
+    await vectorStore.upsert(prebuilt); // rag-index.json fetch에 성공하면 메모리 적재
     isIngested = true;
     ragLogger.info("RAG prebuilt index loaded", { chunks: prebuilt.length });
     return;

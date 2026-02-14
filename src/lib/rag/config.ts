@@ -8,7 +8,7 @@ function normalizeEmbeddingModel(value: string | undefined) {
   const normalized = value.trim();
 
   // Backward-compatible aliases that are not available on many Free Tier accounts.
-  if (normalized === "text-embedding-001") {
+  if (normalized === "gemini-embedding-001") {
     return DEFAULT_EMBEDDING_MODEL;
   }
 
