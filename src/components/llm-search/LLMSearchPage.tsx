@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useCompletion } from "@ai-sdk/react";
 import type { BlogPost } from "./types";
 import { useThrottledValue } from "./hooks";
-import { SparkleIcon, SendIcon, ExternalLinkIcon } from "./Icons";
+import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
 
@@ -216,6 +216,7 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
 export default function LLMSearchPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -389,51 +390,9 @@ export default function LLMSearchPage() {
 
             {/* 설명 */}
             <p className="lsp-hero-desc">
-              저의 프로젝트 경험, 기술적 고민, 문제 해결 과정이 궁금하신가요?
-              <br />이 AI는 제가 직접 작성한{" "}
-              <mark className="lsp-highlight">블로그 글과 저를 학습</mark>하여
-              답변합니다.
+              궁금한 내용을 질문하면 블로그 글을 바탕으로 핵심만 빠르게 답변해
+              드립니다.
             </p>
-
-            {/* 데이터 소스 시각화 */}
-            <div className="lsp-data-flow">
-              <div className="lsp-data-node lsp-data-blog">
-                <div className="lsp-data-node-icon">📝</div>
-                <div className="lsp-data-node-label">블로그 글</div>
-              </div>
-              <div className="lsp-data-arrow">
-                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                  <path
-                    d="M0 12H32M32 12L24 4M32 12L24 20"
-                    stroke="rgb(var(--color-accent))"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeDasharray="4 3"
-                  />
-                </svg>
-              </div>
-              <div className="lsp-data-node lsp-data-index">
-                <div className="lsp-data-node-icon">🧠</div>
-                <div className="lsp-data-node-label">검색 인덱스</div>
-              </div>
-              <div className="lsp-data-arrow">
-                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                  <path
-                    d="M0 12H32M32 12L24 4M32 12L24 20"
-                    stroke="rgb(var(--color-accent))"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeDasharray="4 3"
-                  />
-                </svg>
-              </div>
-              <div className="lsp-data-node lsp-data-ai">
-                <div className="lsp-data-node-icon">✨</div>
-                <div className="lsp-data-node-label">AI 답변</div>
-              </div>
-            </div>
 
             {/* 입력 영역 */}
             <div className="lsp-hero-input-section">
@@ -613,6 +572,49 @@ export default function LLMSearchPage() {
               <span>부정확할 수 있습니다</span>
             </div>
           </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className="lsp-help-fab"
+        onClick={() => setIsHelpOpen(prev => !prev)}
+        aria-label="LLM 동작 방식 안내"
+        aria-expanded={isHelpOpen}
+      >
+        ?
+      </button>
+
+      {isHelpOpen && (
+        <div
+          className="lsp-help-popover"
+          role="dialog"
+          aria-label="LLM 동작 방식 안내"
+        >
+          <div className="lsp-help-header">
+            <strong>LLM이 답변하는 방식</strong>
+            <button
+              type="button"
+              className="lsp-help-close"
+              onClick={() => setIsHelpOpen(false)}
+              aria-label="안내 닫기"
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+          <ol className="lsp-help-list">
+            <li>질문과 관련된 블로그 문서를 벡터 검색으로 먼저 찾습니다.</li>
+            <li>
+              찾은 문서 조각만 LLM에 전달해 근거 기반으로 답변을 생성합니다.
+            </li>
+            <li>
+              답변 하단에 참고한 글(출처)을 함께 보여 검증할 수 있게 합니다.
+            </li>
+          </ol>
+          <p className="lsp-help-note">
+            이 페이지의 AI는 블로그 콘텐츠 중심으로 동작하며, 내용은 부정확할 수
+            있습니다.
+          </p>
         </div>
       )}
     </div>
