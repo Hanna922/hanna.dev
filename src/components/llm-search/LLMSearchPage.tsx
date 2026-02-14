@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useCompletion } from "@ai-sdk/react";
 import type { BlogPost } from "./types";
 import { useThrottledValue } from "./hooks";
-import { SparkleIcon, SendIcon, ExternalLinkIcon } from "./Icons";
+import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
 
@@ -35,6 +35,43 @@ const EXAMPLE_QUESTIONS: string[] = [
   "대표 프로젝트 몇 가지를 설명해주세요",
   "블로그에서 다룬 기술 스택은?",
 ];
+
+const HELP_MODAL_MARKDOWN = `
+
+이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
+
+### 1) Query 이해 및 검색 준비
+- 사용자의 질문을 그대로 LLM에 보내지 않고, 먼저 검색 가능한 형태로 처리합니다.
+- 멀티턴인 경우 \`history\`(이전 사용자/어시스턴트 발화)를 함께 전달해 문맥을 유지합니다.
+
+### 2) Retrieval (Vector Search)
+- 블로그 문서들을 청크 단위로 분해해 임베딩한 인덱스에서 질문과 의미적으로 가까운 청크를 찾습니다.
+- 키워드 일치가 아니라 **의미 유사도 기반 검색**이므로, 표현이 달라도 관련 문서를 찾을 수 있습니다.
+- 이 단계 결과는 “답변 후보 문맥(Context)”이며, 이후 생성 단계의 근거 데이터가 됩니다.
+
+### 3) Grounded Generation
+- LLM에는 질문 + 검색된 문맥만 주입해 답변을 생성합니다.
+- 즉, 일반 상식으로 길게 추론하기보다, 검색된 블로그 근거를 중심으로 설명하도록 제한합니다.
+- 환각(hallucination)을 줄이기 위해 출처 기반 응답 포맷을 사용합니다.
+
+### 4) Source Attachment & Rendering
+- 서버 응답에는 본문과 함께 출처 메타데이터가 포함됩니다.
+- UI는 응답 본문의 '출처' 표기를 실제 포스트 링크로 치환해 렌더링합니다.
+- 따라서 답변 검증이 필요할 때 즉시 원문으로 이동할 수 있습니다.
+
+### 5) Streaming UX
+- 응답은 스트리밍으로 전달되어 토큰 단위로 점진 렌더링됩니다.
+- 최종 완료 시점에 소스/본문을 파싱해 메시지 히스토리에 확정 저장합니다.
+
+---
+
+### 시스템 특성 / 한계
+- 데이터 소스는 **hanna-dev.co.kr 블로그 콘텐츠**에 한정됩니다.
+- 인덱스에 없는 최신 정보나 외부 지식은 정확도가 낮을 수 있습니다.
+- 검색된 문맥 품질이 최종 답변 품질을 결정합니다 (Garbage in, garbage out).
+
+필요하면 답변 하단의 참고 글을 열어 근거를 직접 확인해 주세요.
+`;
 
 // ============================================
 // Helpers
@@ -289,9 +326,13 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
 export default function LLMSearchPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const helpFabRef = useRef<HTMLButtonElement>(null);
+  const helpPopoverRef = useRef<HTMLDivElement>(null);
 
   // ---- useCompletion ----
   const {
@@ -374,6 +415,23 @@ export default function LLMSearchPage() {
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!isHelpOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isInsidePopover = helpPopoverRef.current?.contains(target);
+      const isOnFab = helpFabRef.current?.contains(target);
+
+      if (!isInsidePopover && !isOnFab) {
+        setIsHelpOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, [isHelpOpen]);
 
   // ---- Handlers ----
   const triggerSubmit = useCallback(() => {
@@ -685,6 +743,41 @@ export default function LLMSearchPage() {
               <span>·</span>
               <span>부정확할 수 있습니다</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className="lsp-help-fab"
+        onClick={() => setIsHelpOpen(prev => !prev)}
+        aria-label="LLM 동작 방식 안내"
+        aria-expanded={isHelpOpen}
+      >
+        ?
+      </button>
+
+      {isHelpOpen && (
+        <div
+          className="lsp-help-popover"
+          role="dialog"
+          aria-label="LLM 동작 방식 안내"
+        >
+          <div className="lsp-help-header">
+            <div className="lsp-help-title-wrap">
+              <strong>Hanna's LLM은 어떻게 동작하나요?</strong>
+            </div>
+            <button
+              type="button"
+              className="lsp-help-close"
+              onClick={() => setIsHelpOpen(false)}
+              aria-label="안내 닫기"
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+          <div className="lsp-help-body">
+            <ReactMarkdown>{HELP_MODAL_MARKDOWN}</ReactMarkdown>
           </div>
         </div>
       )}
