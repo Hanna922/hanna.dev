@@ -11,7 +11,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
 # environment variables
 .env.*
 
@@ -35,3 +34,7 @@ pnpm-debug.log*
 
 # custom
 example/
+
+# rag
+rag-index.json
+custom-documents.json

@@ -13,7 +13,8 @@
     "format": "prettier --write . --plugin=prettier-plugin-astro",
     "cz": "cz",
     "prepare": "husky install",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "sync-rag-index": "node scripts/sync-rag-index.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.24",
