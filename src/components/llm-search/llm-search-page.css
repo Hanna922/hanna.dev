@@ -137,15 +137,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(
-      rgba(var(--color-border), 0.15) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(var(--color-border), 0.15) 1px,
-      transparent 1px
-    );
+    linear-gradient(rgba(var(--color-border), 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--color-border), 0.15) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(
     ellipse 70% 60% at 50% 40%,
@@ -964,22 +957,55 @@
   cursor: pointer;
 }
 
-.lsp-help-list {
-  margin: 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.lsp-help-body {
+  max-height: min(68vh, 520px);
+  overflow-y: auto;
+  padding-right: 4px;
   font-size: 13px;
-  color: rgba(var(--color-text-base), 0.75);
-  line-height: 1.5;
+  color: rgba(var(--color-text-base), 0.78);
+  line-height: 1.6;
 }
 
-.lsp-help-note {
-  margin: 10px 0 0;
+.lsp-help-body h2,
+.lsp-help-body h3 {
+  color: rgb(var(--color-text-base));
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+
+.lsp-help-body h2 {
+  font-size: 16px;
+}
+
+.lsp-help-body h3 {
+  font-size: 14px;
+  margin-top: 14px;
+}
+
+.lsp-help-body p {
+  margin: 0 0 10px;
+}
+
+.lsp-help-body ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+.lsp-help-body li {
+  margin-bottom: 6px;
+}
+
+.lsp-help-body hr {
+  border: 0;
+  border-top: 1px solid rgba(var(--color-border), 0.6);
+  margin: 12px 0;
+}
+
+.lsp-help-body code {
   font-size: 12px;
-  color: rgba(var(--color-text-base), 0.45);
-  line-height: 1.45;
+  background: rgba(var(--color-text-base), 0.07);
+  border-radius: 4px;
+  padding: 1px 5px;
 }
 
 /* ============================================
