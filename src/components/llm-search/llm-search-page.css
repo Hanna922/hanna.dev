@@ -137,8 +137,15 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(var(--color-border), 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--color-border), 0.15) 1px, transparent 1px);
+    linear-gradient(
+      rgba(var(--color-border), 0.15) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(var(--color-border), 0.15) 1px,
+      transparent 1px
+    );
   background-size: 60px 60px;
   mask-image: radial-gradient(
     ellipse 70% 60% at 50% 40%,

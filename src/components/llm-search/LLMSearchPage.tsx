@@ -390,9 +390,51 @@ export default function LLMSearchPage() {
 
             {/* 설명 */}
             <p className="lsp-hero-desc">
-              궁금한 내용을 질문하면 블로그 글을 바탕으로 핵심만 빠르게 답변해
-              드립니다.
+              저의 프로젝트 경험, 기술적 고민, 문제 해결 과정이 궁금하신가요?
+              <br />이 AI는 제가 직접 작성한{" "}
+              <mark className="lsp-highlight">블로그 글과 저를 학습</mark>하여
+              답변합니다.
             </p>
+
+            {/* 데이터 소스 시각화 */}
+            <div className="lsp-data-flow">
+              <div className="lsp-data-node lsp-data-blog">
+                <div className="lsp-data-node-icon">📝</div>
+                <div className="lsp-data-node-label">블로그 글</div>
+              </div>
+              <div className="lsp-data-arrow">
+                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                  <path
+                    d="M0 12H32M32 12L24 4M32 12L24 20"
+                    stroke="rgb(var(--color-accent))"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray="4 3"
+                  />
+                </svg>
+              </div>
+              <div className="lsp-data-node lsp-data-index">
+                <div className="lsp-data-node-icon">🧠</div>
+                <div className="lsp-data-node-label">검색 인덱스</div>
+              </div>
+              <div className="lsp-data-arrow">
+                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                  <path
+                    d="M0 12H32M32 12L24 4M32 12L24 20"
+                    stroke="rgb(var(--color-accent))"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray="4 3"
+                  />
+                </svg>
+              </div>
+              <div className="lsp-data-node lsp-data-ai">
+                <div className="lsp-data-node-icon">✨</div>
+                <div className="lsp-data-node-label">AI 답변</div>
+              </div>
+            </div>
 
             {/* 입력 영역 */}
             <div className="lsp-hero-input-section">
