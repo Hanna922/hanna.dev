@@ -34,6 +34,3 @@ pnpm-debug.log*
 
 # custom
 example/
-
-# rag
-public/rag-index.json
