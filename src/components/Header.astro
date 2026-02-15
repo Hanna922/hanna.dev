@@ -246,17 +246,11 @@ const { activeNav } = Astro.props;
   // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
 
-  // AI 검색 모달 열기
   function setupLLMSearchTrigger() {
     document
       .getElementById("llm-search-trigger")
       ?.addEventListener("click", () => {
-        if (window.location.pathname === "/blog") {
-          window.location.href = "/";
-          return;
-        }
-
-        window.dispatchEvent(new CustomEvent("llm-search:open"));
+        window.location.href = "/";
       });
   }
 
