@@ -452,7 +452,7 @@ export default function LLMSearchModal({
                 </button>
               </div>
               <div className="llm-disclaimer">
-                {import.meta.env.DEV && (
+                {import.meta.env.PUBLIC_LLM_MOCK_MODE && (
                   <span style={{ color: "#f59e0b", fontWeight: 600 }}>
                     🧪 MOCK 모드 ·{" "}
                   </span>

@@ -40,14 +40,6 @@ export interface LLMSearchModalProps {
   exampleQuestions?: string[];
 }
 
-/** LLMSearchCTA 컴포넌트 Props */
-export interface LLMSearchCTAProps {
-  /** CTA 제목 */
-  title?: string;
-  /** CTA 설명 */
-  description?: string;
-}
-
 // ============================================
 // Custom Event 타입 (Astro 크로스 아일랜드 통신)
 // ============================================
