@@ -14,7 +14,7 @@ const { activeNav } = Astro.props;
   <a id="skip-to-content" href="#main-content">Skip to content</a>
   <div class="nav-container">
     <div class="top-nav-wrap">
-      <a href="/" class="logo whitespace-nowrap">
+      <a href="/blog" class="logo whitespace-nowrap">
         {
           LOGO_IMAGE.enable ? (
             <img
@@ -246,12 +246,11 @@ const { activeNav } = Astro.props;
   // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
 
-  // AI 검색 모달 열기
   function setupLLMSearchTrigger() {
     document
       .getElementById("llm-search-trigger")
       ?.addEventListener("click", () => {
-        window.dispatchEvent(new CustomEvent("llm-search:open"));
+        window.location.href = "/";
       });
   }
 

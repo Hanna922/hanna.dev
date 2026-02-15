@@ -5,185 +5,50 @@
 // ============================================
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { useCompletion } from "@ai-sdk/react";
-import type { BlogPost } from "./types";
-import { useThrottledValue } from "./hooks";
-import { SparkleIcon, SendIcon, ExternalLinkIcon } from "./Icons";
+import { EXAMPLE_QUESTIONS, type BlogPost, type ChatMessage } from "./types";
+import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
+import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
+import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
 
-// ============================================
-// Types
-// ============================================
+const HELP_MODAL_MARKDOWN = `
 
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: BlogPost[];
-};
+이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
+더 자세한 구현 과정은 [MiniSearch에서 RAG로 - 블로그 검색 고도화의 실패와 설계, MVP 구현기](https://www.hanna-dev.co.kr/posts/from-minisearch-to-rag-mvp/) 에서 확인하실 수 있습니다!
 
-// ============================================
-// Constants
-// ============================================
+### 1) Query 이해 및 검색 준비
+- 사용자의 질문을 그대로 LLM에 보내지 않고, 먼저 검색 가능한 형태로 처리합니다.
+- 멀티턴인 경우 \`history\`(이전 사용자/어시스턴트 발화)를 함께 전달해 문맥을 유지합니다.
 
-const EXAMPLE_QUESTIONS: string[] = [
-  "Stock Condition Analysis 프로젝트에 대해 설명해주세요.",
-  "YDS 프로젝트에 대해 설명해주세요",
-  "Yrano 프로젝트에 대해 설명해주세요",
-  "마이그레이션 경험에서 겪은 에러는?",
-  "대표 프로젝트 몇 가지를 설명해주세요",
-  "블로그에서 다룬 기술 스택은?",
-];
+### 2) Retrieval (Vector Search)
+- 블로그 문서들을 청크 단위로 분해해 임베딩한 인덱스에서 질문과 의미적으로 가까운 청크를 찾습니다.
+- 키워드 일치가 아니라 **의미 유사도 기반 검색**이므로, 표현이 달라도 관련 문서를 찾을 수 있습니다.
+- 이 단계 결과는 “답변 후보 문맥(Context)”이며, 이후 생성 단계의 근거 데이터가 됩니다.
 
-// ============================================
-// Helpers
-// ============================================
+### 3) Grounded Generation
+- LLM에는 질문 + 검색된 문맥만 주입해 답변을 생성합니다.
+- 즉, 일반 상식으로 길게 추론하기보다, 검색된 블로그 근거를 중심으로 설명하도록 제한합니다.
+- 환각(hallucination)을 줄이기 위해 출처 기반 응답 포맷을 사용합니다.
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-}
+### 4) Source Attachment & Rendering
+- 서버 응답에는 본문과 함께 출처 메타데이터가 포함됩니다.
+- UI는 응답 본문의 '출처' 표기를 실제 포스트 링크로 치환해 렌더링합니다.
+- 따라서 답변 검증이 필요할 때 즉시 원문으로 이동할 수 있습니다.
 
-const SOURCES_START = "<!-- SOURCES_START -->";
-const SOURCES_END = "<!-- SOURCES_END -->";
+### 5) Streaming UX
+- 응답은 스트리밍으로 전달되어 토큰 단위로 점진 렌더링됩니다.
+- 최종 완료 시점에 소스/본문을 파싱해 메시지 히스토리에 확정 저장합니다.
 
-function titleFromSlug(slug: string) {
-  const cleaned = slug
-    .replace(/^https?:\/\/[^/]+/i, "")
-    .replace(/^\/+|\/+$/g, "");
-  const lastSegment = cleaned.split("/").filter(Boolean).pop();
-  if (!lastSegment) return "Untitled";
+---
 
-  return lastSegment
-    .split("-")
-    .filter(Boolean)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
+### 시스템 특성 / 한계
+- 데이터 소스는 **hanna-dev.co.kr 블로그 콘텐츠**에 한정됩니다.
+- 인덱스에 없는 최신 정보나 외부 지식은 정확도가 낮을 수 있습니다.
+- 검색된 문맥 품질이 최종 답변 품질을 결정합니다 (Garbage in, garbage out).
 
-function isMeaningfulTitle(value: string) {
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) return false;
-
-  const compact = normalized.replace(/[^a-z0-9가-힣]/g, "");
-  const placeholders = new Set(["untitled", "notitle", "제목없음", "제목미정"]);
-
-  return !placeholders.has(compact);
-}
-
-function getDisplayTitle(post: BlogPost) {
-  if (isMeaningfulTitle(post.title)) return post.title.trim();
-
-  const fallback = titleFromSlug(post.slug);
-  if (isMeaningfulTitle(fallback)) return fallback;
-
-  return post.slug || "Untitled";
-}
-
-function normalizeSources(rawSources: unknown): BlogPost[] {
-  if (!Array.isArray(rawSources)) return [];
-
-  return rawSources
-    .map((raw): BlogPost | null => {
-      if (!raw || typeof raw !== "object") return null;
-
-      const candidate = raw as Record<string, unknown>;
-      const slug =
-        typeof candidate.slug === "string"
-          ? candidate.slug
-          : typeof candidate.url === "string"
-            ? candidate.url
-            : typeof candidate.path === "string"
-              ? candidate.path
-              : "";
-
-      if (!slug) return null;
-
-      const title =
-        typeof candidate.title === "string"
-          ? candidate.title
-          : typeof candidate.name === "string"
-            ? candidate.name
-            : typeof candidate.postTitle === "string"
-              ? candidate.postTitle
-              : "";
-
-      return {
-        slug,
-        title: isMeaningfulTitle(title) ? title.trim() : titleFromSlug(slug),
-      };
-    })
-    .filter((source): source is BlogPost => source !== null);
-}
-
-function parseResponse(text: string): {
-  content: string;
-  sources: BlogPost[];
-} {
-  if (text.includes(SOURCES_START) && text.includes(SOURCES_END)) {
-    const startIdx = text.indexOf(SOURCES_START) + SOURCES_START.length;
-    const endIdx = text.indexOf(SOURCES_END);
-    const content = text
-      .slice(text.indexOf(SOURCES_END) + SOURCES_END.length)
-      .trim();
-    try {
-      const sources = normalizeSources(
-        JSON.parse(text.slice(startIdx, endIdx))
-      );
-      return { content, sources };
-    } catch {
-      return { content, sources: [] };
-    }
-  }
-
-  if (text.includes("<!-- SOURCES -->")) {
-    const [content, sourcesRaw] = text.split("<!-- SOURCES -->");
-    try {
-      return {
-        content: content.trim(),
-        sources: normalizeSources(JSON.parse(sourcesRaw.trim())),
-      };
-    } catch {
-      return { content: content.trim(), sources: [] };
-    }
-  }
-
-  return { content: text, sources: [] };
-}
-
-function linkifySources(content: string, sources: BlogPost[]): string {
-  if (!sources || sources.length === 0) return content;
-
-  const sourceByNumber = (num: number) => sources[num - 1];
-  const pattern =
-    /\((?:Source|출처)\s*((?:\d+\s*,\s*)*\d+)\)|\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
-
-  return content.replace(
-    pattern,
-    (original, groupedNums, singleNum, quotedText) => {
-      if (groupedNums) {
-        const links = String(groupedNums)
-          .split(",")
-          .map(part => parseInt(part.trim(), 10))
-          .filter(num => !Number.isNaN(num))
-          .map(num => {
-            const source = sourceByNumber(num);
-            return source ? `[↗ 출처 ${num}](${source.slug})` : null;
-          })
-          .filter((link): link is string => Boolean(link));
-
-        return links.length > 0 ? links.join(", ") : original;
-      }
-
-      const num = parseInt(String(singleNum), 10);
-      const source = sourceByNumber(num);
-      if (!source) return original;
-
-      const label = quotedText ? quotedText : `출처 ${num}`;
-      return `[↗ ${label}](${source.slug})`;
-    }
-  );
-}
+필요하시다면 답변 하단의 참고 글을 열어 근거를 직접 확인해 주세요.
+`;
 
 // ============================================
 // Sub-components
@@ -289,9 +154,13 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
 export default function LLMSearchPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const helpFabRef = useRef<HTMLButtonElement>(null);
+  const helpPopoverRef = useRef<HTMLDivElement>(null);
 
   // ---- useCompletion ----
   const {
@@ -300,38 +169,20 @@ export default function LLMSearchPage() {
     handleInputChange,
     handleSubmit: submitToAPI,
     completion,
-    isLoading: apiIsLoading,
+    isLoading,
     error,
     stop,
-  } = useCompletion({
-    api: "/api/search",
-    streamProtocol: "text",
-    body: {
-      history: messages.map(({ role, content }) => ({ role, content })),
-    },
-    onFinish: (_prompt, result) => {
-      const { content, sources } = parseResponse(result);
+    streamContent,
+    throttledStreamingText,
+  } = useLLMSearchCompletion({
+    history: messages.map(({ role, content }) => ({ role, content })),
+    onAssistantMessage: ({ content, sources }) => {
       setMessages(prev => [
         ...prev,
         { id: generateId(), role: "assistant", content, sources },
       ]);
     },
   });
-
-  const { content: streamContent, sources: streamSources } = useMemo(() => {
-    if (!completion) return { content: "", sources: [] };
-    return parseResponse(completion);
-  }, [completion]);
-
-  const linkedStreamingText = useMemo(() => {
-    if (!streamContent) return "";
-    if (streamSources.length > 0) {
-      return linkifySources(streamContent, streamSources);
-    }
-    return streamContent;
-  }, [streamContent, streamSources]);
-
-  const throttledStreamingText = useThrottledValue(linkedStreamingText, 100);
 
   const markdownComponents: Components = useMemo(
     () => ({
@@ -352,8 +203,27 @@ export default function LLMSearchPage() {
     []
   );
 
+  const helpMarkdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="lsp-help-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
+  );
+
   // ---- 상태 파생 ----
-  const isLoading = apiIsLoading;
   const isThinking = isLoading && !streamContent;
   const isStreaming = isLoading && !!streamContent;
 
@@ -374,6 +244,23 @@ export default function LLMSearchPage() {
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!isHelpOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isInsidePopover = helpPopoverRef.current?.contains(target);
+      const isOnFab = helpFabRef.current?.contains(target);
+
+      if (!isInsidePopover && !isOnFab) {
+        setIsHelpOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, [isHelpOpen]);
 
   // ---- Handlers ----
   const triggerSubmit = useCallback(() => {
@@ -449,10 +336,13 @@ export default function LLMSearchPage() {
           <div className="lsp-hero-grid" />
 
           <div className="lsp-hero-inner">
+            <a href="/blog" className="lsp-blog-link-btn">
+              블로그 메인으로 이동
+            </a>
+
             {/* 뱃지 */}
             <div className="lsp-hero-badge">
-              <SparkleIcon size={14} color="rgb(var(--color-accent))" />
-              <span>Blog-Powered AI</span>
+              <span>👋🏻 Welcome to Hanna's AI</span>
             </div>
 
             {/* 메인 타이틀 */}
@@ -685,6 +575,45 @@ export default function LLMSearchPage() {
               <span>·</span>
               <span>부정확할 수 있습니다</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        ref={helpFabRef}
+        type="button"
+        className="lsp-help-fab"
+        onClick={() => setIsHelpOpen(prev => !prev)}
+        aria-label="LLM 동작 방식 안내"
+        aria-expanded={isHelpOpen}
+      >
+        ?
+      </button>
+
+      {isHelpOpen && (
+        <div
+          ref={helpPopoverRef}
+          className="lsp-help-popover"
+          role="dialog"
+          aria-label="LLM 동작 방식 안내"
+        >
+          <div className="lsp-help-header">
+            <div className="lsp-help-title-wrap">
+              <strong>Hanna's LLM은 어떻게 동작하나요?</strong>
+            </div>
+            <button
+              type="button"
+              className="lsp-help-close"
+              onClick={() => setIsHelpOpen(false)}
+              aria-label="안내 닫기"
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+          <div className="lsp-help-body">
+            <ReactMarkdown components={helpMarkdownComponents}>
+              {HELP_MODAL_MARKDOWN}
+            </ReactMarkdown>
           </div>
         </div>
       )}

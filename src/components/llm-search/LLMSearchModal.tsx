@@ -5,194 +5,22 @@
 // ============================================
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { useCompletion } from "@ai-sdk/react";
-import type { BlogPost, LLMSearchModalProps } from "./types";
 import {
-  useStreamingText,
+  EXAMPLE_QUESTIONS,
+  type BlogPost,
+  type ChatMessage,
+  type LLMSearchModalProps,
+} from "./types";
+import {
   useKeyboardShortcut,
   useBodyScrollLock,
   useLLMSearchEvent,
-  useThrottledValue,
 } from "./hooks";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import "./llm-search.css";
 import ReactMarkdown, { type Components } from "react-markdown";
-
-// ============================================
-// Types
-// ============================================
-
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: BlogPost[];
-};
-
-// ============================================
-// Constants
-// ============================================
-
-const DEFAULT_EXAMPLES: string[] = [
-  "YDS 프로젝트에 대해 설명해주세요",
-  "Yrano 프로젝트에 대해 설명해주세요",
-  "마이그레이션 경험에서 겪은 에러는?",
-  "대표 프로젝트 몇 가지를 설명해주세요",
-];
-
-// ============================================
-// Helpers
-// ============================================
-
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-}
-
-const SOURCES_START = "<!-- SOURCES_START -->";
-const SOURCES_END = "<!-- SOURCES_END -->";
-
-function titleFromSlug(slug: string) {
-  const cleaned = slug
-    .replace(/^https?:\/\/[^/]+/i, "")
-    .replace(/^\/+|\/+$/g, "");
-  const lastSegment = cleaned.split("/").filter(Boolean).pop();
-  if (!lastSegment) return "Untitled";
-
-  return lastSegment
-    .split("-")
-    .filter(Boolean)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function isMeaningfulTitle(value: string) {
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) return false;
-
-  const compact = normalized.replace(/[^a-z0-9가-힣]/g, "");
-  const placeholders = new Set(["untitled", "notitle", "제목없음", "제목미정"]);
-
-  return !placeholders.has(compact);
-}
-
-function getDisplayTitle(post: BlogPost) {
-  if (isMeaningfulTitle(post.title)) return post.title.trim();
-
-  const fallback = titleFromSlug(post.slug);
-  if (isMeaningfulTitle(fallback)) return fallback;
-
-  return post.slug || "Untitled";
-}
-
-function normalizeSources(rawSources: unknown): BlogPost[] {
-  if (!Array.isArray(rawSources)) return [];
-
-  return rawSources
-    .map((raw): BlogPost | null => {
-      if (!raw || typeof raw !== "object") return null;
-
-      const candidate = raw as Record<string, unknown>;
-      const slug =
-        typeof candidate.slug === "string"
-          ? candidate.slug
-          : typeof candidate.url === "string"
-            ? candidate.url
-            : typeof candidate.path === "string"
-              ? candidate.path
-              : "";
-
-      if (!slug) return null;
-
-      const title =
-        typeof candidate.title === "string"
-          ? candidate.title
-          : typeof candidate.name === "string"
-            ? candidate.name
-            : typeof candidate.postTitle === "string"
-              ? candidate.postTitle
-              : "";
-
-      return {
-        slug,
-        title: isMeaningfulTitle(title) ? title.trim() : titleFromSlug(slug),
-      };
-    })
-    .filter((source): source is BlogPost => source !== null);
-}
-
-/** 응답 텍스트에서 본문과 소스를 분리 (소스가 앞에 옴) */
-function parseResponse(text: string): {
-  content: string;
-  sources: BlogPost[];
-} {
-  // 새 포맷: 소스가 앞에 오는 경우
-  if (text.includes(SOURCES_START) && text.includes(SOURCES_END)) {
-    const startIdx = text.indexOf(SOURCES_START) + SOURCES_START.length;
-    const endIdx = text.indexOf(SOURCES_END);
-    const content = text
-      .slice(text.indexOf(SOURCES_END) + SOURCES_END.length)
-      .trim();
-
-    try {
-      const sources = normalizeSources(
-        JSON.parse(text.slice(startIdx, endIdx))
-      );
-      return { content, sources };
-    } catch {
-      return { content, sources: [] };
-    }
-  }
-
-  // 기존 포맷 호환 (소스가 뒤에 오는 경우)
-  if (text.includes("<!-- SOURCES -->")) {
-    const [content, sourcesRaw] = text.split("<!-- SOURCES -->");
-    try {
-      return {
-        content: content.trim(),
-        sources: normalizeSources(JSON.parse(sourcesRaw.trim())),
-      };
-    } catch {
-      return { content: content.trim(), sources: [] };
-    }
-  }
-
-  return { content: text, sources: [] };
-}
-
-/** 본문 내 Source/출처 참조를 클릭 가능한 링크로 변환 */
-function linkifySources(content: string, sources: BlogPost[]): string {
-  if (!sources || sources.length === 0) return content;
-
-  const sourceByNumber = (num: number) => sources[num - 1];
-  const pattern =
-    /\((?:Source|출처)\s*((?:\d+\s*,\s*)*\d+)\)|\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
-
-  return content.replace(
-    pattern,
-    (original, groupedNums, singleNum, quotedText) => {
-      if (groupedNums) {
-        const links = String(groupedNums)
-          .split(",")
-          .map(part => parseInt(part.trim(), 10))
-          .filter(num => !Number.isNaN(num))
-          .map(num => {
-            const source = sourceByNumber(num);
-            return source ? `[↗ 출처 ${num}](${source.slug})` : null;
-          })
-          .filter((link): link is string => Boolean(link));
-
-        return links.length > 0 ? links.join(", ") : original;
-      }
-
-      const num = parseInt(String(singleNum), 10);
-      const source = sourceByNumber(num);
-      if (!source) return original;
-
-      const label = quotedText ? quotedText : `출처 ${num}`;
-      return `[↗ ${label}](${source.slug})`;
-    }
-  );
-}
+import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
+import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
 
 // ============================================
 // Sub-components
@@ -317,11 +145,10 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
 // Main Component
 // ============================================
 export default function LLMSearchModal({
-  exampleQuestions = DEFAULT_EXAMPLES,
+  exampleQuestions = EXAMPLE_QUESTIONS,
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -332,42 +159,20 @@ export default function LLMSearchModal({
     handleInputChange,
     handleSubmit: submitToAPI,
     completion,
-    isLoading: apiIsLoading,
+    isLoading,
     error,
     stop,
-  } = useCompletion({
-    api: "/api/search",
-    streamProtocol: "text",
-    body: {
-      // 서버에 이전 대화 히스토리 전달
-      history: messages.map(({ role, content }) => ({ role, content })),
-    },
-    onFinish: (_prompt, result) => {
-      const { content, sources } = parseResponse(result);
-      console.log("parsed sources:", sources);
+    streamContent,
+    throttledStreamingText,
+  } = useLLMSearchCompletion({
+    history: messages.map(({ role, content }) => ({ role, content })),
+    onAssistantMessage: ({ content, sources }) => {
       setMessages(prev => [
         ...prev,
         { id: generateId(), role: "assistant", content, sources },
       ]);
     },
   });
-
-  // ---- 스트리밍 중 소스와 본문을 실시간으로 분리 ----
-  const { content: streamContent, sources: streamSources } = useMemo(() => {
-    if (!completion) return { content: "", sources: [] };
-    return parseResponse(completion);
-  }, [completion]);
-
-  // ---- 스트리밍 중 텍스트에 소스 링크 적용 ----
-  const linkedStreamingText = useMemo(() => {
-    if (!streamContent) return "";
-    if (streamSources.length > 0) {
-      return linkifySources(streamContent, streamSources);
-    }
-    return streamContent;
-  }, [streamContent, streamSources]);
-
-  const throttledStreamingText = useThrottledValue(linkedStreamingText, 100);
 
   const markdownComponents: Components = useMemo(
     () => ({
@@ -389,7 +194,6 @@ export default function LLMSearchModal({
   );
 
   // ---- 상태 파생 ----
-  const isLoading = apiIsLoading;
   const isIdle = messages.length === 0 && !isLoading;
   const isThinking = isLoading && !streamContent;
   const isStreaming = isLoading && !!streamContent;
@@ -631,7 +435,7 @@ export default function LLMSearchModal({
                 </button>
               </div>
               <div className="llm-disclaimer">
-                {import.meta.env.DEV && (
+                {import.meta.env.PUBLIC_LLM_MOCK_MODE && (
                   <span style={{ color: "#f59e0b", fontWeight: 600 }}>
                     🧪 MOCK 모드 ·{" "}
                   </span>
