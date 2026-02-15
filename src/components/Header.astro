@@ -251,6 +251,11 @@ const { activeNav } = Astro.props;
     document
       .getElementById("llm-search-trigger")
       ?.addEventListener("click", () => {
+        if (window.location.pathname === "/blog") {
+          window.location.href = "/";
+          return;
+        }
+
         window.dispatchEvent(new CustomEvent("llm-search:open"));
       });
   }

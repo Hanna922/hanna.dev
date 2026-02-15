@@ -507,6 +507,10 @@ export default function LLMSearchPage() {
           <div className="lsp-hero-grid" />
 
           <div className="lsp-hero-inner">
+            <a href="/blog" className="lsp-blog-link-btn">
+              블로그 메인으로 이동
+            </a>
+
             {/* 뱃지 */}
             <div className="lsp-hero-badge">
               <span>👋🏻 Welcome to Hanna's AI</span>
