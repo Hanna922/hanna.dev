@@ -70,7 +70,7 @@ const HELP_MODAL_MARKDOWN = `
 - 인덱스에 없는 최신 정보나 외부 지식은 정확도가 낮을 수 있습니다.
 - 검색된 문맥 품질이 최종 답변 품질을 결정합니다 (Garbage in, garbage out).
 
-필요하면 답변 하단의 참고 글을 열어 근거를 직접 확인해 주세요.
+필요하시다면 답변 하단의 참고 글을 열어 근거를 직접 확인해 주세요.
 `;
 
 // ============================================
@@ -509,8 +509,7 @@ export default function LLMSearchPage() {
           <div className="lsp-hero-inner">
             {/* 뱃지 */}
             <div className="lsp-hero-badge">
-              <SparkleIcon size={14} color="rgb(var(--color-accent))" />
-              <span>Blog-Powered AI</span>
+              <span>👋🏻 Welcome to Hanna's AI</span>
             </div>
 
             {/* 메인 타이틀 */}
