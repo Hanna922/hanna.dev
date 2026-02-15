@@ -1081,6 +1081,25 @@
   margin: 0 0 10px;
 }
 
+.lsp-help-link {
+  color: rgb(var(--color-accent));
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  word-break: keep-all;
+}
+
+.lsp-help-link::after {
+  content: " ↗";
+  font-weight: 700;
+}
+
+.lsp-help-link:hover {
+  color: rgba(var(--color-accent), 0.8);
+  text-decoration-thickness: 3px;
+}
+
 .lsp-help-body ul {
   margin: 0 0 10px;
   padding-left: 18px;
