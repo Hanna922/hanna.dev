@@ -3,9 +3,42 @@
     "id": "profile-overview",
     "title": "김나영 프로필 요약",
     "description": "소프트웨어 엔지니어 김나영의 핵심 소개와 연락처",
-    "tags": ["profile", "contact", "summary"],
+    "tags": ["profile", "contact", "summary", "김나영", "소개", "자기소개"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 퍼포먼스 최적화에 관심이 많고 효율적인 코드 작성을 지향하는 Software Engineer입니다. UX뿐 아니라 DX, AX 향상을 주도하는 엔지니어를 목표로 합니다. 이메일은 p.ping0922@gmail.com, GitHub는 github.com/Hanna922, 블로그는 hanna-dev.co.kr 입니다."
+    "content": "김나영은 퍼포먼스 최적화에 관심이 많고 효율적인 코드 작성을 지향하는 Software Engineer입니다. UX뿐 아니라 DX(Developer Experience), AX(Accessibility Experience) 향상을 주도하는 엔지니어를 목표로 합니다. 프론트엔드 개발을 중심으로 React, TypeScript, Next.js 등의 기술 스택을 활용하며, 디자인 시스템 구축, 모노레포 운영, 빌드 환경 마이그레이션, 실시간 데이터 시각화 등 폭넓은 경험을 보유하고 있습니다. 현재 우리FIS 아카데미 서비스 개발반 6기로 활동 중입니다. 이메일은 p.ping0922@gmail.com, GitHub는 github.com/Hanna922, 블로그는 hanna-dev.co.kr 입니다."
+  },
+  {
+    "id": "profile-identity",
+    "title": "김나영은 누구인가요 - 블로그 주인 소개",
+    "description": "이 블로그의 주인인 소프트웨어 엔지니어 김나영에 대한 소개",
+    "tags": ["profile", "identity", "김나영", "누구", "소개", "about"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영(Hanna)은 이 블로그(hanna-dev.co.kr)의 주인이자 소프트웨어 엔지니어입니다. 숭실대학교 재학 중이며, 프론트엔드 개발을 전문으로 하고, React와 TypeScript를 주력으로 사용합니다. TechLabs에서 인턴십을 경험했고, Yourssu에서 디자인 시스템(YDS)과 모노레포(Yrano) 프로젝트를 리드했습니다. toss/es-toolkit, TanStack Query 등 오픈소스 기여 경험이 있으며, GDSC Web/Mobile 파트에서 활동하고 세미나 발표도 다수 진행했습니다. 캡스톤 프로젝트로 AI 기반 주식 분석 서비스(Stock Condition Analysis)를 개발했습니다. 현재는 우리FIS 아카데미(woorifisa) 서비스 개발반 6기로 활동하며 금융 IT 분야 역량을 키우고 있습니다. 블로그에서는 프론트엔드 기술, 프로젝트 회고, 마이그레이션 경험 등을 공유하고 있습니다."
+  },
+  {
+    "id": "experience-woorifisa",
+    "title": "우리FIS 아카데미 서비스 개발반 6기",
+    "description": "우리FIS Academy(woorifisa) 서비스 개발반 6기 교육 과정",
+    "tags": [
+      "woorifisa",
+      "우리fis",
+      "우리FIS아카데미",
+      "서비스개발반",
+      "금융",
+      "교육",
+      "현재",
+      "활동"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 현재 우리FIS 아카데미(woorifisa) 서비스 개발반 6기로 활동하고 있습니다. 우리FIS 아카데미는 우리금융그룹 계열 IT 서비스 기업인 우리FIS에서 운영하는 개발자 양성 교육 프로그램입니다. 서비스 개발반에서는 금융 IT 서비스 개발에 필요한 역량을 갖추기 위한 교육을 받고 있으며, 실무 프로젝트 경험을 쌓고 있습니다. 우리FIS 아카데미 1차 기술 세미나에서 'Optimization of SEO, GEO'라는 주제로 발표하기도 했습니다."
+  },
+  {
+    "id": "education-soongsil",
+    "title": "학력 - 숭실대학교",
+    "description": "김나영의 대학교 학력 정보",
+    "tags": ["education", "학력", "숭실대학교", "대학교", "학교"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 숭실대학교에 재학 중입니다. 숭실대학교에서 Yourssu 동아리 활동을 하며 YDS(Yourssu Design System), Yrano(모노레포), Soomsil 등 다양한 프로젝트를 진행했습니다. 2025.03~2025.06에 캡스톤 디자인 종합 프로젝트(Capstone Design Comprehensive Project)로 Stock Condition Analysis를 개발했습니다. GDSC(Google Developer Student Club) Web/Mobile 파트에서도 활동했습니다."
   },
   {
     "id": "project-stock-condition-analysis",
@@ -18,14 +51,18 @@
       "langchain",
       "ollama",
       "spark",
-      "kafka"
+      "kafka",
+      "swr",
+      "stock",
+      "ai",
+      "실시간"
     ],
-    "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "2025.03~2025.06 캡스톤 프로젝트로 Stock Condition Analysis를 개발했습니다. 실시간 주식 데이터와 AI 기반 뉴스 감성 분석을 통합한 서비스입니다. Finnhub API로 수집한 실시간 주식 데이터를 Kafka와 Spark로 처리했고, LangChain과 sLM(Ollama) 기반 감성 분석을 적용했습니다. 프론트엔드는 Next.js와 SWR로 대시보드/실시간 차트/AI 분석 결과를 시각화했습니다. 주요 기여는 기술적 지표 차트 구현, SWR 기반 실시간 업데이트와 캐싱 최적화, Tailwind CSS 기반 반응형 UI 구현입니다."
+    "url": "https://github.com/stock-condition-analysis",
+    "content": "2025.03~2025.06 캡스톤 디자인 종합 프로젝트(Capstone Design Comprehensive Project)로 Stock Condition Analysis를 개발했습니다. 실시간 주식 데이터와 AI 기반 뉴스 감성 분석을 통합한 주식 상태 분석 서비스입니다. Finnhub API를 통해 수집된 실시간 주식 데이터를 Kafka와 Spark로 처리했고, LangChain과 sLM(Ollama)을 활용한 뉴스 감성 분석을 적용했습니다. 프론트엔드는 Next.js와 SWR을 활용하여 대시보드, 실시간 차트, AI 분석 결과를 시각화했습니다. 주요 기여는 실시간 주식 가격 차트 및 기술적 지표 시각화 구현, AI 기반 뉴스 감성 분석 결과 요약 표시, SWR을 활용한 실시간 데이터 업데이트 및 캐싱 최적화, Tailwind CSS를 활용한 반응형 UI 디자인 구현입니다. 기술 스택은 Next.js, TypeScript, SWR, Tailwind CSS, FastAPI, LangChain, Ollama 등입니다. GitHub: https://github.com/stock-condition-analysis"
   },
   {
     "id": "experience-techlabs-intern",
-    "title": "TechLabs AI부서 인턴십",
+    "title": "TechLabs AI부서 인턴십 경험",
     "description": "사내 성과 대시보드 개발 및 Node/Webpack에서 Vite 마이그레이션",
     "tags": [
       "experience",
@@ -33,49 +70,224 @@
       "react",
       "typescript",
       "vite",
-      "migration"
+      "migration",
+      "webpack",
+      "techlabs",
+      "인턴"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "2024.03~2024.06 TechLabs AI 부서 개발팀 인턴으로 근무했습니다. 사내 서비스 성과를 지표로 보여주는 어드민 페이지를 개발했고, 그래프를 공통 컴포넌트화해 DX를 개선했습니다. Node 14 + Webpack 환경을 Node 20 + Vite로 마이그레이션했고, yarn time을 1/5로 단축하고 프로젝트 사이즈를 1/2로 경량화했습니다. 클릭/세션 기반 이용 성과, 매출/구매전환율 지표를 그래프/표로 시각화하는 기능을 구현했습니다."
+    "content": "2024.03~2024.06 TechLabs AI 부서 개발팀 인턴으로 근무했습니다. 사내 서비스의 성과를 지표로 보여주는 어드민 페이지를 개발했고, 시각화에 사용되는 그래프들을 좋은 DX를 위해 공통 컴포넌트로 개발하여 재사용할 수 있도록 했습니다. Node14 + Webpack(CJS) + React16 환경의 서비스를 Node20 + Vite(ESM) + React18로 마이그레이션했습니다. 이 작업을 통해 yarn time을 1/5로 단축시켰으며 project size를 1/2로 경량화했습니다. 클릭, 세션에 따른 서비스 이용 및 조회 성과 데이터를 그래프와 표로 시각화하는 서비스를 개발했고, 매출액과 구매 전환율에 따른 성과 데이터를 그래프와 표로 시각화하는 서비스를 개발했습니다. 사용 기술은 React, TypeScript, Ant Design, TanStack Query입니다."
+  },
+  {
+    "id": "experience-techlabs-migration-detail",
+    "title": "TechLabs 레거시 마이그레이션 상세",
+    "description": "Node14/Webpack에서 Node20/Vite로의 마이그레이션 과정 상세",
+    "tags": [
+      "migration",
+      "vite",
+      "webpack",
+      "node",
+      "legacy",
+      "마이그레이션",
+      "레거시",
+      "CJS",
+      "ESM"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "TechLabs 인턴십에서 수행한 레거시 마이그레이션은 Node14 + Webpack(CJS) + React16 환경을 Node20 + Vite(ESM) + React18로 전환하는 대규모 작업이었습니다. 이 과정에서 CJS에서 ESM으로의 모듈 시스템 전환, Webpack에서 Vite로의 번들러 교체, React 16에서 18로의 메이저 버전 업그레이드를 동시에 진행했습니다. 마이그레이션 결과 yarn install time이 1/5로 단축되었고, 전체 프로젝트 사이즈가 1/2로 경량화되었습니다. 라이브러리 충돌 해결과 체계적인 검증 과정을 거쳐 안정적으로 마이그레이션을 완료했습니다."
   },
   {
     "id": "project-yrano-monorepo",
-    "title": "Yrano: Yourssuu 패키지 모노레포",
+    "title": "Yrano: Yourssu 패키지 모노레포",
     "description": "재사용성과 DX를 높이기 위한 TypeScript/JavaScript 패키지 모노레포",
-    "tags": ["project", "monorepo", "turborepo", "tsup", "react", "typescript"],
+    "tags": [
+      "project",
+      "monorepo",
+      "turborepo",
+      "tsup",
+      "react",
+      "typescript",
+      "yrano",
+      "yourssu",
+      "패키지"
+    ],
     "url": "https://github.com/yourssu/Yrano",
-    "content": "2023.03~2025.07 동안 Yourssuu에서 사용하는 TypeScript/JavaScript 패키지를 모노레포 형태로 관리했습니다. utils/hooks 등 공통 자산을 TF 간 재사용 가능하게 설계했고 성능 최적화와 DX 향상에 집중했습니다. crypto-js sha256 함수를 별도 패키지화해 모듈 사이즈를 경량화했습니다. CJS/ESM/DTS 지원을 위해 Rollup과 tsup를 비교해 tsup를 채택했습니다. 주요 작업은 @yourssu/logging-system-react, @yourssu/utils, @yourssu/react 개발과 기존 logging-system의 Yrano 마이그레이션입니다."
+    "content": "2023.03~2025.07 동안 Yourssu에서 사용하는 TypeScript/JavaScript 패키지들을 Monorepo 형태로 관리하는 Yrano(Yourssu Resourceful and Noteworthy) 프로젝트를 진행했습니다. 서비스에서 사용 중인 utils function, hook 등의 공통 자산을 새로운 TF에서도 재사용할 수 있도록 설계했고 성능 최적화와 DX 향상에 집중했습니다. 기존에 사용하던 crypto-js sha256 함수를 별도 패키지로 구현함으로써 module size를 경량화했습니다. CJS, ESM, DTS 환경을 비교적 쉽게 지원할 수 있도록 Rollup과 Tsup를 비교 검토한 뒤 Tsup를 선택했습니다. Node.js와 브라우저 환경을 모두 지원하도록 개발했습니다. GitHub: https://github.com/yourssu/Yrano"
+  },
+  {
+    "id": "project-yrano-packages",
+    "title": "Yrano 주요 패키지 상세",
+    "description": "Yrano 모노레포 내 개발한 주요 패키지들",
+    "tags": ["yrano", "logging", "utils", "패키지", "kibana", "모노레포"],
+    "url": "https://github.com/yourssu/Yrano",
+    "content": "Yrano 모노레포에서 개발한 주요 패키지는 다음과 같습니다. @yourssu/logging-system-react는 사용자의 행동을 로깅하여 Backend로 전송하고 Kibana로 시각화하는 시스템입니다. Logging System 내에서는 유저를 식별할 수 없도록 프라이버시를 고려하여 설계했습니다. 별도 Repo로 개발되었던 logging-system을 Yrano 아래로 마이그레이션하는 작업도 수행했습니다. @yourssu/utils는 공통 유틸리티 함수 패키지이고, @yourssu/react는 React 관련 공통 훅과 컴포넌트 패키지입니다. 사용 기술은 React, TypeScript, Vitest, Turborepo, Tsup, Nextra입니다."
   },
   {
     "id": "project-yds-design-system",
     "title": "YDS (Yourssu Design System)",
     "description": "일관된 UI 품질과 재사용성 향상을 위한 디자인 시스템",
-    "tags": ["project", "design-system", "storybook", "react", "typescript"],
+    "tags": [
+      "project",
+      "design-system",
+      "storybook",
+      "react",
+      "typescript",
+      "yds",
+      "yourssu",
+      "컴포넌트"
+    ],
     "url": "https://github.com/yourssu/YDS-React",
-    "content": "YDS 프로젝트에서는 UI 컴포넌트 재사용성과 일관된 디자인 퀄리티 확보에 집중했습니다. forwardRef와 HTML 속성 확장 등 Polymorphic Component 개발을 진행했고, webfontloader 기반 비동기 폰트 로딩 최적화를 적용했습니다. Button, Checkbox, TextField 계열 컴포넌트를 개발했으며 Storybook 버전별 배포 자동화/NPM 배포 자동화, 문서화, release template 설정을 구축했습니다. yarn classic에서 pnpm으로 마이그레이션도 수행했습니다."
+    "content": "YDS(Yourssu Design System) 프로젝트에서는 일관된 디자인 퀄리티 보장과 UI Component 재사용성을 높여 코드 작성에 걸리는 시간을 단축시키는 데 집중했습니다. forwardRef 활용, HTML 속성 확장 등 Polymorphic Component 개발에 집중했고, webfontloader를 활용하여 비동기적으로 Font loading을 최적화했습니다. BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 등의 컴포넌트를 개발했습니다. 사용 기술은 React, TypeScript, Storybook, Styled Components, Vite, SWC입니다. GitHub: https://github.com/yourssu/YDS-React"
   },
   {
-    "id": "project-soomsil-and-allchive",
-    "title": "Soomsil / All:Chive 프로젝트",
-    "description": "웹/모바일 제품 개발 경험",
-    "tags": ["project", "react", "react-native", "tanstack-query", "recoil"],
-    "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "Soomsil은 숭실대 학생 편의용 서랍장/검색 서비스로, Drawer/Search/Home 3개 TF 분업 구조에서 개발했습니다. Suspense와 Error Boundary를 활용해 선언형 코드를 작성했고 토큰 갱신 인터셉터, 메인/업로드 페이지, 공통 컴포넌트를 구현했습니다. All:Chive(23.06.18~23.08.31)는 링크/스크린샷 아카이빙 서비스로 App Store 생산성 카테고리 94위, Disquiet Trending Product 1위를 달성했습니다. 아카이빙 업로드/검색, 태그 및 필터링, 마이페이지 관리 기능, InAppBrowser 연결, dev/prod 환경 분리와 Android 배포 설정을 담당했습니다."
+    "id": "project-yds-automation",
+    "title": "YDS 배포 자동화 및 인프라",
+    "description": "Storybook/NPM 배포 자동화와 패키지 매니저 마이그레이션",
+    "tags": [
+      "yds",
+      "storybook",
+      "automation",
+      "github-actions",
+      "npm",
+      "pnpm",
+      "배포",
+      "자동화",
+      "ci-cd"
+    ],
+    "url": "https://github.com/yourssu/YDS-React",
+    "content": "YDS 프로젝트에서는 Storybook 버전별 배포 자동화 및 NPM package 배포 자동화를 구축했습니다. GitHub Action과 AWS S3 Bucket Versioning을 활용하여 Storybook 문서를 버전별로 자동 배포하는 파이프라인을 구성했습니다. Storybook 문서화 및 release template 설정도 구축했습니다. 또한 yarn classic에서 pnpm으로 패키지 매니저를 마이그레이션하여 설치 속도와 디스크 사용량을 개선했습니다."
   },
   {
-    "id": "opensource-study-seminar",
-    "title": "오픈소스 기여 및 커뮤니티 활동",
-    "description": "오픈소스 기여, 스터디 리드, 세미나 발표",
-    "tags": ["opensource", "community", "seminar", "study"],
+    "id": "project-soomsil",
+    "title": "Soomsil 프로젝트",
+    "description": "숭실대학교 학생 편의 서비스",
+    "tags": [
+      "project",
+      "react",
+      "tanstack-query",
+      "recoil",
+      "soomsil",
+      "숭실",
+      "서비스"
+    ],
+    "url": "https://github.com/yourssu/Soomsil-Web",
+    "content": "Soomsil은 숭실대학교 학생들의 편의를 위한 서랍장/검색 서비스입니다. 3개의 TF 단위(Drawer, Search, Home)로 페이지를 분리하여 동시에 작업하도록 개발했습니다. Suspense와 ErrorBoundary를 활용하여 선언적인 코드 작성에 집중했습니다. axios interceptor를 활용한 토큰 갱신 및 관리 로직을 개발했고, Drawer Main Page와 Service Upload Page를 개발했습니다. Button, Footer, Input 등 공통 컴포넌트도 개발했습니다. 사용 기술은 React, TypeScript, Styled Components, TanStack Query, Recoil, Vite, SWC입니다. GitHub: https://github.com/yourssu/Soomsil-Web"
+  },
+  {
+    "id": "project-allchive",
+    "title": "All:Chive 프로젝트",
+    "description": "링크와 스크린샷 아카이빙 모바일 서비스",
+    "tags": [
+      "project",
+      "react-native",
+      "mobile",
+      "allchive",
+      "아카이빙",
+      "앱스토어",
+      "CMC"
+    ],
+    "url": "https://github.com/ALL-CHIVE/All-Chive-Mobile",
+    "content": "All:Chive(2023.06.18~2023.08.31)는 링크와 스크린샷을 쉽게 관리하고 큐레이션할 수 있는 아카이빙 서비스입니다. App Store 'Productivity' 랭킹 94위, Disquiet 'Trending Product' 1위를 달성했습니다. Archiving & Contents Upload 및 Search 기능을 개발했고, Tag 생성/수정/삭제 등 관리 및 필터링, 카테고리별 아카이빙 필터링 기능을 개발했습니다. MyPage 내부 기능(아카이빙 관리, 태그 관리, 차단 관리, 휴지통)을 개발했고, InAppBrowser 연결, dev/prod 환경 분리 및 Android 배포 설정을 담당했습니다. 사용 기술은 React Native, TypeScript, Emotion, TanStack Query, Recoil입니다. CMC(2023.05~2023.09) 기간에 진행한 프로젝트입니다. GitHub: https://github.com/ALL-CHIVE/All-Chive-Mobile"
+  },
+  {
+    "id": "opensource-contributions",
+    "title": "오픈소스 기여 활동",
+    "description": "toss/es-toolkit, Storybook, TanStack Query 등 오픈소스 기여",
+    "tags": [
+      "opensource",
+      "toss",
+      "es-toolkit",
+      "storybook",
+      "tanstack",
+      "react",
+      "기여",
+      "contribution"
+    ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "오픈소스 기여로는 toss/es-toolkit(AbortSignal in debounce/delay), storybookjs/storybook 이슈 리포트, TanStack/query 오타 수정, reactjs/ko.react.dev 번역 기여가 있습니다. 또한 Google Developer Student Club(2023.10~2024.09) Web/Mobile 파트에서 활동했고, English Article Study를 리드했습니다. 발표 주제로는 Optimization of SEO/GEO(우리FISA 아카데미 기술 세미나), Next.js Hydration(CMC 세미나), FE에서 개발자를 위한 개발하기(GDSC 세미나)가 있습니다."
+    "content": "김나영은 더 나은 세상을 위한 오픈소스의 힘을 믿으며 여러 프로젝트에 기여했습니다. toss/es-toolkit에서는 debounce와 delay 함수에 AbortSignal을 지원하는 기능을 구현했습니다(PR #45, #52). storybookjs/storybook에서는 버그 이슈를 리포트했습니다(#26591). TanStack/query에서는 react-algolia 관련 오타를 수정했습니다(PR #7207). reactjs/ko.react.dev에서는 React 버전 관련 문서의 한국어 번역에 기여했습니다(PR #919)."
+  },
+  {
+    "id": "community-gdsc",
+    "title": "Google Developer Student Club 활동",
+    "description": "GDSC Web/Mobile 파트 활동 및 스터디",
+    "tags": ["community", "gdsc", "google", "study", "활동", "커뮤니티"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "2023.10~2024.09 동안 Google Developer Student Club(GDSC)에서 Web/Mobile Part 팀원으로 활동하며 각종 스터디 및 매주 세션 발표에 참여했습니다. Core JavaScript 스터디를 GDSC Web/Mobile Part에서 진행했고, Frameworkless Front-End Development 스터디도 진행했습니다."
+  },
+  {
+    "id": "study-lead",
+    "title": "스터디 리드 경험",
+    "description": "English Article Study 리드 등 스터디 활동",
+    "tags": ["study", "lead", "english", "yourssu", "스터디", "리더"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 Yourssu Web FE 팀에서 English Article Study의 Study Lead로 활동했습니다. 영어 기술 아티클을 함께 읽고 토론하는 스터디를 기획하고 이끌었습니다. GDSC에서도 Core JavaScript, Frameworkless Front-End Development 등의 스터디에 참여하며 기술 역량을 키웠습니다."
+  },
+  {
+    "id": "seminar-presentations",
+    "title": "세미나 발표 경험",
+    "description": "SEO/GEO 최적화, Next.js Hydration, DX 관련 세미나 발표",
+    "tags": [
+      "seminar",
+      "presentation",
+      "seo",
+      "geo",
+      "nextjs",
+      "hydration",
+      "dx",
+      "발표",
+      "세미나",
+      "woorifisa"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 다양한 기술 세미나에서 발표 경험이 있습니다. 'Optimization of SEO, GEO'라는 주제로 우리FIS 아카데미(Woori FIS Academy) 1차 기술 세미나에서 발표했습니다. SEO와 GEO(Generative Engine Optimization) 최적화 방법론에 대해 다뤘습니다. 'Next.js Hydration'이라는 주제로 CMC 세미나에서 발표했으며, Next.js의 서버 사이드 렌더링과 하이드레이션 메커니즘에 대해 설명했습니다. 'FE에서 개발자를 위한 개발하기'라는 주제로 GDSC 슈몰세미나에서 발표했으며, 프론트엔드에서 DX(Developer Experience)를 향상시키는 방법에 대해 공유했습니다."
   },
   {
     "id": "skills-stack",
     "title": "기술 스택 요약",
     "description": "이력서 기반 핵심 기술 스택 정리",
-    "tags": ["skills", "tech-stack"],
+    "tags": ["skills", "tech-stack", "기술", "스택", "react", "typescript"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "주요 기술 스택은 React, TypeScript, Next.js, SWR, TanStack Query, Recoil, React Native, Tailwind CSS, Styled-Components, Emotion, Storybook, Vite, SWC, FastAPI, LangChain, Ollama, Turborepo, tsup, Vitest입니다. 실시간 데이터 처리/시각화, 디자인 시스템 구축, 프론트엔드 성능 최적화와 마이그레이션, 모노레포 운영 경험이 있습니다."
+    "content": "김나영의 주요 기술 스택은 다음과 같습니다. 프론트엔드 프레임워크/라이브러리로는 React, Next.js, React Native를 사용합니다. 언어는 TypeScript를 주력으로 사용합니다. 상태 관리 및 데이터 페칭에는 SWR, TanStack Query, Recoil을 활용합니다. 스타일링에는 Tailwind CSS, Styled-Components, Emotion을 사용합니다. 빌드 도구로는 Vite, SWC, Turborepo, tsup을 활용합니다. 테스트에는 Vitest를 사용합니다. 문서화에는 Storybook과 Nextra를 활용합니다. UI 컴포넌트 라이브러리로 Ant Design 사용 경험이 있습니다. AI/백엔드 관련으로는 FastAPI, LangChain, Ollama 경험이 있습니다. 실시간 데이터 처리 파이프라인으로 Kafka와 Spark 활용 경험이 있습니다. 실시간 데이터 처리/시각화, 디자인 시스템 구축, 프론트엔드 성능 최적화와 마이그레이션, 모노레포 운영 경험이 풍부합니다."
+  },
+  {
+    "id": "skills-frontend-core",
+    "title": "프론트엔드 핵심 역량",
+    "description": "김나영의 프론트엔드 개발 핵심 역량과 관심사",
+    "tags": [
+      "skills",
+      "frontend",
+      "performance",
+      "optimization",
+      "dx",
+      "ux",
+      "ax",
+      "역량"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영의 프론트엔드 핵심 역량은 다음과 같습니다. 퍼포먼스 최적화에 깊은 관심을 가지고 있으며, 빌드 시간 단축(yarn time 1/5 단축), 프로젝트 사이즈 경량화(1/2), 모듈 사이즈 최적화(crypto-js 별도 패키지화) 등의 성과를 냈습니다. Polymorphic Component, forwardRef 패턴 등 고급 컴포넌트 설계 경험이 있습니다. 비동기 폰트 로딩 최적화(webfontloader), SWR 기반 실시간 데이터 캐싱 최적화 등 성능 관련 작업 경험이 풍부합니다. Suspense와 ErrorBoundary를 활용한 선언적 코드 작성, 공통 컴포넌트 설계를 통한 DX 향상에 집중합니다. CJS/ESM/DTS 호환, 모듈 시스템 전환 등 빌드 환경에 대한 깊은 이해를 보유하고 있습니다."
+  },
+  {
+    "id": "project-timeline",
+    "title": "프로젝트 타임라인",
+    "description": "김나영의 주요 프로젝트와 경험의 시간순 정리",
+    "tags": ["timeline", "career", "경력", "타임라인", "프로젝트"],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영의 주요 프로젝트 타임라인은 다음과 같습니다. 2023.03~2025.07: Yourssu에서 YDS(디자인 시스템), Yrano(모노레포), Soomsil 프로젝트 진행. 2023.05~2023.09: CMC에서 All:Chive 아카이빙 앱 개발(App Store 생산성 94위, Disquiet 1위). 2023.10~2024.09: Google Developer Student Club Web/Mobile 파트 활동. 2024.03~2024.06: TechLabs AI부서 개발팀 인턴십(Node14/Webpack→Node20/Vite 마이그레이션). 2025.03~2025.06: 캡스톤 프로젝트 Stock Condition Analysis 개발(실시간 주식+AI 감성 분석). 현재: 우리FIS 아카데미(woorifisa) 서비스 개발반 6기 활동 중."
+  },
+  {
+    "id": "project-github-links",
+    "title": "프로젝트별 GitHub 링크 모음",
+    "description": "김나영의 주요 프로젝트 GitHub 저장소 링크",
+    "tags": ["github", "repository", "링크", "저장소", "코드"],
+    "url": "https://github.com/Hanna922",
+    "content": "김나영의 주요 프로젝트 GitHub 저장소 링크는 다음과 같습니다. 개인 GitHub: github.com/Hanna922. Stock Condition Analysis(캡스톤): https://github.com/stock-condition-analysis. Yrano(모노레포): https://github.com/yourssu/Yrano. YDS(디자인 시스템): https://github.com/yourssu/YDS-React. Soomsil(숭실 서비스): https://github.com/yourssu/Soomsil-Web. All:Chive(아카이빙 앱): https://github.com/ALL-CHIVE/All-Chive-Mobile."
+  },
+  {
+    "id": "blog-about",
+    "title": "hanna-dev.co.kr 블로그 소개",
+    "description": "이 블로그의 목적과 다루는 주제",
+    "tags": ["blog", "about", "블로그", "소개", "hanna-dev"],
+    "url": "https://www.hanna-dev.co.kr",
+    "content": "hanna-dev.co.kr은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그입니다. 프론트엔드 개발 경험, 프로젝트 회고, 기술적 문제 해결 과정, 마이그레이션 경험, 오픈소스 기여 등을 공유합니다. 블로그에는 AI 기반 검색 기능(RAG)이 내장되어 있어, 블로그 콘텐츠를 기반으로 질문에 답변할 수 있습니다. 블로그 주인의 GitHub는 github.com/Hanna922이고, 이메일은 p.ping0922@gmail.com입니다."
   }
 ]

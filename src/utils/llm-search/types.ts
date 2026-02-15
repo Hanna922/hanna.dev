@@ -16,4 +16,5 @@ export interface SourceRef {
 export interface SearchRequestBody {
   prompt?: string;
   query?: string;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
 }
