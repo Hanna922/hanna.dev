@@ -30,7 +30,7 @@ const {
 
 const socialImageURL = new URL(ogImage).href;
 const faviconURL = new URL("favicon.ico", SITE.website).href;
-const isLLMSearchPage = Astro.url.pathname === "/llmSearch";
+const isMainPage = ["/"].includes(Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -112,6 +112,6 @@ const isLLMSearchPage = Astro.url.pathname === "/llmSearch";
   </head>
   <body>
     <slot />
-    {!isLLMSearchPage && <LLMSearchModal client:load />}
+    {!isMainPage && <LLMSearchModal client:load />}
   </body>
 </html>

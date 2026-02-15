@@ -39,6 +39,7 @@ const EXAMPLE_QUESTIONS: string[] = [
 const HELP_MODAL_MARKDOWN = `
 
 이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
+더 자세한 구현 과정은 [MiniSearch에서 RAG로 - 블로그 검색 고도화의 실패와 설계, MVP 구현기](https://www.hanna-dev.co.kr/posts/from-minisearch-to-rag-mvp/) 에서 확인하실 수 있습니다!
 
 ### 1) Query 이해 및 검색 준비
 - 사용자의 질문을 그대로 LLM에 보내지 않고, 먼저 검색 가능한 형태로 처리합니다.
@@ -393,6 +394,26 @@ export default function LLMSearchPage() {
     []
   );
 
+  const helpMarkdownComponents: Components = useMemo(
+    () => ({
+      a(props) {
+        const { href, children, ...rest } = props;
+        return (
+          <a
+            href={href ?? "#"}
+            className="lsp-help-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            {...rest}
+          >
+            {children}
+          </a>
+        );
+      },
+    }),
+    []
+  );
+
   // ---- 상태 파생 ----
   const isLoading = apiIsLoading;
   const isThinking = isLoading && !streamContent;
@@ -507,6 +528,10 @@ export default function LLMSearchPage() {
           <div className="lsp-hero-grid" />
 
           <div className="lsp-hero-inner">
+            <a href="/blog" className="lsp-blog-link-btn">
+              블로그 메인으로 이동
+            </a>
+
             {/* 뱃지 */}
             <div className="lsp-hero-badge">
               <span>👋🏻 Welcome to Hanna's AI</span>
@@ -747,6 +772,7 @@ export default function LLMSearchPage() {
       )}
 
       <button
+        ref={helpFabRef}
         type="button"
         className="lsp-help-fab"
         onClick={() => setIsHelpOpen(prev => !prev)}
@@ -758,6 +784,7 @@ export default function LLMSearchPage() {
 
       {isHelpOpen && (
         <div
+          ref={helpPopoverRef}
           className="lsp-help-popover"
           role="dialog"
           aria-label="LLM 동작 방식 안내"
@@ -776,7 +803,9 @@ export default function LLMSearchPage() {
             </button>
           </div>
           <div className="lsp-help-body">
-            <ReactMarkdown>{HELP_MODAL_MARKDOWN}</ReactMarkdown>
+            <ReactMarkdown components={helpMarkdownComponents}>
+              {HELP_MODAL_MARKDOWN}
+            </ReactMarkdown>
           </div>
         </div>
       )}
