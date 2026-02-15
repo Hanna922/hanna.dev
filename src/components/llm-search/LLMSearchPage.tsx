@@ -258,8 +258,8 @@ export default function LLMSearchPage() {
       }
     };
 
-    window.addEventListener("mousedown", handleOutsideClick);
-    return () => window.removeEventListener("mousedown", handleOutsideClick);
+    window.addEventListener("pointerdown", handleOutsideClick);
+    return () => window.removeEventListener("pointerdown", handleOutsideClick);
   }, [isHelpOpen]);
 
   // ---- Handlers ----
@@ -267,7 +267,19 @@ export default function LLMSearchPage() {
     const form = document.getElementById(
       "lsp-search-form"
     ) as HTMLFormElement | null;
-    if (form) form.requestSubmit();
+    if (!form) return;
+
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+      return;
+    }
+
+    form.dispatchEvent(
+      new Event("submit", {
+        bubbles: true,
+        cancelable: true,
+      })
+    );
   }, []);
 
   const handleSubmit = () => {

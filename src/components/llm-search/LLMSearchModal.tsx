@@ -230,7 +230,19 @@ export default function LLMSearchModal({
     const form = document.getElementById(
       "llm-search-form"
     ) as HTMLFormElement | null;
-    if (form) form.requestSubmit();
+    if (!form) return;
+
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+      return;
+    }
+
+    form.dispatchEvent(
+      new Event("submit", {
+        bubbles: true,
+        cancelable: true,
+      })
+    );
   }, []);
 
   const handleSubmit = () => {
