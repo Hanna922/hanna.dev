@@ -5,36 +5,12 @@
 // ============================================
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import type { BlogPost } from "./types";
+import { EXAMPLE_QUESTIONS, type BlogPost, type ChatMessage } from "./types";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
-
-// ============================================
-// Types
-// ============================================
-
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: BlogPost[];
-};
-
-// ============================================
-// Constants
-// ============================================
-
-const EXAMPLE_QUESTIONS: string[] = [
-  "Stock Condition Analysis 프로젝트에 대해 설명해주세요.",
-  "YDS 프로젝트에 대해 설명해주세요",
-  "Yrano 프로젝트에 대해 설명해주세요",
-  "마이그레이션 경험에서 겪은 에러는?",
-  "대표 프로젝트 몇 가지를 설명해주세요",
-  "블로그에서 다룬 기술 스택은?",
-];
 
 const HELP_MODAL_MARKDOWN = `
 

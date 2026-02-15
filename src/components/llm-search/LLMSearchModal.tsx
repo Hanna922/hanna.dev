@@ -5,7 +5,12 @@
 // ============================================
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import type { BlogPost, LLMSearchModalProps } from "./types";
+import {
+  EXAMPLE_QUESTIONS,
+  type BlogPost,
+  type ChatMessage,
+  type LLMSearchModalProps,
+} from "./types";
 import {
   useKeyboardShortcut,
   useBodyScrollLock,
@@ -16,28 +21,6 @@ import "./llm-search.css";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
-
-// ============================================
-// Types
-// ============================================
-
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: BlogPost[];
-};
-
-// ============================================
-// Constants
-// ============================================
-
-const DEFAULT_EXAMPLES: string[] = [
-  "YDS 프로젝트에 대해 설명해주세요",
-  "Yrano 프로젝트에 대해 설명해주세요",
-  "마이그레이션 경험에서 겪은 에러는?",
-  "대표 프로젝트 몇 가지를 설명해주세요",
-];
 
 // ============================================
 // Sub-components
@@ -162,7 +145,7 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
 // Main Component
 // ============================================
 export default function LLMSearchModal({
-  exampleQuestions = DEFAULT_EXAMPLES,
+  exampleQuestions = EXAMPLE_QUESTIONS,
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);

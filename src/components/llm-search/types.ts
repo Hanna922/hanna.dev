@@ -3,6 +3,16 @@
 // For: hanna-dev.co.kr (Astro v5 Blog)
 // ============================================
 
+/** 예시 질문 */
+export const EXAMPLE_QUESTIONS: string[] = [
+  "Stock Condition Analysis 프로젝트에 대해 설명해주세요.",
+  "YDS 프로젝트에 대해 설명해주세요",
+  "Yrano 프로젝트에 대해 설명해주세요",
+  "마이그레이션 경험에서 겪은 에러는?",
+  "대표 프로젝트 몇 가지를 설명해주세요",
+  "블로그에서 다룬 기술 스택은?",
+];
+
 /** 블로그 포스트 데이터 */
 export interface BlogPost {
   title: string;
@@ -12,14 +22,12 @@ export interface BlogPost {
 }
 
 /** 채팅 메시지 */
-export interface ChatMessage {
+export type ChatMessage = {
+  id: string;
   role: "user" | "assistant";
   content: string;
   sources?: BlogPost[];
-}
-
-/** 검색 Phase 상태 */
-export type SearchPhase = "idle" | "thinking" | "answering" | "done";
+};
 
 /** 아이콘 공통 Props */
 export interface IconProps {
@@ -28,15 +36,8 @@ export interface IconProps {
   className?: string;
 }
 
-/** LLM API 응답 (실제 백엔드 연동 시 사용) */
-export interface LLMResponse {
-  answer: string;
-  sources: BlogPost[];
-}
-
 /** LLMSearch 컴포넌트 Props */
 export interface LLMSearchModalProps {
-  /** 예시 질문 목록 */
   exampleQuestions?: string[];
 }
 
