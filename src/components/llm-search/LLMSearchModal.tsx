@@ -194,10 +194,6 @@ function linkifySources(content: string, sources: BlogPost[]): string {
   );
 }
 
-function isLLMSearchPath(pathname: string): boolean {
-  return pathname === "/llmSearch" || pathname === "/llmSearch/";
-}
-
 // ============================================
 // Sub-components
 // ============================================
@@ -422,8 +418,6 @@ export default function LLMSearchModal({
     };
   }, []);
 
-  const shouldHideGlobalModal = isLLMSearchPath(pathname);
-
   // ---- Modal ----
   const toggleModal = useCallback(() => setIsOpen(p => !p), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
@@ -505,8 +499,6 @@ export default function LLMSearchModal({
   // ============================================
   // Render
   // ============================================
-  if (shouldHideGlobalModal) return null;
-
   return (
     <>
       {/* Hidden form for useCompletion */}
