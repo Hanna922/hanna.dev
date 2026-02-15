@@ -1,44 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
 /**
- * 스트리밍 텍스트 효과 훅
- * LLM 응답을 타이핑 효과로 표시
- */
-export function useStreamingText(
-  text: string,
-  speed: number = 18,
-  active: boolean = false
-) {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    if (!active) {
-      setDisplayed("");
-      setDone(false);
-      return;
-    }
-
-    setDisplayed("");
-    setDone(false);
-    let i = 0;
-
-    const interval = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) {
-        clearInterval(interval);
-        setDone(true);
-      }
-    }, speed);
-
-    return () => clearInterval(interval);
-  }, [text, active, speed]);
-
-  return { displayed, done };
-}
-
-/**
  * 키보드 단축키 훅
  * Cmd/Ctrl + K 로 모달 토글
  */
