@@ -14,6 +14,7 @@ import {
   mergeSourcesAndStream,
 } from "@utils/llm-search/streaming";
 import type { SearchRequestBody, SourceRef } from "@utils/llm-search/types";
+import { logPrompt } from "lib/rag/prompt-logger";
 
 export const prerender = false;
 
@@ -42,6 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const body = (await request.json().catch(() => ({}))) as SearchRequestBody;
   const prompt = getPromptFromBody(body);
+  const startTime = performance.now();
 
   if (!apiKey) {
     return new Response(
@@ -52,6 +54,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   let sourcesForClient: SourceRef[];
   let llmPrompt: string;
+  let hitCount = 0;
+  let topScore: number | null = null;
 
   try {
     if (isRAGEnabled()) {
@@ -60,6 +64,8 @@ export const POST: APIRoute = async ({ request }) => {
         originRequestUrl: request.url,
       });
       sourcesForClient = rag.sources;
+      hitCount = rag.hits.length;
+      topScore = rag.hits[0]?.score ?? null;
       llmPrompt = rag.prompt;
     } else {
       const { mini } = await loadIndex(request.url);
@@ -76,6 +82,21 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const history = body.history ?? [];
+  const latencyMs = Math.round(performance.now() - startTime);
+
+  // fire-and-forget — 로깅 실패가 응답을 블로킹하지 않음
+  logPrompt({
+    prompt,
+    ragEnabled: isRAGEnabled(),
+    sourceCount: sourcesForClient.length,
+    hitCount,
+    topScore,
+    latencyMs,
+    userAgent: request.headers.get("user-agent") ?? undefined,
+    referer: request.headers.get("referer") ?? undefined,
+  })
+    .then(() => console.log("[PromptLog] ✅ logged successfully"))
+    .catch(err => console.error("[PromptLog] ❌ failed:", err));
 
   const result = streamText({
     model: google("gemini-2.5-flash-lite"),
