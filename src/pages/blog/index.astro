@@ -6,14 +6,35 @@ import Footer from "@components/Footer.astro";
 import LinkButton from "@components/LinkButton.astro";
 import Card from "@components/Article";
 import Socials from "@components/Socials.astro";
-import getSortedPosts from "@utils/getSortedPosts";
+import LocalizedPostListScript from "@components/LocalizedPostListScript.astro";
 import { SOCIALS } from "@config";
+import { getLocaleFromValue } from "@utils/locale";
+import { getPostBaseId } from "@utils/localizedPostGroups";
+import postFilter from "@utils/postFilter";
 
 const posts = await getCollection("blog");
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
 
-const sortedPosts = getSortedPosts(posts);
+const sortedPosts = posts
+  .filter(postFilter)
+  .sort(
+    (a, b) =>
+      Math.floor(
+        new Date(b.data.modDatetime ?? b.data.pubDatetime).getTime() / 1000
+      ) -
+      Math.floor(
+        new Date(a.data.modDatetime ?? a.data.pubDatetime).getTime() / 1000
+      )
+  );
 // const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const recentPostGroups = new Map<string, (typeof sortedPosts)[number][]>();
+for (const post of sortedPosts.filter(({ data }) => !data.featured)) {
+  const baseId = getPostBaseId(post.id);
+  const group = recentPostGroups.get(baseId) ?? [];
+  group.push(post);
+  recentPostGroups.set(baseId, group);
+}
+const recentPosts = Array.from(recentPostGroups.values()).slice(0, 4).flat();
 
 const socialCount = SOCIALS.filter(social => social.active).length;
 ---
@@ -61,8 +82,8 @@ const socialCount = SOCIALS.filter(social => social.active).length;
           </svg>
         </div>
         <div class="content">
-          <span class="title">이력서</span>
-          <span class="subtitle">PDF로 보기 →</span>
+          <span class="title">Resume</span>
+          <span class="subtitle">show PDF →</span>
         </div>
       </a>
     </section>
@@ -94,23 +115,28 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <section id="recent-posts">
           <h2>Recent Posts</h2>
           <ul>
-            {recentPosts.map(
-              ({ data, slug }, index) =>
-                index < 4 && (
-                  <Card
-                    href={`/posts/${slug}/`}
-                    frontmatter={data}
-                    secHeading={false}
-                  />
-                )
-            )}
+            {recentPosts.map(({ data, slug, id }) => (
+              <Card
+                href={`/posts/${slug}/`}
+                frontmatter={data}
+                secHeading={false}
+                entryId={id}
+              />
+            ))}
           </ul>
         </section>
       )
     }
+    <LocalizedPostListScript
+      containerSelector="#recent-posts"
+      linkSelector='#recent-posts a[href^="/posts/"]'
+      extraLinkSelector='.all-posts-btn-wrapper a[href^="/posts/"]'
+    />
 
     <div class="all-posts-btn-wrapper">
-      <LinkButton href="/posts/">
+      <LinkButton
+        href={locale === "en" ? "/posts/?lang=en" : "/posts/?lang=ko"}
+      >
         All Posts
         <svg xmlns="http://www.w3.org/2000/svg"
           ><path

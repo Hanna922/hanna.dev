@@ -1,28 +1,33 @@
 ---
 import { getCollection } from "astro:content";
 import Posts from "@layouts/Posts.astro";
-import getSortedPosts from "@utils/getSortedPosts";
 import getPageNumbers from "@utils/getPageNumbers";
 import getPagination from "@utils/getPagination";
+import { getLocaleFromValue } from "@utils/locale";
+import { getLocalizedPostGroups } from "@utils/localizedPostGroups";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
-  const sortedPosts = getSortedPosts(posts);
+  const postGroups = getLocalizedPostGroups(posts);
 
-  return getPageNumbers(sortedPosts.length)
+  return getPageNumbers(postGroups.length)
     .filter(page => page > 1)
     .map(page => ({ params: { page: String(page) } }));
 }
 
 const { page } = Astro.params;
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
 
-const posts = await getCollection("blog");
-const sortedPosts = getSortedPosts(posts);
-
-const pagination = getPagination({
-  posts: sortedPosts,
+const posts = await getCollection("blog", ({ data }) => !data.draft);
+const postGroups = getLocalizedPostGroups(posts);
+const groupPagination = getPagination({
+  posts: postGroups,
   page,
 });
+const pagination = {
+  ...groupPagination,
+  paginatedPosts: groupPagination.paginatedPosts.flatMap(group => group.posts),
+};
 ---
 
-<Posts {...pagination} />
+<Posts {...pagination} locale={locale} />

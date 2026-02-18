@@ -38,7 +38,7 @@ export const Section2 = () => {
 const Experiences = [
   {
     title: "Woori FIS Academy",
-    desc: "클라우드 서비스 개발 과정 6th",
+    desc: "Service Dev Team 6th",
     link: "https://www.woorifisa.com/",
     startDate: "2026.01",
     endDate: "2026.06",
@@ -59,7 +59,7 @@ const Experiences = [
   },
   {
     title: "Google Developer Student Club",
-    desc: "Web/Mobile Part 3th",
+    desc: "Web/Mobile Part 3rd",
     link: "https://gdsc.community.dev/soongsil-university-seoul-south-korea/",
     startDate: "2023.10",
     endDate: "2024.09",
