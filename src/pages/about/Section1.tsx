@@ -31,12 +31,8 @@ export const Section1 = () => {
         </div>
         <div className="md:mb-8 my-4 mt-2">
           <p>
-            안녕하세요. Software Engineer 김나영 입니다.
-            <br />
-            퍼포먼스 최적화에 관심이 많으며 효율적인 코드 작성을 지향합니다.
-            <br />
-            UX에 더불어 DX, AX 향상을 주도하는 엔지니어가 되기 위해 노력하고
-            있습니다.
+            I'm a Software Engineer focused on Frontend and product delivery,
+            with strong interest in practical AI solutions.
           </p>
         </div>
         <div className="flex flex-col flex-wrap">

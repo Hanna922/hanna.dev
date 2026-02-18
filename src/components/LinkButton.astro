@@ -5,9 +5,17 @@ export interface Props {
   ariaLabel?: string;
   title?: string;
   disabled?: boolean;
+  localePath?: string;
 }
 
-const { href, className, ariaLabel, title, disabled = false } = Astro.props;
+const {
+  href,
+  className,
+  ariaLabel,
+  title,
+  disabled = false,
+  localePath,
+} = Astro.props;
 ---
 
 {
@@ -17,6 +25,7 @@ const { href, className, ariaLabel, title, disabled = false } = Astro.props;
       aria-label={ariaLabel}
       title={title}
       aria-disabled={disabled}
+      data-nav-locale-path={localePath}
     >
       <slot />
     </span>
@@ -26,6 +35,7 @@ const { href, className, ariaLabel, title, disabled = false } = Astro.props;
       class={`group inline-block hover:text-skin-accent ${className}`}
       aria-label={ariaLabel}
       title={title}
+      data-nav-locale-path={localePath}
     >
       <slot />
     </a>

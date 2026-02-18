@@ -1,3 +1,13 @@
+---
+import type { LocaleCode } from "@utils/locale";
+
+interface Props {
+  locale?: LocaleCode;
+}
+
+const { locale = "ko" } = Astro.props;
+---
+
 <section class="giscus flex w-full"></section>
 
 <script
@@ -12,7 +22,7 @@
   data-emit-metadata="0"
   data-input-position="bottom"
   data-theme="light_high_contrast"
-  data-lang="ko"
+  data-lang={locale}
   data-loading="lazy"
   crossorigin="anonymous"
   async></script>

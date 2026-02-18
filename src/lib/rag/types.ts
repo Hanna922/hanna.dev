@@ -11,6 +11,7 @@ export interface RAGConfig {
 export interface RAGDocument {
   id: string;
   title: string;
+  titleEn?: string;
   description: string;
   tags: string[];
   url: string;
@@ -24,6 +25,7 @@ export interface RAGChunk {
   text: string;
   metadata: {
     title: string;
+    titleEn?: string;
     tags: string[];
     url: string;
   };

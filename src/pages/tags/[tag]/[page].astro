@@ -1,25 +1,27 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { getCollection } from "astro:content";
 import TagPosts from "@layouts/TagPosts.astro";
 import getUniqueTags from "@utils/getUniqueTags";
-import getPostsByTag from "@utils/getPostsByTag";
 import getPageNumbers from "@utils/getPageNumbers";
 import getPagination from "@utils/getPagination";
+import { getLocaleFromValue } from "@utils/locale";
+import { slugifyAll } from "@utils/slugify";
+import { getLocalizedPostGroups } from "@utils/localizedPostGroups";
 
 export interface Props {
-  post: CollectionEntry<"blog">;
   tag: string;
   tagName: string;
 }
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
-
   const tags = getUniqueTags(posts);
 
   return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getPostsByTag(posts, tag);
-    const totalPages = getPageNumbers(tagPosts.length);
+    const tagPostGroups = getLocalizedPostGroups(
+      posts.filter(post => slugifyAll(post.data.tags).includes(tag))
+    );
+    const totalPages = getPageNumbers(tagPostGroups.length);
 
     return totalPages.map(page => ({
       params: { tag, page },
@@ -30,15 +32,19 @@ export async function getStaticPaths() {
 
 const { page } = Astro.params;
 const { tag, tagName } = Astro.props;
-
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
 const posts = await getCollection("blog", ({ data }) => !data.draft);
-
-const postsByTag = getPostsByTag(posts, tag);
-
-const pagination = getPagination({
-  posts: postsByTag,
+const taggedPostGroups = getLocalizedPostGroups(
+  posts.filter(post => slugifyAll(post.data.tags).includes(tag))
+);
+const groupPagination = getPagination({
+  posts: taggedPostGroups,
   page,
 });
+const pagination = {
+  ...groupPagination,
+  paginatedPosts: groupPagination.paginatedPosts.flatMap(group => group.posts),
+};
 ---
 
-<TagPosts {...pagination} {tag} {tagName} />
+<TagPosts {...pagination} {tag} {tagName} locale={locale} />

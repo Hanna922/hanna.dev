@@ -1,32 +1,39 @@
 ---
 import { getCollection } from "astro:content";
 import TagPosts from "@layouts/TagPosts.astro";
-import getPostsByTag from "@utils/getPostsByTag";
 import getPagination from "@utils/getPagination";
 import getUniqueTags from "@utils/getUniqueTags";
+import { getLocaleFromValue } from "@utils/locale";
+import { slugifyAll } from "@utils/slugify";
+import { getLocalizedPostGroups } from "@utils/localizedPostGroups";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
-
   const tags = getUniqueTags(posts);
 
   return tags.map(({ tag, tagName }) => {
     return {
       params: { tag },
-      props: { tag, tagName, posts },
+      props: { tag, tagName },
     };
   });
 }
 
-const { tag, tagName, posts } = Astro.props;
-
-const postsByTag = getPostsByTag(posts, tag);
-
-const pagination = getPagination({
-  posts: postsByTag,
+const { tag, tagName } = Astro.props;
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
+const posts = await getCollection("blog", ({ data }) => !data.draft);
+const taggedPostGroups = getLocalizedPostGroups(
+  posts.filter(post => slugifyAll(post.data.tags).includes(tag))
+);
+const groupPagination = getPagination({
+  posts: taggedPostGroups,
   page: 1,
   isIndex: true,
 });
+const pagination = {
+  ...groupPagination,
+  paginatedPosts: groupPagination.paginatedPosts.flatMap(group => group.posts),
+};
 ---
 
-<TagPosts {...pagination} {tag} {tagName} />
+<TagPosts {...pagination} {tag} {tagName} locale={locale} />

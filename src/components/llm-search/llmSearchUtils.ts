@@ -31,7 +31,13 @@ function isMeaningfulTitle(value: string) {
   return !placeholders.has(compact);
 }
 
-export function getDisplayTitle(post: BlogPost) {
+export function getDisplayTitle(post: BlogPost, locale?: "ko" | "en") {
+  // locale이 en이고 titleEn이 있으면 영어 제목 사용
+  if (locale === "en" && post.titleEn && isMeaningfulTitle(post.titleEn)) {
+    return post.titleEn.trim();
+  }
+
+  // 기본 제목 사용
   if (isMeaningfulTitle(post.title)) return post.title.trim();
 
   const fallback = titleFromSlug(post.slug);
@@ -68,9 +74,13 @@ function normalizeSources(rawSources: unknown): BlogPost[] {
               ? candidate.postTitle
               : "";
 
+      const titleEn =
+        typeof candidate.titleEn === "string" ? candidate.titleEn : undefined;
+
       return {
         slug,
         title: isMeaningfulTitle(title) ? title.trim() : titleFromSlug(slug),
+        titleEn,
       };
     })
     .filter((source): source is BlogPost => source !== null);
@@ -112,10 +122,16 @@ export function parseResponse(text: string): {
   return { content: text, sources: [] };
 }
 
-export function linkifySources(content: string, sources: BlogPost[]): string {
+export function linkifySources(
+  content: string,
+  sources: BlogPost[],
+  locale?: "ko" | "en"
+): string {
   if (!sources || sources.length === 0) return content;
 
   const sourceByNumber = (num: number) => sources[num - 1];
+  const sourceLabel = locale === "en" ? "Source" : "출처";
+
   const pattern =
     /\((?:Source|출처)\s*((?:\d+\s*,\s*)*\d+)\)|\(?(?:\[?(?:Source|출처)\s*\[?(\d+)\]?\]?(?:\s*[""]([^"""]*)[""])?)\)?/gi;
 
@@ -129,7 +145,7 @@ export function linkifySources(content: string, sources: BlogPost[]): string {
           .filter(num => !Number.isNaN(num))
           .map(num => {
             const source = sourceByNumber(num);
-            return source ? `[↗ 출처 ${num}](${source.slug})` : null;
+            return source ? `[${sourceLabel} ${num}](${source.slug})` : null;
           })
           .filter((link): link is string => Boolean(link));
 
@@ -140,8 +156,8 @@ export function linkifySources(content: string, sources: BlogPost[]): string {
       const source = sourceByNumber(num);
       if (!source) return original;
 
-      const label = quotedText ? quotedText : `출처 ${num}`;
-      return `[↗ ${label}](${source.slug})`;
+      const label = quotedText ? quotedText : `${sourceLabel} ${num}`;
+      return `[${label}](${source.slug})`;
     }
   );
 }

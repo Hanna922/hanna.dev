@@ -1,21 +1,57 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import PostDetails from "@layouts/PostDetails.astro";
+import { getLocaleFromValue } from "@utils/locale";
+import { normalizeRequestedSlug } from "@utils/localizedPosts";
 
 export interface Props {
-  post: CollectionEntry<"blog">;
+  posts: CollectionEntry<"blog">[];
 }
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
+  const slugSet = new Set<string>();
+  posts.forEach(post => {
+    slugSet.add(post.slug);
+  });
 
-  return posts.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
+  return Array.from(slugSet).map(slug => ({
+    params: { slug },
+    props: { posts },
   }));
 }
 
-const { post } = Astro.props;
+const { posts } = Astro.props;
+const postSlug = Astro.params.slug ?? "";
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
+const allSlugs = new Set(posts.map(entry => entry.slug));
+const currentBaseSlug = normalizeRequestedSlug(postSlug, allSlugs);
+const englishSlug = allSlugs.has(`${currentBaseSlug}.en`)
+  ? `${currentBaseSlug}.en`
+  : allSlugs.has(`${currentBaseSlug}en`)
+    ? `${currentBaseSlug}en`
+    : null;
+const koreanSlug = allSlugs.has(currentBaseSlug) ? currentBaseSlug : null;
+const koreanPost = koreanSlug
+  ? (posts.find(entry => entry.slug === koreanSlug) ?? null)
+  : null;
+const englishPost = englishSlug
+  ? (posts.find(entry => entry.slug === englishSlug) ?? null)
+  : null;
+const post =
+  (locale === "en"
+    ? (englishPost ?? koreanPost)
+    : (koreanPost ?? englishPost)) ?? null;
+
+if (!post) {
+  return Astro.redirect("/404");
+}
 ---
 
-<PostDetails post={post} />
+<PostDetails
+  post={post}
+  locale={locale}
+  koreanPost={koreanPost}
+  englishPost={englishPost}
+/>

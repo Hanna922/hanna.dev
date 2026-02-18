@@ -10,6 +10,7 @@ export interface SearchDocument {
 
 export interface SourceRef {
   title: string;
+  titleEn?: string;
   slug: string;
 }
 
@@ -17,4 +18,5 @@ export interface SearchRequestBody {
   prompt?: string;
   query?: string;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
+  locale?: string;
 }

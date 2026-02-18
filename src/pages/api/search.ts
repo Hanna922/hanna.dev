@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+﻿import type { APIRoute } from "astro";
 import { streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { isRAGEnabled, runRAGSearch } from "lib/rag/index";
@@ -18,7 +18,7 @@ import { logPrompt } from "lib/rag/prompt-logger";
 
 export const prerender = false;
 
-const SYSTEM_PROMPT = `당신은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그(hanna-dev.co.kr)에 내장된 AI 어시스턴트입니다.
+const SYSTEM_PROMPT_KR = `당신은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그(hanna-dev.co.kr)에 내장된 AI 어시스턴트입니다.
 
 ## 핵심 규칙
 1. 반드시 제공된 CONTEXT에 포함된 정보만을 근거로 답변하세요.
@@ -26,7 +26,17 @@ const SYSTEM_PROMPT = `당신은 소프트웨어 엔지니어 김나영(Hanna)�
 3. "김나영"은 이 블로그의 주인인 소프트웨어 엔지니어 김나영만을 의미합니다. 동명이인(방송인, 연예인 등)의 정보는 절대 포함하지 마세요.
 4. 블로그 콘텐츠 범위를 벗어나는 질문에는 "블로그에서 관련 정보를 찾을 수 없습니다"라고 안내하세요.
 5. 답변 시 참고한 소스는 반드시 (출처 N) 형식으로 표기하세요.
-6. 마크다운 형식으로 답변하세요.`;
+6. 부정확한 예측/추측은 피하세요.`;
+
+const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Hanna's personal technical blog (hanna-dev.co.kr).
+
+## Core Rules
+1. Answer only from the provided CONTEXT.
+2. If the answer is not in CONTEXT, do not rely on external knowledge.
+3. Treat "Hanna" as the blog owner and do not mention similarly named public figures.
+4. For out-of-context questions, reply with "No relevant information found on the blog."
+5. Include source references in the format (Source N).
+6. Avoid guessing and keep responses grounded.`;
 
 const isMockMode = import.meta.env.PUBLIC_LLM_MOCK_MODE === "true";
 const apiKey = import.meta.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -52,6 +62,8 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  const history = body.history ?? [];
+  const locale = body.locale === "en" ? "en" : "ko";
   let sourcesForClient: SourceRef[];
   let llmPrompt: string;
   let hitCount = 0;
@@ -62,26 +74,26 @@ export const POST: APIRoute = async ({ request }) => {
       const rag = await runRAGSearch(prompt, {
         apiKey,
         originRequestUrl: request.url,
+        locale,
       });
       sourcesForClient = rag.sources;
       hitCount = rag.hits.length;
       topScore = rag.hits[0]?.score ?? null;
       llmPrompt = rag.prompt;
     } else {
-      const { mini } = await loadIndex(request.url);
+      const { mini } = await loadIndex(request.url, locale);
       const hits = searchDocs(prompt, mini);
       sourcesForClient = toSourceRefs(hits);
-      llmPrompt = buildLLMPrompt(prompt, hits);
+      llmPrompt = buildLLMPrompt(prompt, hits, locale);
     }
   } catch (error) {
     console.warn("RAG search failed; falling back to MiniSearch", error);
-    const { mini } = await loadIndex(request.url);
+    const { mini } = await loadIndex(request.url, locale);
     const hits = searchDocs(prompt, mini);
     sourcesForClient = toSourceRefs(hits);
-    llmPrompt = buildLLMPrompt(prompt, hits);
+    llmPrompt = buildLLMPrompt(prompt, hits, locale);
   }
 
-  const history = body.history ?? [];
   const latencyMs = Math.round(performance.now() - startTime);
 
   // fire-and-forget — 로깅 실패가 응답을 블로킹하지 않음
@@ -98,9 +110,15 @@ export const POST: APIRoute = async ({ request }) => {
     .then(() => console.log("[PromptLog] ✅ logged successfully"))
     .catch(err => console.error("[PromptLog] ❌ failed:", err));
 
+  const systemPrompt = locale === "en" ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_KR;
+  const languageInstruction =
+    locale === "en"
+      ? "Answer in English and keep technical terms as-is."
+      : "답변은 한국어로 작성하고 기술 용어는 영어로 유지하세요.";
+
   const result = streamText({
     model: google("gemini-2.5-flash-lite"),
-    system: SYSTEM_PROMPT,
+    system: `${systemPrompt}\n\n${languageInstruction}`,
     messages: [
       ...history.map(msg => ({
         role: msg.role as "user" | "assistant",

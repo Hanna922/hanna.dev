@@ -1,13 +1,20 @@
 import MiniSearch from "minisearch";
 import type { SearchDocument } from "./types";
 
-let cachedMini: MiniSearch<SearchDocument> | null = null;
-let cachedDocs: SearchDocument[] | null = null;
+const cachedIndexes = new Map<
+  string,
+  { mini: MiniSearch<SearchDocument>; docs: SearchDocument[] }
+>();
 
-export async function loadIndex(originRequestUrl: string) {
-  if (cachedMini && cachedDocs) return { mini: cachedMini, docs: cachedDocs };
+export async function loadIndex(
+  originRequestUrl: string,
+  locale: "ko" | "en" = "ko"
+) {
+  const cached = cachedIndexes.get(locale);
+  if (cached) return cached;
 
   const indexUrl = new URL("/search-index.json", originRequestUrl);
+  indexUrl.searchParams.set("lang", locale);
   const res = await fetch(indexUrl);
 
   if (!res.ok) throw new Error(`Failed to load index: ${res.status}`);
@@ -24,8 +31,8 @@ export async function loadIndex(originRequestUrl: string) {
   });
   mini.addAll(docs);
 
-  cachedMini = mini;
-  cachedDocs = docs;
+  const result = { mini, docs };
+  cachedIndexes.set(locale, result);
 
-  return { mini, docs };
+  return result;
 }

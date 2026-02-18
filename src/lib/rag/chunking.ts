@@ -35,8 +35,11 @@ export function chunkDocuments(
   const chunks: RAGChunk[] = [];
 
   for (const doc of docs) {
-    const sections = splitByHeading(doc.content);
-    const pieces = sections.length > 0 ? sections : [doc.content];
+    const fullText = [doc.title, doc.description, doc.content]
+      .filter(Boolean)
+      .join("\n\n");
+    const sections = splitByHeading(fullText);
+    const pieces = sections.length > 0 ? sections : [fullText];
 
     let chunkIndex = 0;
 
@@ -54,6 +57,7 @@ export function chunkDocuments(
           text,
           metadata: {
             title: doc.title,
+            ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
             tags: doc.tags,
             url: doc.url,
           },

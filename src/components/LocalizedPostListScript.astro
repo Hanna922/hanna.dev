@@ -1,0 +1,100 @@
+---
+interface Props {
+  containerSelector?: string;
+  linkSelector?: string;
+  extraLinkSelector?: string | null;
+}
+
+const {
+  containerSelector = "[data-localized-post-list]",
+  linkSelector = 'a[href^="/posts/"], a[href^="/tags/"]',
+  extraLinkSelector = null,
+} = Astro.props;
+---
+
+<script
+  is:inline
+  define:vars={{ containerSelector, linkSelector, extraLinkSelector }}
+>
+  (function () {
+    const getCurrentLocale = () => {
+      const queryLocale = new URLSearchParams(window.location.search).get(
+        "lang"
+      );
+      if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
+
+      const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+      if (contextLocale === "en" || contextLocale === "ko")
+        return contextLocale;
+
+      return document.documentElement.dataset.locale === "en" ? "en" : "ko";
+    };
+
+    const withLocale = (href, locale) => {
+      const url = new URL(href, window.location.origin);
+      if (url.origin !== window.location.origin) return href;
+      url.searchParams.set("lang", locale);
+      const query = url.searchParams.toString();
+      return query ? `${url.pathname}?${query}` : url.pathname;
+    };
+
+    const applyLocalizedPostFilter = () => {
+      const locale = getCurrentLocale();
+      const container = document.querySelector(containerSelector);
+      if (!container) return;
+
+      const postItems = Array.from(
+        container.querySelectorAll("li[data-post-base][data-post-locale]")
+      );
+
+      const groups = new Map();
+      for (const item of postItems) {
+        const base = item.getAttribute("data-post-base");
+        const itemLocale = item.getAttribute("data-post-locale");
+        if (!base || !itemLocale) continue;
+
+        const group = groups.get(base) ?? [];
+        group.push({ item, locale: itemLocale });
+        groups.set(base, group);
+      }
+
+      for (const group of groups.values()) {
+        const preferred =
+          group.find(record => record.locale === locale) ??
+          group.find(record => record.locale === "ko") ??
+          group[0];
+
+        for (const record of group) {
+          record.item.hidden = record !== preferred;
+        }
+      }
+
+      const localeLinks = document.querySelectorAll(linkSelector);
+      for (const link of localeLinks) {
+        const href = link.getAttribute("href");
+        if (!href) continue;
+        link.setAttribute("href", withLocale(href, locale));
+      }
+
+      if (extraLinkSelector) {
+        const extraLink = document.querySelector(extraLinkSelector);
+        if (extraLink) {
+          extraLink.setAttribute("href", withLocale("/posts/", locale));
+        }
+      }
+    };
+
+    const applyOnNextFrame = () =>
+      window.requestAnimationFrame(applyLocalizedPostFilter);
+
+    applyLocalizedPostFilter();
+    window.addEventListener("blog:locale-change", applyOnNextFrame);
+    document.addEventListener("astro:after-swap", applyOnNextFrame);
+
+    const localeObserver = new MutationObserver(applyOnNextFrame);
+    localeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-locale", "lang"],
+    });
+  })();
+</script>
