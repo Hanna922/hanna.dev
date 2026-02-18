@@ -6,34 +6,49 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Pagination from "@components/Pagination.astro";
 import Article from "@components/Article";
+import LocalizedPostListScript from "@components/LocalizedPostListScript.astro";
 import { SITE } from "@config";
+import { type LocaleCode } from "@utils/locale";
 
 export interface Props {
   currentPage: number;
   totalPages: number;
   paginatedPosts: CollectionEntry<"blog">[];
+  locale?: LocaleCode;
 }
 
-const { currentPage, totalPages, paginatedPosts } = Astro.props;
+const { currentPage, totalPages, paginatedPosts, locale = "ko" } = Astro.props;
+const title = `${SITE.title} | Posts`;
+const description = "All the articles I've posted.";
+
+const withLocale = (path: string) =>
+  locale === "en" ? `${path}?lang=en` : path;
 ---
 
-<Layout title={`Posts | ${SITE.title}`}>
+<Layout title={title} description={description}>
   <Header activeNav="posts" />
   <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
-    <ul>
+    <ul data-localized-post-list="true">
       {
-        paginatedPosts.map(({ data, slug }) => (
-          <Article href={`/posts/${slug}/`} frontmatter={data} />
+        paginatedPosts.map(({ data, slug, id }) => (
+          <Article
+            href={withLocale(`/posts/${slug}/`)}
+            frontmatter={data}
+            entryId={id}
+          />
         ))
       }
     </ul>
   </Main>
+  <LocalizedPostListScript />
 
   <Pagination
     {currentPage}
     {totalPages}
-    prevUrl={`/posts${currentPage - 1 !== 1 ? "/" + (currentPage - 1) : ""}/`}
-    nextUrl={`/posts/${currentPage + 1}/`}
+    prevUrl={withLocale(
+      `/posts${currentPage - 1 !== 1 ? "/" + (currentPage - 1) : "/"}`
+    )}
+    nextUrl={withLocale(`/posts/${currentPage + 1}/`)}
   />
 
   <Footer noMarginTop={totalPages > 1} />

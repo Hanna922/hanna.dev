@@ -4,18 +4,26 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
-import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
 import PostComments from "@components/PostComments.astro";
 import PageViews from "@components/PageViews.astro";
+import type { CollectionEntry } from "astro:content";
 
 export interface Props {
   post: CollectionEntry<"blog">;
+  locale?: "ko" | "en";
+  koreanPost?: CollectionEntry<"blog"> | null;
+  englishPost?: CollectionEntry<"blog"> | null;
 }
 
-const { post } = Astro.props;
+const {
+  post,
+  locale = "ko",
+  koreanPost = null,
+  englishPost = null,
+} = Astro.props;
 
 const {
   title,
@@ -25,10 +33,18 @@ const {
   canonicalURL,
   pubDatetime,
   modDatetime,
-  tags,
 } = post.data;
 
-const { Content } = await post.render();
+const renderKoreanPost = koreanPost ?? (englishPost ? null : post);
+const renderEnglishPost = englishPost ?? (koreanPost ? null : post);
+const koreanRender = renderKoreanPost ? await renderKoreanPost.render() : null;
+const englishRender = renderEnglishPost
+  ? await renderEnglishPost.render()
+  : null;
+const KoreanContent = koreanRender?.Content;
+const EnglishContent = englishRender?.Content;
+const koreanData = renderKoreanPost?.data;
+const englishData = renderEnglishPost?.data;
 
 const ogImageUrl = typeof ogImage === "string" ? ogImage : ogImage?.src;
 const ogUrl = new URL(
@@ -66,25 +82,63 @@ const layoutProps = {
         ><path
           d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
         ></path>
-      </svg><span>Go back</span>
+      </svg><span data-i18n="post.goBack">Go back</span>
     </button>
   </div>
   <main id="main-content">
-    <h1 transition:name={slugifyStr(title)} class="post-title">{title}</h1>
-    <Datetime
-      pubDatetime={pubDatetime}
-      modDatetime={modDatetime}
-      size="lg"
-      className="my-2"
-    />
     <PageViews url={url} />
-    <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
-      <Content />
-    </article>
+    {
+      KoreanContent && koreanData && (
+        <section
+          data-post-detail-locale="ko"
+          data-post-title={`${koreanData.title} | ${SITE.title}`}
+          hidden={locale === "en" && Boolean(EnglishContent)}
+        >
+          <h1 class="post-title">{koreanData.title}</h1>
+          <Datetime
+            pubDatetime={koreanData.pubDatetime}
+            modDatetime={koreanData.modDatetime}
+            size="lg"
+            className="my-2"
+          />
+          <article role="article" class="prose mx-auto mt-8 max-w-3xl">
+            <KoreanContent />
+          </article>
 
-    <ul class="my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} />)}
-    </ul>
+          <ul class="my-8">
+            {koreanData.tags.map(tag => (
+              <Tag tag={slugifyStr(tag)} locale="ko" />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+    {
+      EnglishContent && englishData && (
+        <section
+          data-post-detail-locale="en"
+          data-post-title={`${englishData.title} | ${SITE.title}`}
+          hidden={locale !== "en" && Boolean(KoreanContent)}
+        >
+          <h1 class="post-title">{englishData.title}</h1>
+          <Datetime
+            pubDatetime={englishData.pubDatetime}
+            modDatetime={englishData.modDatetime}
+            size="lg"
+            className="my-2"
+          />
+          <article role="article" class="prose mx-auto mt-8 max-w-3xl">
+            <EnglishContent />
+          </article>
+
+          <ul class="my-8">
+            {englishData.tags.map(tag => (
+              <Tag tag={slugifyStr(tag)} locale="en" />
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
     <PostComments />
 
@@ -119,16 +173,102 @@ const layoutProps = {
 </style>
 
 <script>
+  /* eslint-disable */
   import { initPostEnhancements } from "@utils/postEnhancements";
 
+  function getCurrentLocale() {
+    const queryLocale = new URLSearchParams(window.location.search).get("lang");
+    if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
+
+    const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+    if (contextLocale === "en" || contextLocale === "ko") return contextLocale;
+
+    return document.documentElement.dataset.locale === "en" ? "en" : "ko";
+  }
+
+  function withLocale(href: string, locale: "en" | "ko") {
+    const url = new URL(href, window.location.origin);
+    if (url.origin !== window.location.origin) return href;
+    url.searchParams.set("lang", locale);
+    const query = url.searchParams.toString();
+    return query ? `${url.pathname}?${query}` : url.pathname;
+  }
+
+  function syncPostTagLinksLocale() {
+    const locale = getCurrentLocale();
+    const links = document.querySelectorAll('[data-tag-link][href^="/tags/"]');
+
+    for (const link of links) {
+      const href = link.getAttribute("href");
+      if (!href) continue;
+      link.setAttribute("href", withLocale(href, locale));
+    }
+  }
+
+  function applyLocalizedPostDetail() {
+    const locale = getCurrentLocale();
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-post-detail-locale]")
+    );
+    if (sections.length === 0) return;
+
+    const hasKoreanSection = sections.some(
+      section => section.dataset.postDetailLocale === "ko"
+    );
+    const hasEnglishSection = sections.some(
+      section => section.dataset.postDetailLocale === "en"
+    );
+
+    const effectiveLocale =
+      locale === "en" && hasEnglishSection
+        ? "en"
+        : hasKoreanSection
+          ? "ko"
+          : "en";
+
+    sections.forEach(section => {
+      section.hidden = section.dataset.postDetailLocale !== effectiveLocale;
+    });
+
+    const activeSection = sections.find(
+      section => section.dataset.postDetailLocale === effectiveLocale
+    );
+    const activeTitle = activeSection?.dataset.postTitle;
+    if (activeTitle) {
+      document.title = activeTitle;
+    }
+
+    const search = new URLSearchParams(window.location.search);
+    if (search.get("lang") !== effectiveLocale) {
+      search.set("lang", effectiveLocale);
+      const query = search.toString();
+      const targetUrl = query
+        ? `${window.location.pathname}?${query}`
+        : window.location.pathname;
+      window.history.replaceState({}, "", targetUrl);
+    }
+  }
+
   let cleanup = initPostEnhancements();
+  applyLocalizedPostDetail();
+  syncPostTagLinksLocale();
+  const handleLocaleChange = () => {
+    applyLocalizedPostDetail();
+    syncPostTagLinksLocale();
+  };
 
   document.addEventListener("astro:before-swap", () => {
     cleanup?.();
+    window.removeEventListener("blog:locale-change", handleLocaleChange);
   });
 
   document.addEventListener("astro:after-swap", () => {
     cleanup?.();
     cleanup = initPostEnhancements();
+    applyLocalizedPostDetail();
+    syncPostTagLinksLocale();
   });
+
+  window.addEventListener("blog:locale-change", handleLocaleChange);
+  /* eslint-enable */
 </script>

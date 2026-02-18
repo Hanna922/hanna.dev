@@ -4,34 +4,75 @@ import Breadcrumbs from "@components/Breadcrumbs.astro";
 interface StringTitleProp {
   pageTitle: string;
   pageDesc?: string;
+  pageTitleI18n?: string;
+  pageTitleParams?: Record<string, string>;
+  pageDescI18n?: string;
+  pageDescParams?: Record<string, string>;
 }
 
 interface ArrayTitleProp {
   pageTitle: [string, string];
   titleTransition: string;
   pageDesc?: string;
+  pageTitleI18n?: string;
+  pageTitleParams?: Record<string, string>;
+  pageDescI18n?: string;
+  pageDescParams?: Record<string, string>;
 }
 
 export type Props = StringTitleProp | ArrayTitleProp;
 
-const { props } = Astro;
+const {
+  pageTitle,
+  pageDesc,
+  pageTitleI18n,
+  pageTitleParams = {},
+  pageDescI18n,
+  pageDescParams = {},
+} = Astro.props as Props;
+
+const titleI18nAttrs = pageTitleI18n
+  ? {
+      "data-i18n": pageTitleI18n,
+      ...Object.fromEntries(
+        Object.entries(pageTitleParams).map(([key, value]) => [
+          `data-i18n-param-${key}`,
+          value,
+        ])
+      ),
+    }
+  : {};
+
+const descI18nAttrs = pageDescI18n
+  ? {
+      "data-i18n": pageDescI18n,
+      ...Object.fromEntries(
+        Object.entries(pageDescParams).map(([key, value]) => [
+          `data-i18n-param-${key}`,
+          value,
+        ])
+      ),
+    }
+  : {};
 ---
 
 <Breadcrumbs />
 <main id="main-content">
   {
-    "titleTransition" in props ? (
+    "titleTransition" in Astro.props ? (
       <h1>
-        {props.pageTitle[0]}
-        <span transition:name={props.titleTransition}>
-          {props.pageTitle[1]}
+        <span {...titleI18nAttrs}>{pageTitle[0]}</span>
+        <span transition:name={Astro.props.titleTransition}>
+          {pageTitle[1]}
         </span>
       </h1>
     ) : (
-      <h1>{props.pageTitle}</h1>
+      <h1>
+        <span {...titleI18nAttrs}>{pageTitle}</span>
+      </h1>
     )
   }
-  <p>{props.pageDesc}</p>
+  <p {...descI18nAttrs}>{pageDesc}</p>
   <slot />
 </main>
 
