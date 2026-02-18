@@ -3,6 +3,7 @@ import {
   buildPromptWithContext,
   toSourceRefsFromSemanticHits,
 } from "./context-formatter";
+import { chunkDocuments } from "./chunking";
 import { loadRAGDocuments } from "./document-loader";
 import { embedChunks } from "./embeddings";
 import { ragLogger } from "./logger";
@@ -31,21 +32,16 @@ async function loadPrebuiltIndex(originRequestUrl: string) {
 
 /*
   Blog + Custom Docs를 chunk 형태로 반환합니다.
+  chunking.ts의 chunkDocuments()를 사용해 heading 기준 분할 후
+  word-count 기반 슬라이딩 윈도우 청킹을 적용합니다.
 */
 async function toDocumentChunks(): Promise<RAGChunk[]> {
-  return loadRAGDocuments().then(docs =>
-    docs.map(doc => ({
-      id: doc.id,
-      docId: doc.id,
-      text: `${doc.title}\n\n${doc.description}\n\n${doc.content}`,
-      metadata: {
-        title: doc.title,
-        ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
-        tags: doc.tags,
-        url: doc.url,
-      },
-    }))
-  );
+  const config = getRAGConfig();
+  const docs = await loadRAGDocuments();
+  return chunkDocuments(docs, {
+    chunkSize: config.chunkSize,
+    chunkOverlap: config.chunkOverlap,
+  });
 }
 
 /*
