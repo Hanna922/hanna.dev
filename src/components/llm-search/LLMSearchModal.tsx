@@ -1,30 +1,52 @@
-// ============================================
-// LLMSearchModal.tsx
-// 멀티턴 AI 검색 채팅 모달 + FAB 버튼
-// Astro Layout에서 client:load 로 사용
-// ============================================
-
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import {
-  EXAMPLE_QUESTIONS,
+  getExampleQuestions,
   type BlogPost,
   type ChatMessage,
   type LLMSearchModalProps,
 } from "./types";
 import {
-  useKeyboardShortcut,
   useBodyScrollLock,
+  useKeyboardShortcut,
   useLLMSearchEvent,
 } from "./hooks";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
-import "./llm-search.css";
-import ReactMarkdown, { type Components } from "react-markdown";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
+import {
+  getLocaleFromValue,
+  t,
+  type I18nParams,
+  type LocaleCode,
+} from "@utils/locale";
+import "./llm-search.css";
 
-// ============================================
-// Sub-components
-// ============================================
+function getInitialLocale(): LocaleCode {
+  if (typeof window === "undefined") {
+    return "ko";
+  }
+
+  return (
+    getLocaleFromValue(
+      (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
+        .__BLOG_INITIAL_LOCALE__ ?? null
+    ) ?? "ko"
+  );
+}
+
+interface WindowWithLocaleContext {
+  __BLOG_INITIAL_LOCALE__?: LocaleCode;
+  __BLOG_LOCALE_CONTEXT__?: {
+    getLocale: () => LocaleCode;
+    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
+    translate: (key: string, params?: I18nParams) => string;
+  };
+}
+
+declare global {
+  interface Window extends WindowWithLocaleContext {}
+}
 
 function TypingDots() {
   return (
@@ -36,18 +58,35 @@ function TypingDots() {
   );
 }
 
+function withLocalePostPath(href: string, locale: LocaleCode) {
+  if (!href || !href.startsWith("/posts/") || locale !== "en") {
+    return href;
+  }
+
+  const [pathWithoutQuery, queryString = ""] = href.split("?", 2);
+  const normalizedPath = pathWithoutQuery.endsWith("/")
+    ? pathWithoutQuery
+    : `${pathWithoutQuery}/`;
+  const searchParams = new URLSearchParams(queryString);
+  searchParams.set("lang", locale);
+
+  return `${normalizedPath}?${searchParams.toString()}`;
+}
+
 function SourceCard({
   post,
   index,
   visible,
+  locale,
 }: {
   post: BlogPost;
   index: number;
   visible: boolean;
+  locale: LocaleCode;
 }) {
   return (
     <a
-      href={post.slug}
+      href={withLocalePostPath(post.slug, locale)}
       className="llm-source-card"
       style={{
         opacity: visible ? 1 : 0,
@@ -81,8 +120,15 @@ function ExampleButton({
   );
 }
 
-/** 저장된 채팅 메시지 렌더링 */
-function ChatMessageBubble({ message }: { message: ChatMessage }) {
+function ChatMessageBubble({
+  message,
+  sourceLabel,
+  locale,
+}: {
+  message: ChatMessage;
+  sourceLabel: string;
+  locale: LocaleCode;
+}) {
   if (message.role === "user") {
     return (
       <div className="llm-user-msg-row">
@@ -91,29 +137,9 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
     );
   }
 
-  // Source 참조를 클릭 가능한 링크로 변환
   const linkedContent = message.sources?.length
     ? linkifySources(message.content, message.sources)
     : message.content;
-
-  const markdownComponents: Components = useMemo(
-    () => ({
-      a(props) {
-        const { href, children, ...rest } = props;
-        return (
-          <a
-            href={href ?? "#"}
-            className="llm-source-inline"
-            target="_self"
-            {...rest}
-          >
-            {children}
-          </a>
-        );
-      },
-    }),
-    []
-  );
 
   return (
     <div className="llm-assistant-row">
@@ -122,16 +148,38 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
       </div>
       <div className="llm-assistant-content">
         <div className="llm-assistant-bubble">
-          <ReactMarkdown components={markdownComponents}>
+          <ReactMarkdown
+            components={{
+              a(props) {
+                const { href, children, ...rest } = props;
+                return (
+                  <a
+                    href={href ?? "#"}
+                    className="llm-source-inline"
+                    target="_self"
+                    {...rest}
+                  >
+                    {children}
+                  </a>
+                );
+              },
+            }}
+          >
             {linkedContent}
           </ReactMarkdown>
         </div>
         {message.sources && message.sources.length > 0 && (
           <div className="llm-sources">
-            <div className="llm-sources-label">📎 참고한 글</div>
+            <div className="llm-sources-label">{sourceLabel}</div>
             <div className="llm-sources-list">
               {message.sources.map((post, i) => (
-                <SourceCard key={i} post={post} index={i} visible={true} />
+                <SourceCard
+                  key={i}
+                  post={post}
+                  index={i}
+                  visible={true}
+                  locale={locale}
+                />
               ))}
             </div>
           </div>
@@ -141,18 +189,78 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
-// ============================================
-// Main Component
-// ============================================
+function useBlogLocale(initial: LocaleCode = "ko") {
+  const [locale, setLocale] = useState<LocaleCode>(initial);
+
+  const translate = useCallback(
+    (key: string, params?: I18nParams) =>
+      typeof window === "undefined"
+        ? t(locale, key, params)
+        : (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
+          t(locale, key, params)),
+    [locale]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const context = window.__BLOG_LOCALE_CONTEXT__;
+    if (!context) return;
+
+    setLocale(context.getLocale());
+    return context.subscribe(next => {
+      setLocale(next);
+    });
+  }, []);
+
+  return { locale, translate };
+}
+
 export default function LLMSearchModal({
-  exampleQuestions = EXAMPLE_QUESTIONS,
+  exampleQuestions,
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { locale, translate } = useBlogLocale(getInitialLocale());
+  const isKorean = locale === "ko";
 
-  // ---- useCompletion (실제 API 모드) ----
+  const localizedExamples = useMemo(
+    () => getExampleQuestions(locale),
+    [locale]
+  );
+
+  const modalOpenLabel = isKorean
+    ? "AI 검색 열기"
+    : translate("llm.modalOpenLabel");
+  const modalResetAriaLabel = isKorean
+    ? "대화 초기화"
+    : translate("llm.modalReset");
+  const modalCloseLabel = isKorean
+    ? "닫기"
+    : translate("llm.modalCloseAriaLabel");
+  const idleSubtitle = isKorean
+    ? "블로그 글에 대해 무엇이든 물어보세요"
+    : translate("llm.pageIdleSubtitle");
+  const sourceLabel = translate("llm.sourceLabel");
+  const thinkingLabel = isKorean
+    ? "블로그 글을 분석하고 있어요..."
+    : translate("llm.pageThinking");
+  const errorPrefix = isKorean
+    ? "오류가 발생했습니다: "
+    : `${translate("llm.pageErrorPrefix")} `;
+  const inputPlaceholder = isKorean
+    ? "블로그에 대해 질문해 보세요..."
+    : translate("llm.pageSearchPlaceholder");
+  const sendLabel = isKorean ? "전송" : translate("llm.searchSendLabel");
+  const mockModeLabel = isKorean
+    ? "🧪 MOCK 모드 · "
+    : translate("llm.mockModeLabel");
+  const mockSuffix = isKorean
+    ? "AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다"
+    : translate("llm.mockDisclaimerSuffix");
+
   const {
     input,
     setInput,
@@ -166,6 +274,10 @@ export default function LLMSearchModal({
     throttledStreamingText,
   } = useLLMSearchCompletion({
     history: messages.map(({ role, content }) => ({ role, content })),
+    body: {
+      history: messages.map(({ role, content }) => ({ role, content })),
+      locale,
+    },
     onAssistantMessage: ({ content, sources }) => {
       setMessages(prev => [
         ...prev,
@@ -193,12 +305,12 @@ export default function LLMSearchModal({
     []
   );
 
-  // ---- 상태 파생 ----
+  const exampleButtons = exampleQuestions ?? localizedExamples;
+
   const isIdle = messages.length === 0 && !isLoading;
   const isThinking = isLoading && !streamContent;
   const isStreaming = isLoading && !!streamContent;
 
-  // ---- Modal ----
   const toggleModal = useCallback(() => setIsOpen(p => !p), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
 
@@ -206,7 +318,6 @@ export default function LLMSearchModal({
   useBodyScrollLock(isOpen);
   useLLMSearchEvent(useCallback(() => setIsOpen(true), []));
 
-  // ---- Auto-scroll ----
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -217,7 +328,6 @@ export default function LLMSearchModal({
     scrollToBottom();
   }, [messages, completion, isLoading, scrollToBottom]);
 
-  // ---- Focus input when ready ----
   useEffect(() => {
     if (isOpen && !isLoading) {
       const timer = setTimeout(() => inputRef.current?.focus(), 100);
@@ -225,7 +335,6 @@ export default function LLMSearchModal({
     }
   }, [isOpen, isLoading]);
 
-  // ---- Handlers ----
   const triggerSubmit = useCallback(() => {
     const form = document.getElementById(
       "llm-search-form"
@@ -288,12 +397,8 @@ export default function LLMSearchModal({
     }
   };
 
-  // ============================================
-  // Render
-  // ============================================
   return (
     <>
-      {/* Hidden form for useCompletion */}
       <form
         id="llm-search-form"
         onSubmit={e => {
@@ -303,29 +408,29 @@ export default function LLMSearchModal({
         style={{ display: "none" }}
       />
 
-      {/* FAB */}
       {!isOpen && (
         <button
           type="button"
           className="llm-fab"
           onClick={() => setIsOpen(true)}
-          aria-label="AI 검색 열기"
+          aria-label={modalOpenLabel}
+          title={modalOpenLabel}
         >
           <SparkleIcon size={22} color="#fff" />
         </button>
       )}
 
-      {/* Modal */}
       {isOpen && (
         <div className="llm-backdrop" onClick={handleBackdropClick}>
           <div className="llm-modal" role="dialog" aria-modal="true">
-            {/* ---- Header ---- */}
             <div className="llm-modal-header">
               <div className="llm-modal-title-group">
                 <div className="llm-modal-icon">
                   <SparkleIcon size={13} color="#fff" />
                 </div>
-                <span className="llm-modal-title">Hanna.Dev AI</span>
+                <span className="llm-modal-title">
+                  {translate("llm.modalTitle")}
+                </span>
                 <span className="llm-badge">BETA</span>
               </div>
               <div className="llm-header-actions">
@@ -333,8 +438,8 @@ export default function LLMSearchModal({
                   type="button"
                   className="llm-reset-inline-btn"
                   onClick={handleReset}
-                  aria-label="대화 초기화"
-                  title="대화 초기화"
+                  aria-label={modalResetAriaLabel}
+                  title={modalResetAriaLabel}
                 >
                   ↻
                 </button>
@@ -342,23 +447,19 @@ export default function LLMSearchModal({
                   type="button"
                   className="llm-close-btn"
                   onClick={() => setIsOpen(false)}
-                  aria-label="닫기"
+                  aria-label={modalCloseLabel}
                 >
                   <CloseIcon size={18} />
                 </button>
               </div>
             </div>
 
-            {/* ---- Chat Content ---- */}
             <div ref={scrollRef} className="llm-modal-content">
-              {/* Idle: 예시 질문 */}
               {isIdle && (
                 <div className="llm-idle-state">
-                  <p className="llm-idle-subtitle">
-                    블로그 글에 대해 무엇이든 물어보세요
-                  </p>
+                  <p className="llm-idle-subtitle">{idleSubtitle}</p>
                   <div className="llm-examples-list">
-                    {exampleQuestions.map((q, i) => (
+                    {exampleButtons.map((q, i) => (
                       <ExampleButton
                         key={i}
                         question={q}
@@ -369,27 +470,27 @@ export default function LLMSearchModal({
                 </div>
               )}
 
-              {/* 대화 히스토리 */}
               {messages.map(msg => (
-                <ChatMessageBubble key={msg.id} message={msg} />
+                <ChatMessageBubble
+                  key={msg.id}
+                  message={msg}
+                  sourceLabel={sourceLabel}
+                  locale={locale}
+                />
               ))}
 
-              {/* Thinking (로딩 시작, 아직 토큰 없음) */}
               {isThinking && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
                     <SparkleIcon size={14} />
                   </div>
                   <div className="llm-assistant-bubble">
-                    <div className="llm-thinking-label">
-                      블로그 글을 분석하고 있어요...
-                    </div>
+                    <div className="llm-thinking-label">{thinkingLabel}</div>
                     <TypingDots />
                   </div>
                 </div>
               )}
 
-              {/* Streaming (토큰이 들어오는 중) */}
               {isStreaming && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
@@ -406,7 +507,6 @@ export default function LLMSearchModal({
                 </div>
               )}
 
-              {/* Error */}
               {error && messages.length > 0 && (
                 <div className="llm-assistant-row">
                   <div className="llm-avatar">
@@ -414,14 +514,14 @@ export default function LLMSearchModal({
                   </div>
                   <div className="llm-assistant-bubble">
                     <div className="llm-error-label">
-                      오류가 발생했습니다: {error.message}
+                      {errorPrefix}
+                      {error.message}
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* ---- Input (항상 하단에 고정, 항상 활성) ---- */}
             <div className="llm-modal-footer">
               <div
                 className={`llm-input-wrapper ${isLoading ? "llm-input-active" : ""}`}
@@ -432,7 +532,7 @@ export default function LLMSearchModal({
                   value={input}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  placeholder="블로그에 대해 질문해 보세요..."
+                  placeholder={inputPlaceholder}
                   disabled={isLoading}
                   className="llm-input"
                 />
@@ -441,7 +541,7 @@ export default function LLMSearchModal({
                   className={`llm-send-btn ${input.trim() && !isLoading ? "llm-send-active" : ""}`}
                   onClick={handleSubmit}
                   disabled={!input.trim() || isLoading}
-                  aria-label="전송"
+                  aria-label={sendLabel}
                 >
                   <SendIcon size={15} />
                 </button>
@@ -449,10 +549,10 @@ export default function LLMSearchModal({
               <div className="llm-disclaimer">
                 {import.meta.env.PUBLIC_LLM_MOCK_MODE && (
                   <span style={{ color: "#f59e0b", fontWeight: 600 }}>
-                    🧪 MOCK 모드 ·{" "}
+                    {mockModeLabel}
                   </span>
                 )}
-                AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다
+                {mockSuffix}
               </div>
             </div>
           </div>

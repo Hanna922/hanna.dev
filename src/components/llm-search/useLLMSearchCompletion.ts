@@ -11,17 +11,20 @@ type SearchHistoryMessage = {
 
 type UseLLMSearchCompletionOptions = {
   history: SearchHistoryMessage[];
+  body?: Record<string, unknown>;
   onAssistantMessage: (message: {
     content: string;
     sources: BlogPost[];
   }) => void;
   throttleMs?: number;
+  locale?: "ko" | "en";
 };
 
 export function useLLMSearchCompletion({
-  history,
+  body,
   onAssistantMessage,
   throttleMs = 100,
+  locale = "ko",
 }: UseLLMSearchCompletionOptions) {
   const {
     input,
@@ -35,9 +38,7 @@ export function useLLMSearchCompletion({
   } = useCompletion({
     api: "/api/search",
     streamProtocol: "text",
-    body: {
-      history,
-    },
+    body,
     onFinish: (_prompt, result) => {
       onAssistantMessage(parseResponse(result));
     },
@@ -51,10 +52,10 @@ export function useLLMSearchCompletion({
   const linkedStreamingText = useMemo(() => {
     if (!streamContent) return "";
     if (streamSources.length > 0) {
-      return linkifySources(streamContent, streamSources);
+      return linkifySources(streamContent, streamSources, locale);
     }
     return streamContent;
-  }, [streamContent, streamSources]);
+  }, [streamContent, streamSources, locale]);
 
   const throttledStreamingText = useThrottledValue(
     linkedStreamingText,

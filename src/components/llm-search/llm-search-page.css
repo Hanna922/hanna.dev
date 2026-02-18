@@ -10,6 +10,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -20,18 +21,21 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @keyframes lsp-dot-pulse {
+
   0%,
   80%,
   100% {
     opacity: 0.3;
     transform: scale(0.8);
   }
+
   40% {
     opacity: 1;
     transform: scale(1);
@@ -39,21 +43,25 @@
 }
 
 @keyframes lsp-cursor-blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
 }
 
 @keyframes lsp-glow-pulse {
+
   0%,
   100% {
     opacity: 0.4;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: scale(1.05);
@@ -61,10 +69,12 @@
 }
 
 @keyframes lsp-float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-6px);
   }
@@ -80,6 +90,7 @@
   from {
     opacity: 0.7;
   }
+
   to {
     opacity: 1;
   }
@@ -123,12 +134,10 @@
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(var(--color-accent), 0.12) 0%,
-    rgba(var(--color-accent), 0.04) 40%,
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      rgba(var(--color-accent), 0.12) 0%,
+      rgba(var(--color-accent), 0.04) 40%,
+      transparent 70%);
   animation: lsp-glow-pulse 6s ease-in-out infinite;
   pointer-events: none;
 }
@@ -141,16 +150,12 @@
     linear-gradient(rgba(var(--color-border), 0.15) 1px, transparent 1px),
     linear-gradient(90deg, rgba(var(--color-border), 0.15) 1px, transparent 1px);
   background-size: 60px 60px;
-  mask-image: radial-gradient(
-    ellipse 70% 60% at 50% 40%,
-    black 20%,
-    transparent 70%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 70% 60% at 50% 40%,
-    black 20%,
-    transparent 70%
-  );
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%,
+      black 20%,
+      transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%,
+      black 20%,
+      transparent 70%);
   pointer-events: none;
 }
 
@@ -165,8 +170,15 @@
   text-align: center;
 }
 
+.lsp-hero-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
 .lsp-blog-link-btn {
-  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -180,12 +192,52 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
-  margin-bottom: 16px;
 }
 
 .lsp-blog-link-btn:hover {
   border-color: rgba(var(--color-accent), 0.5);
   color: rgb(var(--color-accent));
+}
+
+/* 언어 전환 */
+.lsp-hero-locale-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.lsp-hero-locale-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  font-family: inherit;
+  color: rgba(var(--color-text-base), 0.6);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: color 0.15s, opacity 0.15s;
+  border-radius: 4px;
+}
+
+.lsp-hero-locale-btn.active {
+  color: rgb(var(--color-accent));
+  opacity: 1;
+}
+
+.lsp-hero-locale-btn:not(.active):hover {
+  color: rgb(var(--color-accent));
+  opacity: 0.8;
+}
+
+.lsp-hero-locale-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px rgb(var(--color-accent));
 }
 
 /* 뱃지 */
@@ -230,7 +282,6 @@
   font-size: 15px;
   line-height: 1.7;
   color: rgba(var(--color-text-base), 0.6);
-  max-width: 520px;
   margin: 0 0 32px;
   animation: lsp-fade-up 0.6s ease-out 0.15s both;
 }
@@ -407,11 +458,9 @@
 }
 
 .lsp-hero-send-btn.active {
-  background: linear-gradient(
-    135deg,
-    rgb(var(--color-accent)),
-    rgba(var(--color-accent), 0.75)
-  );
+  background: linear-gradient(135deg,
+      rgb(var(--color-accent)),
+      rgba(var(--color-accent), 0.75));
   color: #fff;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(var(--color-accent), 0.3);
@@ -513,11 +562,9 @@
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: linear-gradient(
-    135deg,
-    rgb(var(--color-accent)),
-    rgba(var(--color-accent), 0.7)
-  );
+  background: linear-gradient(135deg,
+      rgb(var(--color-accent)),
+      rgba(var(--color-accent), 0.7));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -903,11 +950,9 @@
 }
 
 .lsp-chat-send-btn.active {
-  background: linear-gradient(
-    135deg,
-    rgb(var(--color-accent)),
-    rgba(var(--color-accent), 0.7)
-  );
+  background: linear-gradient(135deg,
+      rgb(var(--color-accent)),
+      rgba(var(--color-accent), 0.7));
   color: #fff;
   cursor: pointer;
 }
@@ -936,11 +981,9 @@
   height: 50px;
   border-radius: 999px;
   border: 1px solid rgba(var(--color-accent), 0.5);
-  background: linear-gradient(
-    145deg,
-    rgb(var(--color-accent)),
-    rgba(var(--color-accent), 0.72)
-  );
+  background: linear-gradient(145deg,
+      rgb(var(--color-accent)),
+      rgba(var(--color-accent), 0.72));
   color: #fff;
   font-size: 23px;
   line-height: 1;
@@ -970,11 +1013,8 @@
   border-radius: 16px;
   border: 1px solid rgba(var(--color-border), 0.68);
   background:
-    linear-gradient(
-        rgba(var(--color-accent), 0.07),
-        rgba(var(--color-accent), 0)
-      )
-      top/100% 72px no-repeat,
+    linear-gradient(rgba(var(--color-accent), 0.07),
+      rgba(var(--color-accent), 0)) top/100% 72px no-repeat,
     rgb(var(--color-fill));
   backdrop-filter: blur(6px);
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.2);

@@ -1,21 +1,68 @@
-// ============================================
+﻿// ============================================
 // LLMSearchPage.tsx
 // 블로그 AI 검색 전용 페이지
-// "내 블로그 콘텐츠 기반 AI" 를 최대한 어필
+// "내 블로그 콘텐츠 기반 AI"를 어필
 // ============================================
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { EXAMPLE_QUESTIONS, type BlogPost, type ChatMessage } from "./types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getExampleQuestions, type ChatMessage } from "./types";
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
+import {
+  getLocaleFromValue,
+  LOCALES,
+  t,
+  type I18nParams,
+  type LocaleCode,
+} from "@utils/locale";
 
-const HELP_MODAL_MARKDOWN = `
+function getInitialLocale(initialLocaleFromServer?: LocaleCode): LocaleCode {
+  const parsedInitialLocale = getLocaleFromValue(
+    initialLocaleFromServer ?? null
+  );
+  if (parsedInitialLocale) {
+    return parsedInitialLocale;
+  }
+
+  if (typeof window === "undefined") {
+    return "ko";
+  }
+
+  // 1. Check URL query parameter first
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLocale = getLocaleFromValue(urlParams.get("lang"));
+  if (urlLocale) {
+    return urlLocale;
+  }
+
+  // 2. Check data-locale attribute
+  const htmlLocale = getLocaleFromValue(
+    document.documentElement.dataset.locale ?? null
+  );
+  if (htmlLocale) {
+    return htmlLocale;
+  }
+
+  // 3. Check window.__BLOG_INITIAL_LOCALE__
+  const windowLocale = getLocaleFromValue(
+    (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
+      .__BLOG_INITIAL_LOCALE__ ?? null
+  );
+  if (windowLocale) {
+    return windowLocale;
+  }
+
+  // 4. Fallback to default
+  return "ko";
+}
+
+const HELP_MODAL_MARKDOWN_KR = `
 
 이 페이지는 단순 채팅 UI가 아니라, **RAG(Retrieval-Augmented Generation)** 파이프라인을 거쳐 답변을 생성합니다.
-더 자세한 구현 과정은 [MiniSearch에서 RAG로 - 블로그 검색 고도화의 실패와 설계, MVP 구현기](https://www.hanna-dev.co.kr/posts/from-minisearch-to-rag-mvp/) 에서 확인하실 수 있습니다!
+더 자세한 구현 과정은 [MiniSearch에서 RAG로 - 블로그 검색 고도화의 실패와 설계, MVP 구현기](https://www.hanna-dev.co.kr/posts/from-minisearch-to-rag-mvp/?lang=ko) 에서 확인하실 수 있습니다!
 
 ### 1) Query 이해 및 검색 준비
 - 사용자의 질문을 그대로 LLM에 보내지 않고, 먼저 검색 가능한 형태로 처리합니다.
@@ -50,9 +97,56 @@ const HELP_MODAL_MARKDOWN = `
 필요하시다면 답변 하단의 참고 글을 열어 근거를 직접 확인해 주세요.
 `;
 
-// ============================================
-// Sub-components
-// ============================================
+const HELP_MODAL_MARKDOWN_EN = `
+
+This page is not just a simple chat UI, but generates answers through a **RAG (Retrieval-Augmented Generation)** pipeline.
+For more details on the implementation process, check out [From MiniSearch to RAG - Blog Search Enhancement Failures, Design, and MVP Implementation](https://www.hanna-dev.co.kr/posts/from-minisearch-to-rag-mvp/?lang=en)!
+
+### 1) Query Understanding and Search Preparation
+- User questions are not sent directly to the LLM, but are first processed into a searchable format.
+- For multi-turn conversations, \`history\` (previous user/assistant utterances) is passed together to maintain context.
+
+### 2) Retrieval (Vector Search)
+- Blog documents are broken down into chunks and embedded in an index to find chunks semantically close to the question.
+- It uses **semantic similarity-based search** rather than keyword matching, so related documents can be found even with different expressions.
+- The results of this step are "answer candidate context (Context)", which becomes the basis data for the subsequent generation step.
+
+### 3) Grounded Generation
+- Only the question + retrieved context is injected into the LLM to generate an answer.
+- In other words, rather than reasoning at length with general common sense, it is limited to explaining based on the retrieved blog evidence.
+- Source-based response format is used to reduce hallucination.
+
+### 4) Source Attachment & Rendering
+- The server response includes source metadata along with the body.
+- The UI replaces 'Source' markers in the response body with actual post links for rendering.
+- Therefore, when answer verification is needed, you can immediately navigate to the original text.
+
+### 5) Streaming UX
+- Responses are delivered via streaming and progressively rendered token by token.
+- At the final completion point, sources/body are parsed and stored in message history.
+
+---
+
+### System Characteristics / Limitations
+- Data sources are limited to **hanna-dev.co.kr blog content**.
+- Latest information or external knowledge not in the index may have low accuracy.
+- The quality of the retrieved context determines the final answer quality (Garbage in, garbage out).
+
+If needed, please open the reference articles at the bottom of the answer to directly verify the evidence.
+`;
+
+interface WindowWithLocaleContext {
+  __BLOG_INITIAL_LOCALE__?: LocaleCode;
+  __BLOG_LOCALE_CONTEXT__?: {
+    getLocale: () => LocaleCode;
+    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
+    translate: (key: string, params?: I18nParams) => string;
+  };
+}
+
+declare global {
+  interface Window extends WindowWithLocaleContext {}
+}
 
 function TypingDots() {
   return (
@@ -64,18 +158,35 @@ function TypingDots() {
   );
 }
 
+function withLocalePostPath(href: string, locale: LocaleCode) {
+  if (!href || !href.startsWith("/posts/") || locale !== "en") {
+    return href;
+  }
+
+  const [pathWithoutQuery, queryString = ""] = href.split("?", 2);
+  const normalizedPath = pathWithoutQuery.endsWith("/")
+    ? pathWithoutQuery
+    : `${pathWithoutQuery}/`;
+  const searchParams = new URLSearchParams(queryString);
+  searchParams.set("lang", locale);
+
+  return `${normalizedPath}?${searchParams.toString()}`;
+}
+
 function SourceCard({
   post,
   index,
   visible,
+  locale,
 }: {
-  post: BlogPost;
+  post: { slug: string; title: string };
   index: number;
   visible: boolean;
+  locale: LocaleCode;
 }) {
   return (
     <a
-      href={post.slug}
+      href={withLocalePostPath(post.slug, locale)}
       className="lsp-source-card"
       style={{
         opacity: visible ? 1 : 0,
@@ -84,13 +195,26 @@ function SourceCard({
       }}
     >
       <span className="lsp-source-index">{index + 1}</span>
-      <span className="lsp-source-title">{getDisplayTitle(post)}</span>
+      <span className="lsp-source-title">{getDisplayTitle(post, locale)}</span>
       <ExternalLinkIcon size={13} />
     </a>
   );
 }
 
-function ChatMessageBubble({ message }: { message: ChatMessage }) {
+function ChatMessageBubble({
+  message,
+  sourceLabel,
+  locale,
+}: {
+  message: {
+    id: string;
+    role: "user" | "assistant";
+    content: string;
+    sources?: { slug: string; title: string }[];
+  };
+  sourceLabel: string;
+  locale: LocaleCode;
+}) {
   const markdownComponents: Components = useMemo(
     () => ({
       a(props) {
@@ -119,7 +243,7 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
   }
 
   const linkedContent = message.sources?.length
-    ? linkifySources(message.content, message.sources)
+    ? linkifySources(message.content, message.sources, locale)
     : message.content;
 
   return (
@@ -135,10 +259,16 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
         </div>
         {message.sources && message.sources.length > 0 && (
           <div className="lsp-sources">
-            <div className="lsp-sources-label">📎 참고한 글</div>
+            <div className="lsp-sources-label">{sourceLabel}</div>
             <div className="lsp-sources-list">
               {message.sources.map((post, i) => (
-                <SourceCard key={i} post={post} index={i} visible={true} />
+                <SourceCard
+                  key={i}
+                  post={post}
+                  index={i}
+                  visible={true}
+                  locale={locale}
+                />
               ))}
             </div>
           </div>
@@ -148,13 +278,46 @@ function ChatMessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
+function useBlogLocale(initial: LocaleCode = "ko") {
+  const [locale, setLocale] = useState<LocaleCode>(initial);
+
+  const translate = useCallback(
+    (key: string, params?: I18nParams) =>
+      typeof window === "undefined"
+        ? t(locale, key, params)
+        : (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
+          t(locale, key, params)),
+    [locale]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const context = window.__BLOG_LOCALE_CONTEXT__;
+    if (!context) return;
+
+    setLocale(context.getLocale());
+    return context.subscribe(next => {
+      setLocale(next);
+    });
+  }, []);
+
+  return { locale, translate };
+}
+
+interface LLMSearchPageProps {
+  initialLocale?: LocaleCode;
+}
+
 // ============================================
 // Main Page Component
 // ============================================
-export default function LLMSearchPage() {
+export default function LLMSearchPage({ initialLocale }: LLMSearchPageProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const { locale, translate } = useBlogLocale(getInitialLocale(initialLocale));
+  const isKorean = locale === "ko";
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -162,7 +325,11 @@ export default function LLMSearchPage() {
   const helpFabRef = useRef<HTMLButtonElement>(null);
   const helpPopoverRef = useRef<HTMLDivElement>(null);
 
-  // ---- useCompletion ----
+  const exampleQuestions = useMemo(() => getExampleQuestions(locale), [locale]);
+  const helpMarkdown = isKorean
+    ? HELP_MODAL_MARKDOWN_KR
+    : HELP_MODAL_MARKDOWN_EN;
+
   const {
     input,
     setInput,
@@ -176,6 +343,11 @@ export default function LLMSearchPage() {
     throttledStreamingText,
   } = useLLMSearchCompletion({
     history: messages.map(({ role, content }) => ({ role, content })),
+    body: {
+      history: messages.map(({ role, content }) => ({ role, content })),
+      locale,
+    },
+    locale,
     onAssistantMessage: ({ content, sources }) => {
       setMessages(prev => [
         ...prev,
@@ -226,6 +398,40 @@ export default function LLMSearchPage() {
   // ---- 상태 파생 ----
   const isThinking = isLoading && !streamContent;
   const isStreaming = isLoading && !!streamContent;
+
+  const sourceLabel = translate("llm.sourceLabel");
+  const chatSubtitle = isKorean
+    ? "블로그 글을 기반으로 답변합니다"
+    : translate("llm.pageChatHeaderSub");
+  const chatBadge = isKorean
+    ? "블로그 데이터 연동"
+    : translate("llm.pageChatHeaderBadge");
+  const footerSource = isKorean
+    ? "블로그 콘텐츠 기반 답변"
+    : translate("llm.pageFooterSourceInfo");
+  const footerAccuracy = isKorean
+    ? "부정확할 수 있습니다"
+    : translate("llm.pageFooterInaccuracyInfo");
+  const heroDescription = isKorean ? (
+    <>
+      저의 프로젝트 경험, 기술적 고민, 문제 해결 과정이 궁금하신가요?
+      <br />이 AI는 제가 직접 작성한{" "}
+      <mark className="lsp-highlight">블로그 글과 저를 학습</mark>하여
+      답변합니다.
+    </>
+  ) : (
+    <>
+      Are you curious about my project experience, technical considerations, and
+      problem-solving process?
+      <br />
+      This AI has been trained on my personally written{" "}
+      <mark className="lsp-highlight">blog posts and profile</mark>
+      <br />
+      and provides answers based on them.
+    </>
+  );
+
+  const resetLabel = isKorean ? "새 대화" : translate("llm.modalOpenSuffix");
 
   // ---- Auto-scroll ----
   const scrollToBottom = useCallback(() => {
@@ -343,38 +549,60 @@ export default function LLMSearchPage() {
       {/* ---- Hero Section (대화 시작 전) ---- */}
       {!hasStarted && (
         <div className="lsp-hero">
-          {/* 배경 장식 */}
           <div className="lsp-hero-glow" />
           <div className="lsp-hero-grid" />
 
           <div className="lsp-hero-inner">
-            <a href="/blog" className="lsp-blog-link-btn">
-              블로그 메인으로 이동
-            </a>
+            <div className="lsp-hero-top-row">
+              <div
+                className="lsp-hero-locale-switcher"
+                role="group"
+                aria-label={translate("language.switchAriaLabel")}
+              >
+                {LOCALES.map(l => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    className={`lsp-hero-locale-btn${locale === l.code ? " active" : ""}`}
+                    data-locale-switch={l.code}
+                    aria-pressed={locale === l.code}
+                  >
+                    {l.code === "en" ? "EN" : "KR"}
+                  </button>
+                ))}
+              </div>
 
-            {/* 뱃지 */}
-            <div className="lsp-hero-badge">
-              <span>👋🏻 Welcome to Hanna's AI</span>
+              <a href="/blog" className="lsp-blog-link-btn">
+                {isKorean
+                  ? "블로그 메인으로 이동"
+                  : translate("llm.pageHeroBlogLink")}
+              </a>
             </div>
 
-            {/* 메인 타이틀 */}
+            <div className="lsp-hero-badge">
+              <span>
+                {isKorean
+                  ? "👋🏻 Welcome to Hanna's AI"
+                  : translate("llm.pageHeroBadge")}
+              </span>
+            </div>
+
             <h1 className="lsp-hero-title">
-              💬 면접 전에 저와 먼저 만나보세요
+              {isKorean
+                ? "💬 면접 전에 저와 먼저 만나보세요"
+                : translate("llm.pageHeroTitle")}
             </h1>
 
-            {/* 설명 */}
-            <p className="lsp-hero-desc">
-              저의 프로젝트 경험, 기술적 고민, 문제 해결 과정이 궁금하신가요?
-              <br />이 AI는 제가 직접 작성한{" "}
-              <mark className="lsp-highlight">블로그 글과 저를 학습</mark>하여
-              답변합니다.
-            </p>
+            <p className="lsp-hero-desc">{heroDescription}</p>
 
-            {/* 데이터 소스 시각화 */}
             <div className="lsp-data-flow">
               <div className="lsp-data-node lsp-data-blog">
                 <div className="lsp-data-node-icon">📝</div>
-                <div className="lsp-data-node-label">블로그 글</div>
+                <div className="lsp-data-node-label">
+                  {isKorean
+                    ? "블로그 글"
+                    : translate("llm.pageHeroDataPostLabel")}
+                </div>
               </div>
               <div className="lsp-data-arrow">
                 <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
@@ -390,7 +618,11 @@ export default function LLMSearchPage() {
               </div>
               <div className="lsp-data-node lsp-data-index">
                 <div className="lsp-data-node-icon">🧠</div>
-                <div className="lsp-data-node-label">검색 인덱스</div>
+                <div className="lsp-data-node-label">
+                  {isKorean
+                    ? "검색 인덱스"
+                    : translate("llm.pageHeroDataIndexLabel")}
+                </div>
               </div>
               <div className="lsp-data-arrow">
                 <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
@@ -406,11 +638,14 @@ export default function LLMSearchPage() {
               </div>
               <div className="lsp-data-node lsp-data-ai">
                 <div className="lsp-data-node-icon">✨</div>
-                <div className="lsp-data-node-label">AI 답변</div>
+                <div className="lsp-data-node-label">
+                  {isKorean
+                    ? "AI 답변"
+                    : translate("llm.pageHeroDataAnswerLabel")}
+                </div>
               </div>
             </div>
 
-            {/* 입력 영역 */}
             <div className="lsp-hero-input-section">
               <div className="lsp-hero-input-wrapper">
                 <SparkleIcon size={18} color="rgb(var(--color-accent))" />
@@ -420,7 +655,11 @@ export default function LLMSearchPage() {
                   value={input}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  placeholder="예: YDS 프로젝트에 대해 알려주세요"
+                  placeholder={
+                    isKorean
+                      ? "예: YDS 프로젝트에 대해 알려주세요"
+                      : translate("llm.pageHeroInputPlaceholder")
+                  }
                   className="lsp-hero-input"
                   autoFocus
                 />
@@ -429,23 +668,28 @@ export default function LLMSearchPage() {
                   className={`lsp-hero-send-btn ${input.trim() ? "active" : ""}`}
                   onClick={handleSubmit}
                   disabled={!input.trim()}
-                  aria-label="전송"
+                  aria-label={
+                    isKorean ? "전송" : translate("llm.searchSendLabel")
+                  }
                 >
                   <SendIcon size={16} />
                 </button>
               </div>
               <div className="lsp-hero-disclaimer">
-                AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다
+                {isKorean
+                  ? "AI가 블로그 콘텐츠를 기반으로 답변합니다 · 부정확할 수 있습니다"
+                  : translate("llm.modalDisclaimer")}
               </div>
             </div>
 
-            {/* 예시 질문 */}
             <div className="lsp-examples">
               <div className="lsp-examples-label">
-                이런 것도 물어볼 수 있어요
+                {isKorean
+                  ? "이런 것도 물어볼 수 있어요"
+                  : translate("llm.pageHeroExamplesLabel")}
               </div>
               <div className="lsp-examples-grid">
-                {EXAMPLE_QUESTIONS.map((q, i) => (
+                {exampleQuestions.map((q, i) => (
                   <button
                     key={i}
                     type="button"
@@ -466,7 +710,6 @@ export default function LLMSearchPage() {
       {/* ---- Chat Section (대화 시작 후) ---- */}
       {hasStarted && (
         <div className="lsp-chat-page">
-          {/* Chat Header */}
           <div className="lsp-chat-header">
             <div className="lsp-chat-header-left">
               <div className="lsp-chat-header-icon">
@@ -474,43 +717,52 @@ export default function LLMSearchPage() {
               </div>
               <div>
                 <div className="lsp-chat-header-title">Hanna.Dev AI</div>
-                <div className="lsp-chat-header-sub">
-                  블로그 글을 기반으로 답변합니다
-                </div>
+                <div className="lsp-chat-header-sub">{chatSubtitle}</div>
               </div>
             </div>
             <div className="lsp-chat-header-actions">
               <div className="lsp-chat-header-badge">
                 <span className="lsp-badge-dot" />
-                블로그 데이터 연동
+                {chatBadge}
               </div>
               <button
                 type="button"
                 className="lsp-chat-reset-btn"
                 onClick={handleReset}
-                title="새 대화"
+                title={resetLabel}
               >
-                ↻ 새 대화
+                ↻ {resetLabel}
               </button>
             </div>
           </div>
 
-          {/* 데이터 소스 배너 */}
           <div className="lsp-source-banner">
             <span className="lsp-source-banner-icon">📚</span>
-            <span>
-              이 AI는 <strong>hanna-dev.co.kr의 블로그 글</strong>만을 참고하여
-              답변합니다. 외부 데이터나 일반 지식을 사용하지 않습니다.
-            </span>
+            {isKorean ? (
+              <span>
+                이 AI는 <strong>hanna-dev.co.kr의 블로그 글</strong>만을
+                참고하여 답변합니다. 외부 데이터나 일반 지식을 사용하지
+                않습니다.
+              </span>
+            ) : (
+              <span>
+                {translate("llm.pageChatSourceBannerPrefix")}
+                <br />
+                {translate("llm.pageChatSourceBannerSuffix")}
+              </span>
+            )}
           </div>
 
-          {/* Chat Messages */}
           <div ref={scrollRef} className="lsp-chat-messages">
             {messages.map(msg => (
-              <ChatMessageBubble key={msg.id} message={msg} />
+              <ChatMessageBubble
+                key={msg.id}
+                message={msg}
+                sourceLabel={sourceLabel}
+                locale={locale}
+              />
             ))}
 
-            {/* Thinking */}
             {isThinking && (
               <div className="lsp-assistant-row">
                 <div className="lsp-avatar">
@@ -518,14 +770,15 @@ export default function LLMSearchPage() {
                 </div>
                 <div className="lsp-assistant-bubble">
                   <div className="lsp-thinking-label">
-                    블로그 글을 분석하고 있어요...
+                    {isKorean
+                      ? "블로그 글을 분석하고 있어요..."
+                      : translate("llm.pageThinking")}
                   </div>
                   <TypingDots />
                 </div>
               </div>
             )}
 
-            {/* Streaming */}
             {isStreaming && (
               <div className="lsp-assistant-row">
                 <div className="lsp-avatar">
@@ -542,7 +795,6 @@ export default function LLMSearchPage() {
               </div>
             )}
 
-            {/* Error */}
             {error && messages.length > 0 && (
               <div className="lsp-assistant-row">
                 <div className="lsp-avatar">
@@ -550,14 +802,16 @@ export default function LLMSearchPage() {
                 </div>
                 <div className="lsp-assistant-bubble">
                   <div className="lsp-error-label">
-                    오류가 발생했습니다: {error.message}
+                    {isKorean
+                      ? "오류가 발생했습니다: "
+                      : `${translate("llm.pageErrorPrefix")} `}
+                    {error.message}
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Chat Input */}
           <div className="lsp-chat-footer">
             <div
               className={`lsp-chat-input-wrapper ${isLoading ? "active" : ""}`}
@@ -568,7 +822,11 @@ export default function LLMSearchPage() {
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="후속 질문을 입력해 보세요..."
+                placeholder={
+                  isKorean
+                    ? "후속 질문을 입력해 보세요..."
+                    : translate("llm.pageChatInputPlaceholder")
+                }
                 disabled={isLoading}
                 className="lsp-chat-input"
               />
@@ -577,15 +835,17 @@ export default function LLMSearchPage() {
                 className={`lsp-chat-send-btn ${input.trim() && !isLoading ? "active" : ""}`}
                 onClick={handleSubmit}
                 disabled={!input.trim() || isLoading}
-                aria-label="전송"
+                aria-label={
+                  isKorean ? "전송" : translate("llm.searchSendLabel")
+                }
               >
                 <SendIcon size={15} />
               </button>
             </div>
             <div className="lsp-chat-footer-info">
-              <span>📚 블로그 콘텐츠 기반 답변</span>
+              <span>📚 {footerSource}</span>
               <span>·</span>
-              <span>부정확할 수 있습니다</span>
+              <span>{footerAccuracy}</span>
             </div>
           </div>
         </div>
@@ -596,7 +856,9 @@ export default function LLMSearchPage() {
         type="button"
         className="lsp-help-fab"
         onClick={() => setIsHelpOpen(prev => !prev)}
-        aria-label="LLM 동작 방식 안내"
+        aria-label={
+          isKorean ? "LLM 동작 방식 안내" : translate("llm.helpModalOpenHint")
+        }
         aria-expanded={isHelpOpen}
       >
         ?
@@ -607,24 +869,36 @@ export default function LLMSearchPage() {
           ref={helpPopoverRef}
           className="lsp-help-popover"
           role="dialog"
-          aria-label="LLM 동작 방식 안내"
+          aria-label={
+            isKorean
+              ? "LLM 동작 방식 안내"
+              : translate("llm.helpDialogAriaLabel")
+          }
         >
           <div className="lsp-help-header">
             <div className="lsp-help-title-wrap">
-              <strong>Hanna's LLM은 어떻게 동작하나요?</strong>
+              <strong>
+                {isKorean
+                  ? "Hanna's LLM은 어떻게 동작하나요?"
+                  : translate("llm.helpDialogTitle")}
+              </strong>
             </div>
             <button
               type="button"
               className="lsp-help-close"
               onClick={() => setIsHelpOpen(false)}
-              aria-label="안내 닫기"
+              aria-label={
+                isKorean
+                  ? "안내 닫기"
+                  : translate("llm.helpDialogCloseAriaLabel")
+              }
             >
               <CloseIcon size={14} />
             </button>
           </div>
           <div className="lsp-help-body">
             <ReactMarkdown components={helpMarkdownComponents}>
-              {HELP_MODAL_MARKDOWN}
+              {helpMarkdown}
             </ReactMarkdown>
           </div>
         </div>
