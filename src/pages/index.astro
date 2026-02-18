@@ -1,8 +1,14 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import { LLMSearchPage } from "@components/llm-search";
+import { SITE } from "@config";
+import { getLocaleFromValue, t } from "@utils/locale";
+
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
+const title = t(locale, "page.aiHomeTitle");
+const description = t(locale, "page.aiHomeDescription", { site: SITE.title });
 ---
 
-<Layout title="AI 검색 — Hanna.Dev">
-  <LLMSearchPage client:load />
+<Layout title={title} description={`${description} | ${SITE.title}`}>
+  <LLMSearchPage client:load initialLocale={locale} />
 </Layout>

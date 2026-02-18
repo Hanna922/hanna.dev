@@ -9,6 +9,7 @@ const blog = defineCollection({
       pubDatetime: z.date(),
       modDatetime: z.date().optional().nullable(),
       title: z.string(),
+      titleEn: z.string().optional(),
       featured: z.boolean().optional(),
       draft: z.boolean().optional(),
       tags: z.array(z.string()).default(["others"]),
@@ -26,6 +27,7 @@ const blog = defineCollection({
 const rag = defineCollection({
   schema: z.object({
     title: z.string(),
+    titleEn: z.string().optional(),
     description: z.string().optional(),
     pubDate: z.date(),
   }),

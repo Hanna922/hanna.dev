@@ -3,6 +3,7 @@ author: Hanna922
 pubDatetime: 2026-02-14T10:00:00.000Z
 modDatetime:
 title: MiniSearch에서 RAG로 - 블로그 검색 고도화의 실패와 설계, MVP 구현기
+titleEn: From MiniSearch to RAG - Blog Search Enhancement Failures, Design, and MVP Implementation
 featured: false
 draft: false
 tags:

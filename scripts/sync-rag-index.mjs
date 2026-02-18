@@ -83,7 +83,11 @@ function parseFrontmatter(raw) {
     frontmatter.match(/^title:\s*(.*)$/m)?.[1]?.replace(/^['\"]|['\"]$/g, "") ??
     "Untitled";
 
-  return { title, body };
+  const titleEnRaw =
+    frontmatter.match(/^titleEn:\s*(.*)$/m)?.[1]?.replace(/^['\"]|['\"]$/g, "");
+  const titleEn = titleEnRaw || undefined;
+
+  return { title, titleEn, body };
 }
 
 async function loadCustomDocuments() {
@@ -96,6 +100,7 @@ async function loadCustomDocuments() {
     .map(doc => {
       const id = String(doc.id || `custom:${slugify(doc.title)}`);
       const title = String(doc.title);
+      const titleEn = doc.titleEn ? String(doc.titleEn) : undefined;
       const description = String(doc.description || "");
       const content = String(doc.content);
       const tags = Array.isArray(doc.tags) ? doc.tags.map(String) : ["custom"];
@@ -107,6 +112,7 @@ async function loadCustomDocuments() {
         text: `${title}\n\n${description}\n\n${content}`,
         metadata: {
           title,
+          ...(titleEn ? { titleEn } : {}),
           tags,
           url,
         },
@@ -133,7 +139,7 @@ async function main() {
 
   for (const file of files) {
     const raw = await readFile(file, "utf-8");
-    const { title, body } = parseFrontmatter(raw);
+    const { title, titleEn, body } = parseFrontmatter(raw);
     const slug = path.basename(file).replace(/\.mdx?$/, "");
 
     chunks.push({
@@ -142,6 +148,7 @@ async function main() {
       text: `${title}\n\n${body}`,
       metadata: {
         title,
+        ...(titleEn ? { titleEn } : {}),
         tags: [],
         url: `/posts/${slugify(slug || title)}/`,
       },

@@ -39,12 +39,12 @@ export const Section3 = () => {
     <div ref={sectionRef} className="mx-5 sm:mb-8 sm:ml-36 sm:mr-36 sm:mt-28">
       <div className="mb-12 animate-fade-in items-center">
         <h1 className="timeline-block text-center text-4xl font-semibold opacity-0">
-          Project
+          Projects
         </h1>
       </div>
 
       <h2 className="timeline-block mb-4 text-2xl font-semibold opacity-0">
-        😆 Major Projects
+        Major Projects
       </h2>
 
       <div
@@ -97,7 +97,7 @@ export const Section3 = () => {
       </div>
 
       <h2 className="timeline-block mb-4 mt-8 text-2xl font-semibold opacity-0">
-        🙂 Minor Projects
+        Minor Projects
       </h2>
       <div
         className="minor-carousel overflow-x-scroll sm:flex"

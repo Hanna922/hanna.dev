@@ -7,7 +7,7 @@ import { loadRAGDocuments } from "./document-loader";
 import { embedChunks } from "./embeddings";
 import { ragLogger } from "./logger";
 import { semanticSearch } from "./semantic-search";
-import type { EmbeddedChunk, RAGChunk } from "./types";
+import type { EmbeddedChunk, RAGChunk, SemanticHit } from "./types";
 import { InMemoryVectorStore } from "./vector-store";
 
 const vectorStore = new InMemoryVectorStore();
@@ -40,6 +40,7 @@ async function toDocumentChunks(): Promise<RAGChunk[]> {
       text: `${doc.title}\n\n${doc.description}\n\n${doc.content}`,
       metadata: {
         title: doc.title,
+        ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
         tags: doc.tags,
         url: doc.url,
       },
@@ -91,9 +92,67 @@ async function ingestIfNeeded(apiKey: string, originRequestUrl: string) {
   });
 }
 
+function getPostSlugFromUrl(url: string): string | null {
+  try {
+    const pathname = new URL(url, "https://hanna-dev.local").pathname;
+    const normalized = pathname.replace(/\/+$/, "");
+    const segments = normalized.split("/").filter(Boolean);
+
+    if (segments.length < 2 || segments[0] !== "posts") {
+      return null;
+    }
+
+    return segments[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getPostLocaleFromSlug(slug: string): "ko" | "en" {
+  return slug.endsWith(".en") ? "en" : "ko";
+}
+
+function getBasePostSlug(slug: string): string {
+  return slug.endsWith(".en") ? slug.slice(0, -3) : slug;
+}
+
+function filterHitsByLocale(
+  hits: SemanticHit[],
+  locale: "ko" | "en"
+): SemanticHit[] {
+  const nonPostHits: SemanticHit[] = [];
+  const grouped = new Map<string, { ko: SemanticHit[]; en: SemanticHit[] }>();
+
+  for (const hit of hits) {
+    const slug = getPostSlugFromUrl(hit.chunk.metadata.url);
+
+    if (!slug) {
+      nonPostHits.push(hit);
+      continue;
+    }
+
+    const baseSlug = getBasePostSlug(slug);
+    const postLocale = getPostLocaleFromSlug(slug);
+    const entry = grouped.get(baseSlug) ?? { ko: [], en: [] };
+
+    entry[postLocale].push(hit);
+    grouped.set(baseSlug, entry);
+  }
+
+  const localizedHits = [...nonPostHits];
+
+  for (const entry of grouped.values()) {
+    const preferred = locale === "en" ? entry.en : entry.ko;
+    const fallback = locale === "en" ? entry.ko : entry.en;
+    localizedHits.push(...(preferred.length > 0 ? preferred : fallback));
+  }
+
+  return localizedHits.sort((a, b) => b.score - a.score);
+}
+
 export async function runRAGSearch(
   query: string,
-  options: { apiKey: string; originRequestUrl: string }
+  options: { apiKey: string; originRequestUrl: string; locale?: "ko" | "en" }
 ) {
   const config = getRAGConfig();
   await ingestIfNeeded(options.apiKey, options.originRequestUrl);
@@ -104,10 +163,15 @@ export async function runRAGSearch(
     topK: config.topK,
     similarityThreshold: config.similarityThreshold,
   });
+  const localizedHits = filterHitsByLocale(hits, options.locale ?? "ko");
 
   return {
-    hits,
-    prompt: buildPromptWithContext(query, hits),
-    sources: toSourceRefsFromSemanticHits(hits),
+    hits: localizedHits,
+    prompt: buildPromptWithContext(
+      query,
+      localizedHits,
+      options.locale ?? "ko"
+    ),
+    sources: toSourceRefsFromSemanticHits(localizedHits),
   };
 }

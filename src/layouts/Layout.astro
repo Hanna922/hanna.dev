@@ -1,8 +1,10 @@
 ---
 import { LLMSearchModal } from "@components/llm-search";
 import { LOCALE, SITE } from "@config";
+import LocaleContextProvider from "@components/LocaleContextProvider";
 import "@styles/base.css";
 import { ClientRouter } from "astro:transitions";
+import { getLocaleFromValue, type LocaleCode } from "@utils/locale";
 
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 
@@ -31,16 +33,39 @@ const {
 const socialImageURL = new URL(ogImage).href;
 const faviconURL = new URL("favicon.ico", SITE.website).href;
 const isMainPage = ["/"].includes(Astro.url.pathname);
+const localeFromQuery = getLocaleFromValue(Astro.url.searchParams.get("lang"));
+const locale: LocaleCode = localeFromQuery ?? LOCALE.lang;
+const shouldShowImmediately = localeFromQuery !== null;
+const htmlLang = locale === "en" ? "en-US" : "ko-KR";
 ---
 
 <!doctype html>
 <html
-  lang=`${LOCALE.lang ?? "ko-KR"}`
+  lang={htmlLang}
   class={`${scrollSmooth && "scroll-smooth"}`}
+  data-locale-ready={shouldShowImmediately ? "true" : "false"}
+  data-locale={locale}
+  data-locale-server={locale}
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script is:inline define:vars={{ locale }}>
+      (() => {
+        // Immediately set the locale from server-side rendering
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLocale = urlParams.get("lang");
+        const finalLocale =
+          urlLocale === "en" || urlLocale === "ko" ? urlLocale : locale;
+
+        window.__BLOG_INITIAL_LOCALE__ = finalLocale;
+        document.documentElement.dataset.locale = finalLocale;
+        document.documentElement.lang =
+          finalLocale === "en" ? "en-US" : "ko-KR";
+      })();
+    </script>
+
     <link rel="icon" type="image/x-icon" href={faviconURL} sizes="48x48" />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
@@ -94,6 +119,12 @@ const isMainPage = ["/"].includes(Astro.url.pathname);
 
     <meta name="theme-color" content="" />
 
+    <style is:inline>
+      html[data-locale-ready="false"] body {
+        visibility: hidden;
+      }
+    </style>
+
     {
       // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,
       // include google-site-verification tag in the heading
@@ -111,6 +142,7 @@ const isMainPage = ["/"].includes(Astro.url.pathname);
     <script is:inline src="/toggle-theme.js"></script>
   </head>
   <body>
+    <LocaleContextProvider client:load />
     <slot />
     {!isMainPage && <LLMSearchModal client:load />}
   </body>

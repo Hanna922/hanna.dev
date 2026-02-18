@@ -1,12 +1,14 @@
 ---
-import { type CollectionEntry } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Main from "@layouts/Main.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Card from "@components/Article";
 import Pagination from "@components/Pagination.astro";
+import LocalizedPostListScript from "@components/LocalizedPostListScript.astro";
 import { SITE } from "@config";
+import type { CollectionEntry } from "astro:content";
+import type { LocaleCode } from "@utils/locale";
 
 export interface Props {
   currentPage: number;
@@ -14,35 +16,52 @@ export interface Props {
   paginatedPosts: CollectionEntry<"blog">[];
   tag: string;
   tagName: string;
+  locale?: LocaleCode;
 }
 
-const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
+const {
+  currentPage,
+  totalPages,
+  paginatedPosts,
+  tag,
+  tagName,
+  locale = "ko",
+} = Astro.props;
+const title = `${tagName} | ${SITE.title}`;
+
+const withLocale = (path: string) =>
+  locale === "en" ? `${path}?lang=en` : path;
 ---
 
-<Layout title={`Tag: ${tagName} | ${SITE.title}`}>
+<Layout title={title}>
   <Header activeNav="tags" />
   <Main
-    pageTitle={[`Tag:`, `${tagName}`]}
+    pageTitle={["Tag:", `${tagName}`]}
     titleTransition={tag}
-    pageDesc={`All the articles with the tag "${tagName}".`}
+    pageDesc={String(tagName)}
   >
-    <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
-    <ul>
+    <h1 slot="title" transition:name={tag}><span>{`Tag:`}</span>{tag}</h1>
+    <ul data-localized-post-list="true">
       {
-        paginatedPosts.map(({ data, slug }) => (
-          <Card href={`/posts/${slug}/`} frontmatter={data} />
+        paginatedPosts.map(({ data, slug, id }) => (
+          <Card
+            href={withLocale(`/posts/${slug}/`)}
+            frontmatter={data}
+            entryId={id}
+          />
         ))
       }
     </ul>
   </Main>
+  <LocalizedPostListScript />
 
   <Pagination
     {currentPage}
     {totalPages}
-    prevUrl={`/tags/${tag}${
-      currentPage - 1 !== 1 ? "/" + (currentPage - 1) : ""
-    }/`}
-    nextUrl={`/tags/${tag}/${currentPage + 1}/`}
+    prevUrl={withLocale(
+      `/tags/${tag}${currentPage - 1 !== 1 ? "/" + (currentPage - 1) : ""}/`
+    )}
+    nextUrl={withLocale(`/tags/${tag}/${currentPage + 1}/`)}
   />
 
   <Footer noMarginTop={totalPages > 1} />

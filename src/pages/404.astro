@@ -1,19 +1,25 @@
----
+﻿---
 import { SITE } from "@config";
 import Layout from "@layouts/Layout.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import LinkButton from "@components/LinkButton.astro";
+import { getLocaleFromValue, t } from "@utils/locale";
+
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
+const pageTitle = `${t(locale, "page.notFoundTitle")} | ${SITE.title}`;
 ---
 
-<Layout title={`404 Not Found | ${SITE.title}`}>
+<Layout title={pageTitle}>
   <Header />
 
   <main id="main-content">
     <div class="not-found-wrapper">
       <h1 aria-label="404 Not Found">404</h1>
-      <span aria-hidden="true">¯\_(ツ)_/¯</span>
-      <p>Page Not Found</p>
+      <span aria-hidden="true" data-i18n="page.notFoundEmojiLine">
+        ( ˁ ◔ ‿ ◔ ) 404
+      </span>
+      <p data-i18n="notFound.title">Page Not Found</p>
       <LinkButton
         href="/"
         className="my-6 text-lg underline decoration-dashed underline-offset-8"

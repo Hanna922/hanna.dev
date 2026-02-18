@@ -7,18 +7,77 @@ import Main from "@layouts/Main.astro";
 import Tag from "@components/Tag.astro";
 import getUniqueTags from "@utils/getUniqueTags";
 import { SITE } from "@config";
+import { getLocaleFromValue } from "@utils/locale";
 
 const posts = await getCollection("blog");
-
 let tags = getUniqueTags(posts);
+const locale = getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? "ko";
+const pageTitle = `Tags | ${SITE.title}`;
+const pageDesc = "All the tags used in posts.";
 ---
 
-<Layout title={`Tags | ${SITE.title}`}>
+<Layout title={pageTitle} description={pageDesc}>
   <Header activeNav="tags" />
-  <Main pageTitle="Tags" pageDesc="All the tags used in posts.">
+  <Main
+    pageTitle="Tags"
+    pageTitleI18n="tags.title"
+    pageDesc="All the tags used in posts."
+    pageDescI18n="tags.description"
+  >
     <ul>
-      {tags.map(({ tag }) => <Tag {tag} size="lg" />)}
+      {tags.map(({ tag }) => <Tag {tag} size="lg" locale={locale} />)}
     </ul>
   </Main>
+  <script is:inline>
+    (function () {
+      const getCurrentLocale = () => {
+        const queryLocale = new URLSearchParams(window.location.search).get(
+          "lang"
+        );
+        if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
+
+        const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+        if (contextLocale === "en" || contextLocale === "ko")
+          return contextLocale;
+
+        return document.documentElement.dataset.locale === "en" ? "en" : "ko";
+      };
+
+      const withLocale = (href, locale) => {
+        const url = new URL(href, window.location.origin);
+        if (url.origin !== window.location.origin) return href;
+        url.searchParams.set("lang", locale);
+        const query = url.searchParams.toString();
+        return query ? `${url.pathname}?${query}` : url.pathname;
+      };
+
+      const syncTagLinksLocale = () => {
+        const locale = getCurrentLocale();
+        const links = document.querySelectorAll(
+          '[data-tag-link][href^="/tags/"]'
+        );
+
+        for (const link of links) {
+          const href = link.getAttribute("href");
+          if (!href) continue;
+          link.setAttribute("href", withLocale(href, locale));
+        }
+      };
+
+      const applyOnNextFrame = () => {
+        window.requestAnimationFrame(syncTagLinksLocale);
+      };
+
+      syncTagLinksLocale();
+      window.addEventListener("blog:locale-change", applyOnNextFrame);
+      document.addEventListener("astro:after-swap", applyOnNextFrame);
+
+      const localeObserver = new MutationObserver(applyOnNextFrame);
+      localeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-locale", "lang"],
+      });
+    })();
+  </script>
   <Footer />
 </Layout>
