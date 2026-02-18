@@ -14,7 +14,7 @@
     "cz": "cz",
     "prepare": "husky install",
     "lint": "eslint .",
-    "sync-rag-index": "node scripts/sync-rag-index.mjs"
+    "sync-rag-index": "npx tsx scripts/sync-rag-index.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",
