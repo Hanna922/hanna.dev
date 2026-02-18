@@ -16,8 +16,27 @@ export default function Datetime({
   size = "sm",
   className,
 }: Props) {
+  const sourceDatetime =
+    modDatetime && modDatetime > pubDatetime ? modDatetime : pubDatetime;
+  const myDatetime = new Date(sourceDatetime);
+  const date = myDatetime.toLocaleDateString(LOCALE.langTag, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  const time = myDatetime.toLocaleTimeString(LOCALE.langTag, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const isUpdated = Boolean(modDatetime && modDatetime > pubDatetime);
+
   return (
-    <div className={`flex items-center space-x-2 opacity-80 ${className}`}>
+    <div
+      className={`flex items-center space-x-2 opacity-80 ${className}`}
+      data-datetime-root
+      data-datetime-iso={myDatetime.toISOString()}
+      data-datetime-kind={isUpdated ? "updated" : "published"}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className={`${
@@ -28,45 +47,30 @@ export default function Datetime({
         <path d="M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2z"></path>
         <path d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2zM19 8l.001 12H5V8h14z"></path>
       </svg>
-      {modDatetime && modDatetime > pubDatetime ? (
-        <span className={`italic ${size === "sm" ? "text-sm" : "text-base"}`}>
+      {isUpdated ? (
+        <span
+          className={`italic ${size === "sm" ? "text-sm" : "text-base"}`}
+          data-datetime-label
+        >
           Updated:
         </span>
       ) : (
-        <span className="sr-only">Published:</span>
+        <span className="sr-only" data-datetime-label>
+          Published:
+        </span>
       )}
       <span className={`italic ${size === "sm" ? "text-sm" : "text-base"}`}>
-        <FormattedDatetime
-          pubDatetime={pubDatetime}
-          modDatetime={modDatetime}
-        />
+        <time dateTime={myDatetime.toISOString()} data-datetime-date>
+          {date}
+        </time>
+        <span aria-hidden="true"> | </span>
+        <span className="sr-only" data-datetime-at>
+          &nbsp;at&nbsp;
+        </span>
+        <span className="text-nowrap" data-datetime-time>
+          {time}
+        </span>
       </span>
     </div>
   );
 }
-
-const FormattedDatetime = ({ pubDatetime, modDatetime }: DatetimesProps) => {
-  const myDatetime = new Date(
-    modDatetime && modDatetime > pubDatetime ? modDatetime : pubDatetime
-  );
-
-  const date = myDatetime.toLocaleDateString(LOCALE.langTag, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
-  const time = myDatetime.toLocaleTimeString(LOCALE.langTag, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return (
-    <>
-      <time dateTime={myDatetime.toISOString()}>{date}</time>
-      <span aria-hidden="true"> | </span>
-      <span className="sr-only">&nbsp;at&nbsp;</span>
-      <span className="text-nowrap">{time}</span>
-    </>
-  );
-};

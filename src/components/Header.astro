@@ -1,17 +1,28 @@
----
-import { LOGO_IMAGE, SITE } from "@config";
+﻿---
+import { LOCALE, LOGO_IMAGE, SITE } from "@config";
 import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
+import LocaleSwitcher from "./LocaleSwitcher.astro";
+import { getLocaleFromValue } from "@utils/locale";
 
 export interface Props {
   activeNav?: "posts" | "tags" | "about" | "search";
 }
 
 const { activeNav } = Astro.props;
+const locale =
+  getLocaleFromValue(Astro.url.searchParams.get("lang")) ?? LOCALE.lang;
+const postsHref = locale === "en" ? "/posts/?lang=en" : "/posts/";
+const tagsHref = locale === "en" ? "/tags/?lang=en" : "/tags/";
+const aboutHref = locale === "en" ? "/about/?lang=en" : "/about/";
+const searchHref = locale === "en" ? "/search/?lang=en" : "/search/";
 ---
 
+<!-- eslint-disable -->
 <header>
-  <a id="skip-to-content" href="#main-content">Skip to content</a>
+  <a id="skip-to-content" href="#main-content" data-i18n="nav.skipToContent">
+    Skip to content
+  </a>
   <div class="nav-container">
     <div class="top-nav-wrap">
       <a href="/blog" class="logo whitespace-nowrap">
@@ -31,6 +42,7 @@ const { activeNav } = Astro.props;
       <nav id="nav-menu">
         <button
           class="hamburger-menu focus-outline"
+          data-i18n-aria-label="nav.menuOpen"
           aria-label="Open Menu"
           aria-expanded="false"
           aria-controls="menu-items"
@@ -56,17 +68,29 @@ const { activeNav } = Astro.props;
         </button>
         <ul id="menu-items" class="display-none sm:flex">
           <li>
-            <a href="/posts/" class={activeNav === "posts" ? "active" : ""}>
+            <a
+              href={postsHref}
+              class={activeNav === "posts" ? "active" : ""}
+              data-nav-locale-path="/posts/"
+            >
               Posts
             </a>
           </li>
           <li>
-            <a href="/tags/" class={activeNav === "tags" ? "active" : ""}>
+            <a
+              href={tagsHref}
+              class={activeNav === "tags" ? "active" : ""}
+              data-nav-locale-path="/tags/"
+            >
               Tags
             </a>
           </li>
           <li>
-            <a href="/about/" class={activeNav === "about" ? "active" : ""}>
+            <a
+              href={aboutHref}
+              class={activeNav === "about" ? "active" : ""}
+              data-nav-locale-path="/about/"
+            >
               About
             </a>
           </li>
@@ -74,8 +98,8 @@ const { activeNav } = Astro.props;
             <button
               id="llm-search-trigger"
               class="llm-nav-trigger focus-outline"
-              aria-label="AI 검색"
-              title="AI 검색 (⌘K)"
+              aria-label="AI Search"
+              title="AI Search"
             >
               <svg
                 width="14"
@@ -87,13 +111,16 @@ const { activeNav } = Astro.props;
                   d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"
                 ></path>
               </svg>
-              <span>AI</span>
-              <kbd>⌘K</kbd>
+              <span>AI Search</span>
             </button>
+          </li>
+          <li class="locale-switcher-item">
+            <LocaleSwitcher />
           </li>
           <li>
             <LinkButton
-              href="/search/"
+              href={searchHref}
+              localePath="/search/"
               className={`focus-outline p-3 sm:p-1 ${
                 activeNav === "search" ? "active" : ""
               } flex`}
@@ -116,8 +143,10 @@ const { activeNav } = Astro.props;
                 <button
                   id="theme-btn"
                   class="focus-outline"
-                  title="Toggles light & dark"
-                  aria-label="auto"
+                  data-i18n-title="nav.themeToggle"
+                  data-i18n-aria-label="nav.themeToggle"
+                  title="Theme"
+                  aria-label="theme"
                   aria-live="polite"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" id="moon-svg">
@@ -203,7 +232,6 @@ const { activeNav } = Astro.props;
   .llm-nav-trigger svg {
     @apply h-3.5 w-3.5;
   }
-
   .llm-nav-trigger kbd {
     @apply ml-0.5 rounded border border-skin-line bg-skin-card px-1 py-0.5 font-mono text-xs;
   }
@@ -223,39 +251,109 @@ const { activeNav } = Astro.props;
 </style>
 
 <script>
-  function toggleNav() {
-    // Toggle menu
-    const menuBtn = document.querySelector(".hamburger-menu");
-    const menuIcon = document.querySelector(".menu-icon");
-    const menuItems = document.querySelector("#menu-items");
+  /* eslint-disable */
+  function t(key: string, fallback: string) {
+    const ctx = window.__BLOG_LOCALE_CONTEXT__;
+    return ctx?.translate?.(key) ?? fallback;
+  }
 
-    menuBtn?.addEventListener("click", () => {
-      const menuExpanded = menuBtn.getAttribute("aria-expanded") === "true";
-      menuIcon?.classList.toggle("is-active");
-      menuBtn.setAttribute("aria-expanded", menuExpanded ? "false" : "true");
-      menuBtn.setAttribute(
-        "aria-label",
-        menuExpanded ? "Open Menu" : "Close Menu"
-      );
-      menuItems?.classList.toggle("display-none");
+  function setMenuButtonLabel(open: boolean, menuBtn: HTMLElement | null) {
+    if (!menuBtn) return;
+    const key = open ? "nav.menuClose" : "nav.menuOpen";
+    const fallback = open ? "Close menu" : "Open menu";
+    const label = t(key, fallback);
+    menuBtn.setAttribute("aria-label", label);
+    menuBtn.setAttribute("title", label);
+    menuBtn.setAttribute("data-i18n-aria-label", key);
+    menuBtn.setAttribute("data-i18n-title", key);
+  }
+
+  function getCurrentLocale() {
+    const queryLocale = new URLSearchParams(window.location.search).get("lang");
+    if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
+
+    const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+    if (contextLocale === "en" || contextLocale === "ko") return contextLocale;
+
+    return document.documentElement.dataset.locale === "en" ? "en" : "ko";
+  }
+
+  function withLocale(path: string, locale: "en" | "ko") {
+    return locale === "en" ? `${path}?lang=en` : path;
+  }
+
+  function syncLocaleAwareNavLinks() {
+    const locale = getCurrentLocale();
+    const links = document.querySelectorAll("[data-nav-locale-path]");
+
+    for (const link of links) {
+      const basePath = link.getAttribute("data-nav-locale-path");
+      if (!basePath) continue;
+
+      const href = withLocale(basePath, locale);
+      if (link.tagName.toLowerCase() === "a") {
+        link.setAttribute("href", href);
+      }
+    }
+  }
+
+  function setMenuState(isOpen: boolean) {
+    const menuBtn = document.querySelector<HTMLElement>(".hamburger-menu");
+    const menuIcon = document.querySelector<HTMLElement>(".menu-icon");
+    const menuItems = document.getElementById("menu-items");
+    if (!menuBtn || !menuIcon || !menuItems) return;
+
+    menuIcon.classList.toggle("is-active", isOpen);
+    menuItems.classList.toggle("display-none", !isOpen);
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+    setMenuButtonLabel(isOpen, menuBtn);
+  }
+
+  function toggleNav() {
+    const menuBtn = document.querySelector(".hamburger-menu");
+    if (!menuBtn) return;
+
+    const isOpen = menuBtn.getAttribute("aria-expanded") === "true";
+    setMenuState(!isOpen);
+  }
+
+  function bindNavMenu() {
+    const menuBtn = document.querySelector<HTMLElement>(".hamburger-menu");
+    if (!menuBtn || menuBtn.dataset.localeMenuBound === "1") return;
+
+    menuBtn.dataset.localeMenuBound = "1";
+    menuBtn.addEventListener("click", toggleNav);
+    setMenuState(false);
+  }
+
+  function setupLLMSearchTrigger() {
+    const triggerBtn = document.getElementById("llm-search-trigger");
+    if (!triggerBtn || triggerBtn.dataset.localeBound === "1") return;
+
+    triggerBtn.dataset.localeBound = "1";
+    triggerBtn.addEventListener("click", () => {
+      const lang = document.documentElement.dataset.locale;
+      const langQuery = lang === "en" || lang === "ko" ? `?lang=${lang}` : "";
+      window.location.href = `/${langQuery}`;
     });
   }
 
-  toggleNav();
-
-  // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", toggleNav);
-
-  function setupLLMSearchTrigger() {
-    document
-      .getElementById("llm-search-trigger")
-      ?.addEventListener("click", () => {
-        window.location.href = "/";
-      });
-  }
-
+  bindNavMenu();
   setupLLMSearchTrigger();
+  syncLocaleAwareNavLinks();
 
-  // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", setupLLMSearchTrigger);
+  document.addEventListener("astro:after-swap", () => {
+    bindNavMenu();
+    setMenuState(false);
+    setupLLMSearchTrigger();
+    syncLocaleAwareNavLinks();
+  });
+
+  window.addEventListener("blog:locale-change", () => {
+    const menuBtn = document.querySelector<HTMLElement>(".hamburger-menu");
+    const isOpen = menuBtn?.getAttribute("aria-expanded") === "true";
+    setMenuButtonLabel(Boolean(isOpen), menuBtn);
+    syncLocaleAwareNavLinks();
+  });
+  /* eslint-enable */
 </script>

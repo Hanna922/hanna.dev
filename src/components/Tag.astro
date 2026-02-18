@@ -2,9 +2,16 @@
 export interface Props {
   tag: string;
   size?: "sm" | "lg";
+  locale?: "ko" | "en";
 }
 
-const { tag, size = "sm" } = Astro.props;
+const { tag, size = "sm", locale } = Astro.props;
+const href =
+  locale === "en"
+    ? `/tags/${tag}/?lang=en`
+    : locale === "ko"
+      ? `/tags/${tag}/?lang=ko`
+      : `/tags/${tag}/`;
 ---
 
 <li
@@ -13,8 +20,9 @@ const { tag, size = "sm" } = Astro.props;
   }`}
 >
   <a
-    href={`/tags/${tag}/`}
+    href={href}
     transition:name={tag}
+    data-tag-link="true"
     class={`${size === "sm" ? "text-sm" : "text-lg"} pr-2 group`}
   >
     <svg
