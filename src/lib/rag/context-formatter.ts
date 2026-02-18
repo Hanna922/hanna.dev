@@ -3,6 +3,7 @@ import type { SemanticHit } from "./types";
 
 interface MergedContext {
   title: string;
+  titleEn?: string;
   url: string;
   texts: string[];
 }
@@ -14,6 +15,7 @@ export function buildContextFromHits(hits: SemanticHit[]) {
     const key = hit.chunk.metadata.url;
     const entry = merged.get(key) ?? {
       title: hit.chunk.metadata.title,
+      titleEn: hit.chunk.metadata.titleEn,
       url: hit.chunk.metadata.url,
       texts: [],
     };
@@ -25,16 +27,36 @@ export function buildContextFromHits(hits: SemanticHit[]) {
   return Array.from(merged.values()).map((entry, index) => ({
     index: index + 1,
     title: entry.title,
+    titleEn: entry.titleEn,
     url: entry.url,
     text: entry.texts.join("\n\n"),
   }));
 }
 
-export function buildPromptWithContext(query: string, hits: SemanticHit[]) {
+export function buildPromptWithContext(
+  query: string,
+  hits: SemanticHit[],
+  locale: "ko" | "en" = "ko"
+) {
   const context = buildContextFromHits(hits);
 
   // 컨텍스트가 없을 때 — 외부 지식 사용 차단
   if (context.length === 0) {
+    if (locale === "en") {
+      return `QUERY: ${query}
+
+CONTEXT:
+No relevant blog documents found.
+
+INSTRUCTIONS:
+- Clearly inform that no relevant information was found in the blog content.
+- Do not generate answers from external knowledge or general common sense.
+- Reply with "No relevant information found on the blog for this topic."
+- Suggest other related questions that might be helpful.
+
+ANSWER:`;
+    }
+
     return `QUERY: ${query}
 
 CONTEXT:
@@ -57,6 +79,22 @@ ANSWER:`;
     )
     .join("\n\n");
 
+  if (locale === "en") {
+    return `QUERY: ${query}
+
+CONTEXT:
+${contextText}
+
+INSTRUCTIONS:
+- Answer using only the information contained in the CONTEXT above.
+- Do not guess or invent content not in CONTEXT.
+- Always cite sources using (Source N) format when referencing information.
+- Do not copy long quoted text verbatim.
+- Format your answer in markdown.
+
+ANSWER:`;
+  }
+
   return `QUERY: ${query}
 
 CONTEXT:
@@ -74,7 +112,9 @@ ANSWER:`;
 
 export function toSourceRefsFromSemanticHits(hits: SemanticHit[]): SourceRef[] {
   const context = buildContextFromHits(hits);
-  return context
-    .slice(0, 5)
-    .map(item => ({ title: item.title, slug: item.url }));
+  return context.slice(0, 5).map(item => ({
+    title: item.title,
+    ...(item.titleEn ? { titleEn: item.titleEn } : {}),
+    slug: item.url,
+  }));
 }

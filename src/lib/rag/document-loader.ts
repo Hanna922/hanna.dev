@@ -5,6 +5,7 @@ import type { RAGDocument } from "./types";
 interface CustomRAGDocumentInput {
   id?: string;
   title: string;
+  titleEn?: string;
   description?: string;
   tags?: string[];
   url?: string;
@@ -20,12 +21,14 @@ export async function loadBlogDocuments(): Promise<RAGDocument[]> {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
 
   return posts.map(post => {
-    const { title, description, tags, canonicalURL } = post.data;
-    const rawPath = canonicalURL ?? `/posts/${post.slug ?? slugifyStr(title)}`;
+    const { title, titleEn, description, tags, canonicalURL } = post.data;
+    const postSlug = post.slug || slugifyStr(title);
+    const rawPath = canonicalURL ?? `/posts/${postSlug}`;
 
     return {
       id: post.id ?? slugifyStr(title),
       title,
+      ...(titleEn ? { titleEn } : {}),
       description: description ?? "",
       tags: tags ?? [],
       url: normalizePostPath(rawPath),
@@ -50,6 +53,7 @@ export async function loadCustomDocuments(): Promise<RAGDocument[]> {
       return {
         id,
         title: entry.title,
+        ...(entry.titleEn ? { titleEn: entry.titleEn } : {}),
         description: entry.description ?? "",
         tags: entry.tags ?? ["custom"],
         url: entry.url ?? `/rag/custom/${id}/`,
