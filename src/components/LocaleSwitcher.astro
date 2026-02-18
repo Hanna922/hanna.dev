@@ -1,0 +1,50 @@
+---
+import { LOCALE } from "@config";
+import { LOCALES, getLocaleFromValue } from "@utils/locale";
+
+const localeFromQuery = getLocaleFromValue(Astro.url.searchParams.get("lang"));
+const currentLocale = localeFromQuery ?? LOCALE.lang;
+---
+
+<div
+  class="locale-switcher"
+  role="group"
+  aria-label="Language switch"
+  data-i18n-aria-label="language.switchAriaLabel"
+>
+  {
+    LOCALES.map(locale => (
+      <button
+        type="button"
+        class={`locale-btn${locale.code === currentLocale ? " active" : ""}`}
+        data-locale-switch={locale.code}
+        aria-pressed={locale.code === currentLocale ? "true" : "false"}
+      >
+        {locale.code === "en" ? "EN" : "KR"}
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .locale-switcher {
+    @apply my-0 mt-1 flex items-center gap-1 self-start;
+  }
+  .locale-btn {
+    @apply inline-flex h-6 items-center justify-center px-2 text-xs font-semibold tracking-tight transition-colors;
+  }
+  .locale-btn.active {
+    @apply text-skin-accent;
+  }
+  .locale-btn:hover {
+    @apply text-skin-accent opacity-80;
+  }
+  .locale-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 1px rgb(var(--color-accent));
+    border-radius: 0.25rem;
+  }
+  .locale-btn:not(.active) {
+    @apply opacity-60;
+  }
+</style>
