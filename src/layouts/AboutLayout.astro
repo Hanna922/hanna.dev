@@ -20,7 +20,7 @@ const { frontmatter } = Astro.props;
 <Layout title={`${frontmatter.title} | ${SITE.title}`}>
   <Header activeNav="about" />
   <Section1 />
-  <Section2 client:only />
-  <Section3 client:only />
+  <Section2 client:only="react" />
+  <Section3 client:only="react" />
   <Footer />
 </Layout>

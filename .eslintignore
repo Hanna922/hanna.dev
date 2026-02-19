@@ -1,8 +1,0 @@
-.husky
-.vscode
-node_modules
-public
-dist
-.yarn
-src/components/Header.astro
-src/layouts/PostDetails.astro

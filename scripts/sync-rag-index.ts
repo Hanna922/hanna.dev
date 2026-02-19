@@ -34,7 +34,7 @@ async function loadEnvFile(filePath: string) {
     const value = trimmed
       .slice(eqIndex + 1)
       .trim()
-      .replace(/^['\"]|['\"]$/g, "");
+      .replace(/^['"]|['"]$/g, "");
 
     if (!(key in process.env)) {
       process.env[key] = value;
@@ -90,14 +90,14 @@ function parseFrontmatter(raw: string): {
   const body = raw.replace(/^---\n[\s\S]*?\n---\n?/, "");
 
   const title =
-    frontmatter.match(/^title:\s*(.*)$/m)?.[1]?.replace(/^['\"]|['\"]$/g, "") ??
+    frontmatter.match(/^title:\s*(.*)$/m)?.[1]?.replace(/^['"]|['"]$/g, "") ??
     "Untitled";
 
   const description =
-    frontmatter.match(/^description:\s*(.*)$/m)?.[1]?.replace(/^['\"]|['\"]$/g, "") ?? "";
+    frontmatter.match(/^description:\s*(.*)$/m)?.[1]?.replace(/^['"]|['"]$/g, "") ?? "";
 
   const titleEnRaw =
-    frontmatter.match(/^titleEn:\s*(.*)$/m)?.[1]?.replace(/^['\"]|['\"]$/g, "");
+    frontmatter.match(/^titleEn:\s*(.*)$/m)?.[1]?.replace(/^['"]|['"]$/g, "");
   const titleEn = titleEnRaw || undefined;
 
   return { title, titleEn, description, body };
@@ -184,7 +184,7 @@ async function main() {
   const chunks = chunkDocuments([...blogDocs, ...customDocs], { chunkSize, chunkOverlap });
 
   const google = createGoogleGenerativeAI({ apiKey });
-  const model = google.textEmbeddingModel(modelName as "gemini-embedding-001");
+  const model = google.embeddingModel(modelName as "gemini-embedding-001");
 
   console.log(`embeddingModel=${modelName}`);
   console.log(`total chunks to embed=${chunks.length}, batchSize=${batchSize}`);
