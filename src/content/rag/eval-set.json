@@ -249,17 +249,34 @@
     "expectedDocIds": [
       "big-migration-journey",
       "create-collection-of-packages",
-      "from-minisearch-to-rag-mvp"
+      "design-system-publish-1",
+      "design-system-publish-2",
+      "design-system-publish-3",
+      "from-minisearch-to-rag-mvp",
+      "building-a-custom-react-renderer"
     ],
-    "expectedKeywords": ["마이그레이션", "모노레포", "RAG"],
+    "expectedKeywords": [
+      "마이그레이션",
+      "모노레포",
+      "RAG",
+      "디자인 시스템",
+      "React"
+    ],
     "category": "cross-post"
   },
   {
     "id": "eval-027",
     "query": "What technical challenges were overcome across different projects?",
     "locale": "en",
-    "expectedDocIds": ["big-migration-journey", "from-minisearch-to-rag-mvp"],
-    "expectedKeywords": ["migration", "legacy", "RAG", "challenge"],
+    "expectedDocIds": [
+      "big-migration-journey",
+      "from-minisearch-to-rag-mvp",
+      "create-collection-of-packages",
+      "design-system-publish-1",
+      "design-system-publish-2",
+      "design-system-publish-3"
+    ],
+    "expectedKeywords": ["migration", "legacy", "RAG", "challenge", "error"],
     "category": "cross-post"
   },
   {
@@ -268,10 +285,15 @@
     "locale": "ko",
     "expectedDocIds": [
       "big-migration-journey",
+      "building-a-custom-react-renderer",
       "create-collection-of-packages",
-      "design-system-publish-1"
+      "design-system-publish-1",
+      "design-system-publish-2",
+      "design-system-publish-3",
+      "from-minisearch-to-rag-mvp",
+      "react-fiber-in-reconcile-phase"
     ],
-    "expectedKeywords": ["React", "TypeScript", "Vite", "Node"],
+    "expectedKeywords": ["React", "TypeScript", "Vite", "Node", "RAG"],
     "category": "cross-post"
   },
   {
