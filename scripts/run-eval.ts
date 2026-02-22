@@ -150,6 +150,8 @@ function retrieveRAG(
   index: EmbeddedChunk[],
   topK: number
 ): RetrievalResult[] {
+
+  // 1️⃣ chunk scoring
   const scored = index.map((chunk) => ({
     docId: chunk.docId,
     chunkId: chunk.id,
@@ -157,8 +159,22 @@ function retrieveRAG(
     text: chunk.text,
   }));
 
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, topK);
+  // 2️⃣ 문서별 최고 점수 chunk 선택
+  const bestByDoc = new Map<string, RetrievalResult>();
+
+  for (const item of scored) {
+    const existing = bestByDoc.get(item.docId);
+    if (!existing || item.score > existing.score) {
+      bestByDoc.set(item.docId, item);
+    }
+  }
+
+  // 3️⃣ 문서 단위 정렬
+  const docLevelResults = Array.from(bestByDoc.values());
+  docLevelResults.sort((a, b) => b.score - a.score);
+
+  // 4️⃣ topK 문서 반환
+  return docLevelResults.slice(0, topK);
 }
 
 // ============================================================
