@@ -38,3 +38,6 @@ example/
 .claude
 .kiro
 .vercel
+
+rag-index.json
+eval-results.json
