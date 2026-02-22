@@ -20,25 +20,26 @@ import {
 } from "@utils/locale";
 
 function getInitialLocale(initialLocaleFromServer?: LocaleCode): LocaleCode {
-  const parsedInitialLocale = getLocaleFromValue(
-    initialLocaleFromServer ?? null
-  );
-  if (parsedInitialLocale) {
-    return parsedInitialLocale;
-  }
-
   if (typeof window === "undefined") {
-    return "ko";
+    return getLocaleFromValue(initialLocaleFromServer ?? null) ?? "ko";
   }
 
-  // 1. Check URL query parameter first
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlLocale = getLocaleFromValue(urlParams.get("lang"));
+  // 클라이언트: URL query param이 가장 신뢰도 높은 신호 — 서버 prop보다 우선
+  // (CDN 캐싱 등으로 서버가 잘못된 locale을 내려보낸 경우에도 URL 기준으로 복구)
+  const urlLocale = getLocaleFromValue(
+    new URLSearchParams(window.location.search).get("lang")
+  );
   if (urlLocale) {
     return urlLocale;
   }
 
-  // 2. Check data-locale attribute
+  // URL param이 없을 때만 서버 prop 사용
+  const serverLocale = getLocaleFromValue(initialLocaleFromServer ?? null);
+  if (serverLocale) {
+    return serverLocale;
+  }
+
+  // HTML data-locale (인라인 스크립트가 URL 기반으로 설정)
   const htmlLocale = getLocaleFromValue(
     document.documentElement.dataset.locale ?? null
   );
@@ -46,7 +47,7 @@ function getInitialLocale(initialLocaleFromServer?: LocaleCode): LocaleCode {
     return htmlLocale;
   }
 
-  // 3. Check window.__BLOG_INITIAL_LOCALE__
+  // window.__BLOG_INITIAL_LOCALE__ (인라인 스크립트가 URL 기반으로 설정)
   const windowLocale = getLocaleFromValue(
     (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
       .__BLOG_INITIAL_LOCALE__ ?? null
@@ -55,7 +56,7 @@ function getInitialLocale(initialLocaleFromServer?: LocaleCode): LocaleCode {
     return windowLocale;
   }
 
-  // 4. Fallback to default
+  // Fallback to default
   return "ko";
 }
 
