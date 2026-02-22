@@ -15,7 +15,9 @@
     "cz": "cz",
     "prepare": "husky install",
     "lint": "eslint .",
-    "sync-rag-index": "npx tsx scripts/sync-rag-index.ts"
+    "sync-rag-index": "npx tsx scripts/sync-rag-index.ts",
+    "sync-rag-naive": "npx tsx scripts/sync-rag-index.ts --naive",
+    "eval": "npx tsx scripts/run-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",

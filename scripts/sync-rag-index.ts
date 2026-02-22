@@ -12,7 +12,10 @@ const root = path.resolve(__dirname, "..");
 
 const blogDir = path.join(root, "src", "content", "blog");
 const customDocsFile = path.join(root, "src", "content", "rag", "custom-documents.json");
-const outFile = path.join(root, "public", "rag-index.json");
+const isNaive = process.argv.includes("--naive");
+const outFile = isNaive
+  ? path.join(root, "public", "rag-index-naive.json")
+  : path.join(root, "public", "rag-index.json");
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-001";
 
 // ============================================================
@@ -181,7 +184,25 @@ async function main() {
     loadCustomDocuments(),
   ]);
 
-  const chunks = chunkDocuments([...blogDocs, ...customDocs], { chunkSize, chunkOverlap });
+  const allDocs = [...blogDocs, ...customDocs];
+
+  const chunks = isNaive
+    ? allDocs.map((doc) => ({
+      id: `${doc.id}:0`,
+      docId: doc.id,
+      text: [doc.title, doc.description, doc.content]
+        .filter(Boolean)
+        .join("\n\n"),
+      metadata: {
+        title: doc.title,
+        ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
+        tags: doc.tags ?? [],
+        url: doc.url,
+      },
+    }))
+    : chunkDocuments(allDocs, { chunkSize, chunkOverlap });
+
+  console.log(`mode=${isNaive ? "naive" : "chunked"}, chunks=${chunks.length}`);
 
   const google = createGoogleGenerativeAI({ apiKey });
   const model = google.embeddingModel(modelName as "gemini-embedding-001");

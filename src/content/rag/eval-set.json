@@ -1,1 +1,341 @@
-[]
+[
+  {
+    "id": "eval-001",
+    "query": "인턴십에서 레거시 코드를 마이그레이션하게 된 계기가 뭐였나요?",
+    "locale": "ko",
+    "expectedDocIds": ["big-migration-journey"],
+    "expectedKeywords": ["Radix", "레거시", "Node", "설치"],
+    "category": "project-motivation"
+  },
+  {
+    "id": "eval-002",
+    "query": "마이그레이션 이후 yarn time과 프로젝트 크기가 얼마나 개선되었나요?",
+    "locale": "ko",
+    "expectedDocIds": ["big-migration-journey"],
+    "expectedKeywords": ["1/5", "1/2", "yarn time", "프로젝트 크기"],
+    "category": "project-result"
+  },
+  {
+    "id": "eval-003",
+    "query": "What issues were encountered during the Node 14 to Node 20 migration?",
+    "locale": "en",
+    "expectedDocIds": ["big-migration-journey"],
+    "expectedKeywords": [
+      "twin.macro",
+      "Webpack",
+      "Vite",
+      "custom property",
+      "error"
+    ],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-004",
+    "query": "Webpack에서 Vite로 번들러를 변경할 때 twin.macro 관련 에러는 어떻게 해결했나요?",
+    "locale": "ko",
+    "expectedDocIds": ["big-migration-journey"],
+    "expectedKeywords": [
+      "twin.macro",
+      "tailwindcss",
+      "custom property",
+      "className"
+    ],
+    "category": "problem-solving"
+  },
+  {
+    "id": "eval-005",
+    "query": "React의 Custom Renderer를 만들려면 어떤 개념을 알아야 하나요?",
+    "locale": "ko",
+    "expectedDocIds": ["building-a-custom-react-renderer"],
+    "expectedKeywords": ["react-reconciler", "Renderer", "ReactDOM", "호스트"],
+    "category": "concept"
+  },
+  {
+    "id": "eval-006",
+    "query": "How does a custom React renderer differ from ReactDOM?",
+    "locale": "en",
+    "expectedDocIds": ["building-a-custom-react-renderer"],
+    "expectedKeywords": ["renderer", "reconciler", "host", "platform"],
+    "category": "concept"
+  },
+  {
+    "id": "eval-007",
+    "query": "react-reconciler에서 hostConfig는 어떤 역할을 하나요?",
+    "locale": "ko",
+    "expectedDocIds": ["building-a-custom-react-renderer"],
+    "expectedKeywords": [
+      "hostConfig",
+      "createInstance",
+      "appendChild",
+      "reconciler"
+    ],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-008",
+    "query": "Yrano 모노레포를 만들게 된 동기는 무엇인가요?",
+    "locale": "ko",
+    "expectedDocIds": ["create-collection-of-packages"],
+    "expectedKeywords": ["Yourssu", "YDS", "패키지", "모노레포", "재사용"],
+    "category": "project-motivation"
+  },
+  {
+    "id": "eval-009",
+    "query": "Why was Tsup chosen over Rollup for the Yrano monorepo?",
+    "locale": "en",
+    "expectedDocIds": ["create-collection-of-packages"],
+    "expectedKeywords": ["Tsup", "Rollup", "CJS", "ESM", "DTS"],
+    "category": "technical-decision"
+  },
+  {
+    "id": "eval-010",
+    "query": "Turborepo를 활용해서 모노레포 패키지 간 의존성을 어떻게 관리했나요?",
+    "locale": "ko",
+    "expectedDocIds": ["create-collection-of-packages"],
+    "expectedKeywords": ["Turborepo", "패키지", "의존성", "workspace"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-011",
+    "query": "crypto-js sha256 함수를 별도로 구현한 이유가 뭔가요?",
+    "locale": "ko",
+    "expectedDocIds": ["create-collection-of-packages"],
+    "expectedKeywords": ["crypto-js", "sha256", "module size", "경량화"],
+    "category": "technical-decision"
+  },
+  {
+    "id": "eval-012",
+    "query": "NPM에 디자인 시스템 패키지를 배포하려면 package.json을 어떻게 설정해야 하나요?",
+    "locale": "ko",
+    "expectedDocIds": ["design-system-publish-1"],
+    "expectedKeywords": ["package.json", "name", "version", "private", "배포"],
+    "category": "how-to"
+  },
+  {
+    "id": "eval-013",
+    "query": "How was the YDS Storybook deployed with version-based URLs?",
+    "locale": "en",
+    "expectedDocIds": ["design-system-publish-3"],
+    "expectedKeywords": [
+      "Storybook",
+      "S3",
+      "Bucket Versioning",
+      "GitHub Action"
+    ],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-014",
+    "query": "YDS 패키지의 빌드와 테스트 과정은 어떻게 진행되나요?",
+    "locale": "ko",
+    "expectedDocIds": ["design-system-publish-2"],
+    "expectedKeywords": ["build", "test", "pnpm", "배포"],
+    "category": "how-to"
+  },
+  {
+    "id": "eval-015",
+    "query": "What is the NPM publishing automation workflow for the design system?",
+    "locale": "en",
+    "expectedDocIds": ["design-system-publish-3"],
+    "expectedKeywords": ["GitHub Action", "NPM", "publish", "automation"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-016",
+    "query": "디자인 시스템을 NPM에 올리기 위한 전체 과정을 단계별로 설명해주세요",
+    "locale": "ko",
+    "expectedDocIds": [
+      "design-system-publish-1",
+      "design-system-publish-2",
+      "design-system-publish-3"
+    ],
+    "expectedKeywords": ["package.json", "build", "Storybook", "NPM", "배포"],
+    "category": "cross-post"
+  },
+  {
+    "id": "eval-017",
+    "query": "블로그 검색을 MiniSearch에서 RAG로 전환한 이유가 뭔가요?",
+    "locale": "ko",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["MiniSearch", "RAG", "한계", "검색", "LLM"],
+    "category": "project-motivation"
+  },
+  {
+    "id": "eval-018",
+    "query": "What were the limitations of the MiniSearch + Gemini approach for blog search?",
+    "locale": "en",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": [
+      "MiniSearch",
+      "Gemini",
+      "limitation",
+      "hallucination",
+      "grounding"
+    ],
+    "category": "problem-solving"
+  },
+  {
+    "id": "eval-019",
+    "query": "RAG MVP를 구현할 때 어떤 태스크들로 나눠서 진행했나요?",
+    "locale": "ko",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["Task", "MVP", "requirements", "설계"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-020",
+    "query": "How was the RAG pipeline designed for the blog search system?",
+    "locale": "en",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["RAG", "pipeline", "embedding", "chunk", "vector"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-021",
+    "query": "MiniSearch와 RAG를 조합한 fallback 구조는 어떻게 동작하나요?",
+    "locale": "ko",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["fallback", "MiniSearch", "RAG", "embedding", "실패"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-022",
+    "query": "React Fiber 아키텍처에서 Reconcile Phase는 어떤 역할을 하나요?",
+    "locale": "ko",
+    "expectedDocIds": ["react-fiber-in-reconcile-phase"],
+    "expectedKeywords": ["Reconcile", "Fiber", "FiberNode", "DOM", "비교"],
+    "category": "concept"
+  },
+  {
+    "id": "eval-023",
+    "query": "What is the difference between Render Phase and Reconcile Phase in React?",
+    "locale": "en",
+    "expectedDocIds": ["react-fiber-in-reconcile-phase"],
+    "expectedKeywords": [
+      "Render",
+      "Reconcile",
+      "JSX",
+      "createElement",
+      "FiberNode"
+    ],
+    "category": "concept"
+  },
+  {
+    "id": "eval-024",
+    "query": "FiberNode의 구조와 주요 속성들에 대해 설명해주세요",
+    "locale": "ko",
+    "expectedDocIds": ["react-fiber-in-reconcile-phase"],
+    "expectedKeywords": [
+      "FiberNode",
+      "child",
+      "sibling",
+      "return",
+      "stateNode"
+    ],
+    "category": "concept"
+  },
+  {
+    "id": "eval-025",
+    "query": "ReactElement Object는 어떤 정보를 담고 있나요?",
+    "locale": "ko",
+    "expectedDocIds": ["react-fiber-in-reconcile-phase"],
+    "expectedKeywords": ["ReactElement", "type", "props", "key"],
+    "category": "concept"
+  },
+  {
+    "id": "eval-026",
+    "query": "대표 프로젝트 경험을 몇 가지 소개해주세요",
+    "locale": "ko",
+    "expectedDocIds": [
+      "big-migration-journey",
+      "create-collection-of-packages",
+      "from-minisearch-to-rag-mvp"
+    ],
+    "expectedKeywords": ["마이그레이션", "모노레포", "RAG"],
+    "category": "cross-post"
+  },
+  {
+    "id": "eval-027",
+    "query": "What technical challenges were overcome across different projects?",
+    "locale": "en",
+    "expectedDocIds": ["big-migration-journey", "from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["migration", "legacy", "RAG", "challenge"],
+    "category": "cross-post"
+  },
+  {
+    "id": "eval-028",
+    "query": "블로그에서 다루고 있는 기술 스택은 어떤 것들이 있나요?",
+    "locale": "ko",
+    "expectedDocIds": [
+      "big-migration-journey",
+      "create-collection-of-packages",
+      "design-system-publish-1"
+    ],
+    "expectedKeywords": ["React", "TypeScript", "Vite", "Node"],
+    "category": "cross-post"
+  },
+  {
+    "id": "eval-029",
+    "query": "Storybook 버전별 배포와 S3 버킷 버저닝은 어떻게 연동되나요?",
+    "locale": "ko",
+    "expectedDocIds": ["design-system-publish-3"],
+    "expectedKeywords": ["Storybook", "S3", "버킷", "버전"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-030",
+    "query": "How does the logging system in Yrano protect user privacy?",
+    "locale": "en",
+    "expectedDocIds": ["create-collection-of-packages"],
+    "expectedKeywords": ["logging", "privacy", "user", "identify"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-031",
+    "query": "Python 장고 프레임워크를 사용한 백엔드 개발 경험이 있나요?",
+    "locale": "ko",
+    "expectedDocIds": [],
+    "expectedKeywords": [],
+    "category": "negative"
+  },
+  {
+    "id": "eval-032",
+    "query": "What experience do you have with Kubernetes and Docker?",
+    "locale": "en",
+    "expectedDocIds": [],
+    "expectedKeywords": [],
+    "category": "negative"
+  },
+  {
+    "id": "eval-033",
+    "query": "iOS 네이티브 앱 개발 경험에 대해 알려주세요",
+    "locale": "ko",
+    "expectedDocIds": [],
+    "expectedKeywords": [],
+    "category": "negative"
+  },
+  {
+    "id": "eval-034",
+    "query": "import-order 버전 업데이트 시 어떤 문제가 있었나요?",
+    "locale": "ko",
+    "expectedDocIds": ["big-migration-journey"],
+    "expectedKeywords": ["import-order", "버전", "에러"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-035",
+    "query": "What embedding model is used in the RAG system and why?",
+    "locale": "en",
+    "expectedDocIds": ["from-minisearch-to-rag-mvp"],
+    "expectedKeywords": ["embedding", "Gemini", "model", "vector"],
+    "category": "project-detail"
+  },
+  {
+    "id": "eval-036",
+    "query": "React의 Commit Phase에서는 어떤 일이 일어나나요?",
+    "locale": "ko",
+    "expectedDocIds": ["react-fiber-in-reconcile-phase"],
+    "expectedKeywords": ["Commit", "DOM", "브라우저", "반영"],
+    "category": "concept"
+  }
+]
