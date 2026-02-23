@@ -1,12 +1,14 @@
 import { Card } from "@components/Card";
 import { MajorProject, MinorProject } from "const";
 import { useIntersectionObserver } from "hooks/useIntersectionObserver";
+import { useBlogLocale } from "hooks/useBlogLocale";
 import { useRef } from "react";
 
 export const Section3 = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollMajorRef = useRef<HTMLDivElement | null>(null);
   const scrollMinorRef = useRef<HTMLDivElement | null>(null);
+  const { locale } = useBlogLocale();
 
   useIntersectionObserver(sectionRef, { threshold: 0.1 });
 
@@ -86,9 +88,15 @@ export const Section3 = () => {
               key={project.title}
               project={{
                 title: project.title || "",
-                desc: project.desc || "",
+                desc:
+                  (locale === "en" ? project.descEn : project.desc) ||
+                  project.desc ||
+                  "",
                 image: project.image || "",
-                tags: project.tags || [],
+                tags:
+                  (locale === "en" ? project.tagsEn : project.tags) ||
+                  project.tags ||
+                  [],
                 githubUrl: project.githubUrl || "",
               }}
             />
@@ -138,9 +146,15 @@ export const Section3 = () => {
               key={project.title}
               project={{
                 title: project.title || "",
-                desc: project.desc || "",
+                desc:
+                  (locale === "en" ? project.descEn : project.desc) ||
+                  project.desc ||
+                  "",
                 image: project.image || "",
-                tags: project.tags || [],
+                tags:
+                  (locale === "en" ? project.tagsEn : project.tags) ||
+                  project.tags ||
+                  [],
                 githubUrl: project.githubUrl || "",
               }}
             />

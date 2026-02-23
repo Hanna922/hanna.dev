@@ -2,35 +2,8 @@ import Fuse from "fuse.js";
 import { useEffect, useMemo, useRef, type ChangeEvent, useState } from "react";
 import Article from "@components/Article";
 import type { CollectionEntry } from "astro:content";
-import {
-  getLocaleFromValue,
-  t,
-  type I18nParams,
-  type LocaleCode,
-} from "@utils/locale";
-
-interface WindowWithLocaleContext {
-  __BLOG_LOCALE_CONTEXT__?: {
-    getLocale: () => LocaleCode;
-    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
-    translate: (key: string, params?: I18nParams) => string;
-  };
-  __BLOG_INITIAL_LOCALE__?: LocaleCode;
-}
-
-declare global {
-  interface Window extends WindowWithLocaleContext {}
-}
-
-function getInitialLocale(serverLocale: LocaleCode): LocaleCode {
-  if (typeof window === "undefined") return serverLocale;
-  return (
-    getLocaleFromValue(
-      (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
-        .__BLOG_INITIAL_LOCALE__ ?? null
-    ) ?? serverLocale
-  );
-}
+import { type LocaleCode } from "@utils/locale";
+import { useBlogLocale } from "hooks/useBlogLocale";
 
 export type SearchItem = {
   title: string;
@@ -55,11 +28,7 @@ interface SearchResult {
 export default function SearchBar({ searchList, initialLocale = "ko" }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputVal, setInputVal] = useState("");
-  const [locale, setLocale] = useState<LocaleCode>(
-    getInitialLocale(initialLocale)
-  );
-
-  const isBrowser = typeof window !== "undefined";
+  const { locale, translate } = useBlogLocale(initialLocale);
 
   const getPostUrl = (slug: string) => {
     if (typeof window === "undefined") return `/posts/${slug}/`;
@@ -68,26 +37,6 @@ export default function SearchBar({ searchList, initialLocale = "ko" }: Props) {
     const suffix = lang ? `?lang=${lang}` : "";
     return `/posts/${slug}/${suffix}`;
   };
-
-  const translate = (key: string, params?: I18nParams) =>
-    isBrowser
-      ? (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
-        t(locale, key, params))
-      : t(locale, key, params);
-
-  useEffect(() => {
-    if (!isBrowser) return;
-
-    const context = window.__BLOG_LOCALE_CONTEXT__;
-    if (!context) {
-      return;
-    }
-
-    setLocale(context.getLocale());
-    return context.subscribe(nextLocale => {
-      setLocale(nextLocale);
-    });
-  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputVal(e.currentTarget.value);

@@ -1,35 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { DetailDialogContent } from "../const";
-import {
-  getLocaleFromValue,
-  t,
-  type I18nParams,
-  type LocaleCode,
-} from "@utils/locale";
-
-interface WindowWithLocaleContext {
-  __BLOG_INITIAL_LOCALE__?: LocaleCode;
-  __BLOG_LOCALE_CONTEXT__?: {
-    getLocale: () => LocaleCode;
-    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
-    translate: (key: string, params?: I18nParams) => string;
-  };
-}
-
-declare global {
-  interface Window extends WindowWithLocaleContext {}
-}
-
-function getInitialLocale(): LocaleCode {
-  if (typeof window === "undefined") return "ko";
-  return (
-    getLocaleFromValue(
-      (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
-        .__BLOG_INITIAL_LOCALE__ ?? null
-    ) ?? "ko"
-  );
-}
+import { useBlogLocale } from "hooks/useBlogLocale";
 
 interface DetailDialogProps {
   title: string;
@@ -43,24 +15,7 @@ export const DetailDialog = ({
   onOpenChange,
 }: DetailDialogProps) => {
   const content = DetailDialogContent.find(item => item.title === title);
-  const [locale, setLocale] = useState<LocaleCode>(getInitialLocale());
-  const isBrowser = typeof window !== "undefined";
-
-  const translate = (key: string, params?: I18nParams) =>
-    isBrowser
-      ? (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
-        t(locale, key, params))
-      : t(locale, key, params);
-
-  useEffect(() => {
-    if (!isBrowser) return;
-
-    const context = window.__BLOG_LOCALE_CONTEXT__;
-    if (!context) return;
-
-    setLocale(context.getLocale());
-    return context.subscribe(nextLocale => setLocale(nextLocale));
-  }, []);
+  const { locale, translate } = useBlogLocale();
 
   return (
     <Dialog.Root modal={true} open={open} onOpenChange={onOpenChange}>
@@ -72,7 +27,7 @@ export const DetailDialog = ({
             scrollbarColor: "#d6d6d6 #f3f4f6",
             overflowWrap: "break-word",
           }}
-          className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-4/5 w-5/6 -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl bg-white p-4 sm:h-5/6 sm:w-1/2 sm:rounded-2xl sm:p-10"
+          className="DialogContent fixed left-1/2 top-1/2 z-50 flex h-4/5 w-5/6 -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl bg-white p-4 outline-none sm:h-5/6 sm:w-1/2 sm:rounded-2xl sm:p-10"
         >
           {content?.images?.length && content.images.length > 0 ? (
             <div className="flex w-full flex-col gap-3">
@@ -101,7 +56,9 @@ export const DetailDialog = ({
             {title}
           </Dialog.Title>
           <Dialog.Description className="DialogDescription sm:text-md mt-2 text-sm text-black">
-            {content?.overview}
+            {locale === "en" && content?.overviewEn
+              ? content.overviewEn
+              : content?.overview}
           </Dialog.Description>
 
           <div className="sm:text-md mt-2 flex justify-between text-sm text-black">
@@ -112,21 +69,29 @@ export const DetailDialog = ({
           </div>
           <div className="sm:text-md mt-2 flex justify-between text-sm text-black">
             <span className="font-semibold">{translate("dialog.team")}</span>
-            <span>{content?.team}</span>
+            <span>
+              {locale === "en" && content?.teamEn
+                ? content.teamEn
+                : content?.team}
+            </span>
           </div>
           <div className="mt-3 border-t-2" />
           <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             {translate("dialog.role")}
           </span>
           <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm leading-6 text-black">
-            {content?.role}
+            {locale === "en" && content?.roleEn
+              ? content.roleEn
+              : content?.role}
           </span>
           <div className="mt-3 border-t-2" />
           <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
             {translate("dialog.experience")}
           </span>
           <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
-            {content?.experience}
+            {locale === "en" && content?.experienceEn
+              ? content.experienceEn
+              : content?.experience}
           </span>
           <div className="mt-3 border-t-2" />
           <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
@@ -135,14 +100,16 @@ export const DetailDialog = ({
           <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
             {content?.tech}
           </span>
-          {content?.performance && (
+          {(content?.performance || content?.performanceEn) && (
             <>
               <div className="mt-3 border-t-2" />
               <span className="sm:text-md my-2 font-mono text-sm font-semibold text-black">
                 {translate("dialog.result")}
               </span>
               <span className="sm:text-md ml-4 whitespace-pre-wrap text-sm text-black">
-                {content?.performance}
+                {locale === "en" && content?.performanceEn
+                  ? content.performanceEn
+                  : content?.performance}
               </span>
             </>
           )}

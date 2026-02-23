@@ -11,54 +11,8 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import "./llm-search-page.css";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
-import {
-  getLocaleFromValue,
-  LOCALES,
-  t,
-  type I18nParams,
-  type LocaleCode,
-} from "@utils/locale";
-
-function getInitialLocale(initialLocaleFromServer?: LocaleCode): LocaleCode {
-  if (typeof window === "undefined") {
-    return getLocaleFromValue(initialLocaleFromServer ?? null) ?? "ko";
-  }
-
-  // 클라이언트: URL query param이 가장 신뢰도 높은 신호 — 서버 prop보다 우선
-  // (CDN 캐싱 등으로 서버가 잘못된 locale을 내려보낸 경우에도 URL 기준으로 복구)
-  const urlLocale = getLocaleFromValue(
-    new URLSearchParams(window.location.search).get("lang")
-  );
-  if (urlLocale) {
-    return urlLocale;
-  }
-
-  // URL param이 없을 때만 서버 prop 사용
-  const serverLocale = getLocaleFromValue(initialLocaleFromServer ?? null);
-  if (serverLocale) {
-    return serverLocale;
-  }
-
-  // HTML data-locale (인라인 스크립트가 URL 기반으로 설정)
-  const htmlLocale = getLocaleFromValue(
-    document.documentElement.dataset.locale ?? null
-  );
-  if (htmlLocale) {
-    return htmlLocale;
-  }
-
-  // window.__BLOG_INITIAL_LOCALE__ (인라인 스크립트가 URL 기반으로 설정)
-  const windowLocale = getLocaleFromValue(
-    (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
-      .__BLOG_INITIAL_LOCALE__ ?? null
-  );
-  if (windowLocale) {
-    return windowLocale;
-  }
-
-  // Fallback to default
-  return "ko";
-}
+import { LOCALES, type LocaleCode } from "@utils/locale";
+import { getInitialLocale, useBlogLocale } from "hooks/useBlogLocale";
 
 const HELP_MODAL_MARKDOWN_KR = `
 
@@ -135,19 +89,6 @@ For more details on the implementation process, check out [From MiniSearch to RA
 
 If needed, please open the reference articles at the bottom of the answer to directly verify the evidence.
 `;
-
-interface WindowWithLocaleContext {
-  __BLOG_INITIAL_LOCALE__?: LocaleCode;
-  __BLOG_LOCALE_CONTEXT__?: {
-    getLocale: () => LocaleCode;
-    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
-    translate: (key: string, params?: I18nParams) => string;
-  };
-}
-
-declare global {
-  interface Window extends WindowWithLocaleContext {}
-}
 
 function TypingDots() {
   return (
@@ -277,33 +218,6 @@ function ChatMessageBubble({
       </div>
     </div>
   );
-}
-
-function useBlogLocale(initial: LocaleCode = "ko") {
-  const [locale, setLocale] = useState<LocaleCode>(initial);
-
-  const translate = useCallback(
-    (key: string, params?: I18nParams) =>
-      typeof window === "undefined"
-        ? t(locale, key, params)
-        : (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
-          t(locale, key, params)),
-    [locale]
-  );
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const context = window.__BLOG_LOCALE_CONTEXT__;
-    if (!context) return;
-
-    setLocale(context.getLocale());
-    return context.subscribe(next => {
-      setLocale(next);
-    });
-  }, []);
-
-  return { locale, translate };
 }
 
 interface LLMSearchPageProps {

@@ -14,39 +14,9 @@ import {
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
-import {
-  getLocaleFromValue,
-  t,
-  type I18nParams,
-  type LocaleCode,
-} from "@utils/locale";
+import { getLocaleFromValue, type LocaleCode } from "@utils/locale";
+import { useBlogLocale, getInitialLocale } from "hooks/useBlogLocale";
 import "./llm-search.css";
-
-function getInitialLocale(): LocaleCode {
-  if (typeof window === "undefined") {
-    return "ko";
-  }
-
-  return (
-    getLocaleFromValue(
-      (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
-        .__BLOG_INITIAL_LOCALE__ ?? null
-    ) ?? "ko"
-  );
-}
-
-interface WindowWithLocaleContext {
-  __BLOG_INITIAL_LOCALE__?: LocaleCode;
-  __BLOG_LOCALE_CONTEXT__?: {
-    getLocale: () => LocaleCode;
-    subscribe: (callback: (locale: LocaleCode) => void) => () => void;
-    translate: (key: string, params?: I18nParams) => string;
-  };
-}
-
-declare global {
-  interface Window extends WindowWithLocaleContext {}
-}
 
 function TypingDots() {
   return (
@@ -187,33 +157,6 @@ function ChatMessageBubble({
       </div>
     </div>
   );
-}
-
-function useBlogLocale(initial: LocaleCode = "ko") {
-  const [locale, setLocale] = useState<LocaleCode>(initial);
-
-  const translate = useCallback(
-    (key: string, params?: I18nParams) =>
-      typeof window === "undefined"
-        ? t(locale, key, params)
-        : (window.__BLOG_LOCALE_CONTEXT__?.translate(key, params) ??
-          t(locale, key, params)),
-    [locale]
-  );
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const context = window.__BLOG_LOCALE_CONTEXT__;
-    if (!context) return;
-
-    setLocale(context.getLocale());
-    return context.subscribe(next => {
-      setLocale(next);
-    });
-  }, []);
-
-  return { locale, translate };
 }
 
 export default function LLMSearchModal({
