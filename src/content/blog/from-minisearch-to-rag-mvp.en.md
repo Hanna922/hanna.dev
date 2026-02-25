@@ -2,8 +2,8 @@
 author: Hanna922
 pubDatetime: 2026-02-14T10:00:00.000Z
 modDatetime:
-title: From MiniSearch to RAG - Blog Search Enhancement Failures, Design, and MVP Implementation
-titleEn: From MiniSearch to RAG - Blog Search Enhancement Failures, Design, and MVP Implementation
+title: From MiniSearch to RAG - Blog Search Enhancement
+titleEn: From MiniSearch to RAG - Blog Search Enhancement
 featured: false
 draft: false
 tags:
