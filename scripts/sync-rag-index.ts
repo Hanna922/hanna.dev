@@ -180,6 +180,8 @@ async function main() {
 
   await writeFile(outFile, JSON.stringify(embedded), "utf-8");
   console.log(`RAG index written to ${outFile}`);
+  console.log("Indexed documents:");
+  documents.forEach(d => console.log(` - ${d.id}: ${d.metadata.title}`));
 }
 
 main().catch(err => {
