@@ -41,3 +41,7 @@ example/
 
 rag-index.json
 eval-results.json
+
+# vercel
+.vercel/project.json
+.env*.local
