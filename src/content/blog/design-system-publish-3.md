@@ -1,6 +1,6 @@
 ---
 author: Hanna922
-pubDatetime: 2024-03-29T9:52:17.000Z
+pubDatetime: 2024-03-29T09:52:17.000Z
 modDatetime:
 title: Design System Publish in NPM (3)
 featured: false

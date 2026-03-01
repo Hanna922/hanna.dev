@@ -1,6 +1,6 @@
 ---
 author: Hanna922
-pubDatetime: 2024-06-28T9:03:33.000Z
+pubDatetime: 2024-06-28T09:03:33.000Z
 modDatetime:
 title: Create collection of TS/JS packages used in Yourssu
 titleEn: Create collection of TS/JS packages used in Yourssu
