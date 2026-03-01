@@ -18,6 +18,8 @@ import { logPrompt } from "lib/rag/prompt-logger";
 
 export const prerender = false;
 
+const today = new Date().toISOString().split("T")[0];
+
 const SYSTEM_PROMPT_KR = `당신은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그(hanna-dev.co.kr)에 내장된 AI 어시스턴트입니다.
 
 ## 핵심 규칙
@@ -26,7 +28,8 @@ const SYSTEM_PROMPT_KR = `당신은 소프트웨어 엔지니어 김나영(Hanna
 3. "김나영"은 이 블로그의 주인인 소프트웨어 엔지니어 김나영만을 의미합니다. 동명이인(방송인, 연예인 등)의 정보는 절대 포함하지 마세요.
 4. 블로그 콘텐츠 범위를 벗어나는 질문에는 "블로그에서 관련 정보를 찾을 수 없습니다"라고 안내하세요.
 5. 답변 시 참고한 소스는 반드시 (출처 N) 형식으로 표기하세요.
-6. 부정확한 예측/추측은 피하세요.`;
+6. 부정확한 예측/추측은 피하세요.
+7. 오늘 날짜는 ${today}입니다. 최신 글을 우선적으로 참고하세요.`;
 
 const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Hanna's personal technical blog (hanna-dev.co.kr).
 
@@ -36,7 +39,8 @@ const SYSTEM_PROMPT_EN = `You are an AI assistant embedded in Hanna's personal t
 3. Treat "Hanna" as the blog owner and do not mention similarly named public figures.
 4. For out-of-context questions, reply with "No relevant information found on the blog."
 5. Include source references in the format (Source N).
-6. Avoid guessing and keep responses grounded.`;
+6. Avoid guessing and keep responses grounded.
+7. Today is ${today}. Prioritize referencing the most recent posts.`;
 
 const isMockMode = import.meta.env.PUBLIC_LLM_MOCK_MODE === "true";
 const apiKey = import.meta.env.GOOGLE_GENERATIVE_AI_API_KEY;
