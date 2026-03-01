@@ -21,8 +21,10 @@ function getNumber(value: string | undefined, fallback: number) {
 }
 
 export function getRAGConfig(): RAGConfig {
+  const rawEnabled = import.meta.env.RAG_ENABLED;
+
   return {
-    enabled: import.meta.env.RAG_ENABLED === "true",
+    enabled: String(rawEnabled).trim() === "true",
     embeddingModel: normalizeEmbeddingModel(
       import.meta.env.RAG_EMBEDDING_MODEL
     ),
