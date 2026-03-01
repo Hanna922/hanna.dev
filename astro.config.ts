@@ -11,7 +11,9 @@ import { SITE } from "./src/config";
 export default defineConfig({
   site: SITE.website,
   output: "static", // Astro v5에서는 static이 기본값이며 API 라우트 지원
-  adapter: vercel({}),
+  adapter: vercel({
+    includeFiles: ["./public/rag-index.json"],
+  }),
   integrations: [
     tailwind({
       applyBaseStyles: false,

@@ -9,6 +9,8 @@ import { ragLogger } from "./logger";
 import { semanticSearch } from "./semantic-search";
 import type { EmbeddedChunk, RAGChunk, SemanticHit } from "./types";
 import { InMemoryVectorStore } from "./vector-store";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const vectorStore = new InMemoryVectorStore();
 let isIngested = false; // module level flag
@@ -17,16 +19,16 @@ export function isRAGEnabled() {
   return getRAGConfig().enabled;
 }
 
-async function loadPrebuiltIndex(originRequestUrl: string) {
-  const indexUrl = new URL("/rag-index.json", originRequestUrl);
-  const res = await fetch(indexUrl).catch(() => null);
-
-  if (!res?.ok) return null;
-
-  const chunks = (await res.json()) as EmbeddedChunk[];
-  if (chunks.length === 0) return null;
-
-  return chunks;
+async function loadPrebuiltIndex(_originRequestUrl: string) {
+  try {
+    const filePath = join(process.cwd(), "rag-index.json");
+    const raw = await readFile(filePath, "utf-8");
+    const chunks = JSON.parse(raw) as EmbeddedChunk[];
+    if (chunks.length === 0) return null;
+    return chunks;
+  } catch {
+    return null;
+  }
 }
 
 /*
