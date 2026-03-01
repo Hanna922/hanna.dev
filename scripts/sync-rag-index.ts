@@ -77,7 +77,10 @@ function parseFrontmatter(raw: string) {
     frontmatter.match(/^titleEn:\s*(.*)$/m)?.[1]?.replace(/^['"]|['"]$/g, "");
   const titleEn = titleEnRaw || undefined;
 
-  return { title, titleEn, description, body };
+  const pubDateRaw = frontmatter.match(/^pubDatetime:\s*(.*)$/m)?.[1]?.trim();
+  const publishedAt = pubDateRaw ? new Date(pubDateRaw).toISOString() : undefined;
+
+  return { title, titleEn, description, body, publishedAt };
 }
 
 // ============================================================
@@ -121,6 +124,7 @@ async function loadCustomDocuments(): Promise<RAGDocument[]> {
     tags: Array.isArray(doc.tags) ? doc.tags : ["custom"],
     url: String(doc.url ?? `/rag/custom/${doc.id}/`),
     content: String(doc.content),
+    ...(doc.publishedAt ? { publishedAt: new Date(doc.publishedAt).toISOString() } : {}),
   }));
 }
 
@@ -146,7 +150,12 @@ async function main() {
   const documents = allDocs.map(doc => ({
     id: doc.id,
     docId: doc.id,
-    text: [doc.title, doc.description, doc.content]
+    text: [
+      doc.publishedAt ? `Published: ${doc.publishedAt}` : "",  // 추가
+      doc.title,
+      doc.description,
+      doc.content,
+    ]
       .filter(Boolean)
       .join("\n\n"),
     metadata: {
@@ -154,6 +163,7 @@ async function main() {
       ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
       tags: doc.tags ?? [],
       url: doc.url,
+      ...(doc.publishedAt ? { publishedAt: doc.publishedAt } : {}),  // 추가
     },
   }));
 

@@ -17,6 +17,7 @@ export interface RAGDocument {
   url: string;
   content: string;
   source?: "blog" | "custom";
+  publishedAt?: string;
 }
 
 export interface RAGChunk {
