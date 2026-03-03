@@ -50,25 +50,31 @@ which docs were attached for a query, why semantically similar results were filt
 
 ## Key implementation decisions finalized in the design doc
 
-If the requirement doc answered "why this is needed," the design doc defined "how to implement it."  
+If the requirement doc answered "why this is needed," the design doc defined "how to implement it."
 The decisions below were intentionally explicit.
+
+> **Note:** The following describes the **target architecture** from the design phase. The MVP (Task 1~7) was implemented with InMemoryVectorStore + prebuilt index strategy. Upstash Vector, Hybrid Search (RRF), caching, and incremental indexing are planned for future phases. Each item includes a note on current MVP status.
 
 ### 1) Architecture: Hybrid Search, not removing MiniSearch
 
 The principle was not replacement, but combination.
 
-MiniSearch is still strong at fast keyword matching. If the user types an exact term, it returns fast and accurately. So we kept it.  
-For meaning-based retrieval gaps, we added Upstash Vector, and merged both result sets with RRF (Reciprocal Rank Fusion) after threshold filtering.  
+MiniSearch is still strong at fast keyword matching. If the user types an exact term, it returns fast and accurately. So we kept it.
+For meaning-based retrieval gaps, the goal was to add vector search and merge both result sets with RRF (Reciprocal Rank Fusion) after threshold filtering.
 This keeps existing strengths while improving both recall and precision.
+
+> **MVP status:** Currently, semantic search (InMemoryVectorStore) runs as the sole retrieval path, with MiniSearch used only as a fallback when RAG fails. Parallel keyword + semantic execution with RRF merging is planned for Task 8.
 
 ### 2) Why we chose each technology explicitly
 
 The design doc recorded not only what was picked, but why alternatives were excluded.
 
-**Vercel AI SDK** was already used in the existing streaming pipeline, so integrating a second stack was low friction.  
-**Upstash Vector** fits a serverless workflow and its free tier helps with personal-blog scale. For embeddings, we fixed on **Gemini `gemini-embedding-001` (768-dim)** to balance cost and latency.
+**Vercel AI SDK** was already used in the existing streaming pipeline, so integrating a second stack was low friction.
+The target vector store was **Upstash Vector**, chosen for its serverless compatibility and free tier suited to personal-blog scale. For embeddings, we fixed on **Gemini `gemini-embedding-001` (768-dim)** to balance cost and latency.
 
-LangChain was excluded due to integration complexity and bundle/runtime weight for this scale, while local-vector-only options were also rejected because of serverless memory and startup constraints.
+LangChain was excluded due to integration complexity and bundle/runtime weight for this scale.
+
+> **MVP status:** Instead of Upstash, the vector store is implemented as `InMemoryVectorStore` + prebuilt index (`rag-index.json`). The in-memory approach works well at blog scale, with Upstash migration planned as the corpus grows.
 
 ### 3) Core decision: decouple the indexing pipeline
 
@@ -77,24 +83,28 @@ An independent `sync-rag-index` script can be run manually, scheduled, or throug
 
 ### 4) Incremental update strategy
 
-Full re-indexing wastes time and cost, so we needed deterministic identity rules.  
-We define `chunk id` as `{postId}:{chunkIndex}` and persist a manifest containing `contentHash`, `chunkIds`, and `lastUpdated` for each document.  
-During sync, we compare hashes and perform `delete/upsert` only for changed chunks. This makes re-indexing idempotent: reruns don't cause side effects.
+Full re-indexing wastes time and cost, so we needed deterministic identity rules.
+Document id is defined as `{postId}`, and a manifest stores `contentHash` and `lastUpdated` for each document.
+During sync, we compare hashes and perform `delete/upsert` only for changed documents. This makes re-indexing idempotent: reruns don't cause side effects.
+
+> **MVP status:** The current `sync-rag-index` script re-indexes all documents on every run. With Document-level RAG confirmed and only 38 documents to index, full re-indexing cost is negligible. Manifest-based incremental updates are planned for Task 11.
 
 ### 5) Splitting code-block treatment by search purpose
 
 In technical blogs, code can be essential evidence. So we split handling:
 
 - MiniSearch index: remove code blocks to keep indexing light.
-- RAG chunks: keep code blocks for accurate semantic context.
+- RAG embeddings: keep code blocks for accurate semantic context.
 
 Both tasks share content but require different representations.
 
 ### 6) Score normalization and quality filters
 
-Because RRF is rank-based, low-quality results can pollute ranking.  
-To prevent this, filtering happens before fusion: semantic score must be `>= 0.6`, keyword score must be `>= 0.5`, only then merge via RRF, then return top-K.  
+Because RRF is rank-based, low-quality results can pollute ranking.
+To prevent this, filtering happens before fusion: semantic score must be `>= 0.6`, keyword score must be `>= 0.5`, only then merge via RRF, then return top-K.
 If we changed the order, low-quality matches could move up just because of rank effects.
+
+> **MVP status:** Currently only the semantic score threshold (0.6) is applied. Keyword score filtering and RRF merging will be implemented alongside Hybrid Search (Task 8).
 
 ### 7) Gradual source-accuracy rollout
 
@@ -115,8 +125,10 @@ We set:
 - Total search budget: `2000ms`
 - cache key: `{query}:{indexVersion}` with TTL `5min`
 
-If these limits are exceeded, fallback to MiniSearch automatically.  
+If these limits are exceeded, fallback to MiniSearch automatically.
 This avoids poor UX from slow searches by switching paths predictably.
+
+> **MVP status:** Timeout and cache are not yet implemented. Currently, MiniSearch fallback triggers on RAG exceptions. Timeout-budget-based automatic switching and query caching are planned for Task 9 and 14.
 
 ## Why we defined correctness properties
 
@@ -125,7 +137,7 @@ One of the most practical outcomes was defining **correctness properties** expli
 If the requirement is intent, a property becomes a measurable check.  
 For example, "loaded document count equals blog document count" verifies no ingestion gaps;  
 `graceful fallback on RAG failure` becomes a contract for failure handling.  
-We also defined completeness of chunk metadata, top-K enforcement, prompt/query API compatibility, and cache keys including `indexVersion`.
+We also defined completeness of document metadata, top-K enforcement, prompt/query API compatibility, and cache keys including `indexVersion`.
 
 This alignment makes implementation, QA, and operation move with the same success criteria.
 
@@ -160,7 +172,7 @@ Below is a practical walkthrough of what was implemented, tied to `tasks.md`.
 #### 1.1 Env + config loader
 
 We started by hardening settings around feature flags and query defaults in `src/lib/rag/config.ts`.  
-`RAG_ENABLED`, chunk settings, topK, similarity threshold, and batch size are read with safe fallbacks.  
+`RAG_ENABLED`, topK, similarity threshold, and embedding batch size are read with safe fallbacks.  
 Bad environment values no longer break immediately; they fall back to defaults.
 
 ```ts
@@ -254,19 +266,11 @@ export async function loadRAGDocuments(): Promise<RAGDocument[]> {
 }
 ```
 
-#### 2.2 Heading-based chunking
+#### 2.2 Decision on chunking
 
-The current chunk helper is already implemented around heading boundaries plus size/overlap settings.
+Initially, a heading + size/overlap chunking module (`src/lib/rag/chunking.ts`) was implemented with the expectation that finer document segmentation would improve retrieval precision. However, after building an eval script and measuring actual performance, **chunking turned out to degrade results**. This is covered in detail in the "Eval: Document-level vs Chunked RAG" section below.
 
-```ts
-// src/lib/rag/chunking.ts
-function splitByHeading(markdown: string): string[] {
-  const sections = markdown.split(/\n(?=#{1,6}\s)/g);
-  return sections.map(section => section.trim()).filter(Boolean);
-}
-```
-
-For MVP ingestion we first keep a near one-chunk-per-document strategy and planned a more fine-grained chunking step later.
+The final decision was to adopt **1 document = 1 embedding (Document-level RAG)** as the confirmed architecture, and the chunking module was removed.
 
 ### Task 3. Phase 1A - Embedding generation
 
@@ -295,18 +299,45 @@ for (let attempt = 0; attempt <= backoffMs.length; attempt += 1) {
 
 #### 3.3/3.4 Sync script
 
-The `sync-rag-index` script generates prebuilt embeddings for blog and custom documents into `public/rag-index.json`.  
+The `sync-rag-index` script generates prebuilt embeddings for blog and custom documents into `public/rag-index.json`.
 It is wired into `package.json` and can be integrated with `build` or CI without impacting runtime path.
 
-```js
-// scripts/sync-rag-index.mjs
-const result = await embedMany({
-  model,
-  values: chunks.map(chunk => chunk.text),
-});
+```ts
+// scripts/sync-rag-index.ts
+const documents = allDocs.map(doc => ({
+  id: doc.id,
+  docId: doc.id,
+  text: [
+    doc.publishedAt ? `Published: ${doc.publishedAt}` : "",
+    doc.title,
+    doc.description,
+    doc.content,
+  ]
+    .filter(Boolean)
+    .join("\n\n"),
+  metadata: {
+    title: doc.title,
+    ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
+    tags: doc.tags ?? [],
+    url: doc.url,
+    ...(doc.publishedAt ? { publishedAt: doc.publishedAt } : {}),
+  },
+}));
+
+// Batch embedding generation
+for (let i = 0; i < documents.length; i += batchSize) {
+  const batch = documents.slice(i, i + batchSize);
+  const result = await embedMany({
+    model,
+    values: batch.map(d => d.text),
+  });
+  allEmbeddings.push(...result.embeddings);
+}
 
 await writeFile(outFile, JSON.stringify(embedded), "utf-8");
 ```
+
+`publishedAt` metadata is included in both the embedding text and metadata, enabling recency-aware search responses.
 
 ### Task 5. Phase 1B - Semantic search and context assembly
 
@@ -374,18 +405,22 @@ let isIngested = false;
 #### B) Prefer prebuilt index: `loadPrebuiltIndex()`
 
 ```ts
-const indexUrl = new URL("/rag-index.json", originRequestUrl);
-const res = await fetch(indexUrl).catch(() => null);
-if (!res?.ok) return null;
-
-const chunks = (await res.json()) as EmbeddedChunk[];
-if (chunks.length === 0) return null;
-return chunks;
+async function loadPrebuiltIndex(_originRequestUrl: string) {
+  try {
+    const filePath = join(process.cwd(), "rag-index.json");
+    const raw = await readFile(filePath, "utf-8");
+    const chunks = JSON.parse(raw) as EmbeddedChunk[];
+    if (chunks.length === 0) return null;
+    return chunks;
+  } catch {
+    return null;
+  }
+}
 ```
 
-We first try prebuilt index and only compute embeddings at runtime on failure.
+This reads `rag-index.json` directly from the filesystem, trying the prebuilt index before any runtime embedding. If the file is missing or empty, it returns null and proceeds to the next path.
 
-#### C) Document-to-chunk conversion: `toDocumentChunks()`
+#### C) Document-to-embedding-unit conversion: `toDocumentChunks()`
 
 ```ts
 return loadRAGDocuments().then(docs =>
@@ -393,12 +428,17 @@ return loadRAGDocuments().then(docs =>
     id: doc.id,
     docId: doc.id,
     text: `${doc.title}\n\n${doc.description}\n\n${doc.content}`,
-    metadata: { title: doc.title, tags: doc.tags, url: doc.url },
+    metadata: {
+      title: doc.title,
+      ...(doc.titleEn ? { titleEn: doc.titleEn } : {}),
+      tags: doc.tags,
+      url: doc.url,
+    },
   }))
 );
 ```
 
-MVP currently merges large units (`title + description + content`) first, with finer chunking planned for later tasks.
+Document-level RAG strategy: `title + description + content` are combined into a single text and embedded per document. `titleEn` is included in metadata for multilingual source display. This was initially considered a temporary MVP approach, but eval results confirmed that document-level embedding outperforms chunking in both hit rate and MRR, so it became the final architecture. (Ref: https://github.com/Hanna922/hanna.dev/pull/19)
 
 #### D) Ingestion gate: `ingestIfNeeded()`
 
@@ -442,11 +482,12 @@ const hits = await semanticSearch(query, vectorStore, {
   topK: config.topK,
   similarityThreshold: config.similarityThreshold,
 });
+const localizedHits = filterHitsByLocale(hits, options.locale ?? "ko");
 
 return {
-  hits,
-  prompt: buildPromptWithContext(query, hits),
-  sources: toSourceRefsFromSemanticHits(hits),
+  hits: localizedHits,
+  prompt: buildPromptWithContext(query, localizedHits, options.locale ?? "ko"),
+  sources: toSourceRefsFromSemanticHits(localizedHits),
 };
 ```
 
@@ -454,7 +495,8 @@ The flow is fixed to:
 
 1. Ensure index readiness
 2. Semantic retrieval
-3. Prompt + source mapping
+3. Locale-based filtering (prefer user's language, fallback to other)
+4. Prompt + source mapping
 
 ### Task 7. Checkpoint - End-to-End validation
 
@@ -483,6 +525,43 @@ await vectorStore.upsert(embedded);
 
 That is the first operationally usable RAG.
 
+## Eval: Document-level vs Chunked RAG
+
+After the MVP was running, the natural question was: "Is document-level embedding really the best approach?" To answer this, I built an eval script (`scripts/run-eval.ts`) and ran 3 rounds of experiments with 36 evaluation items.
+
+### Experiment design
+
+The 36 eval items were categorized into `project-motivation`, `project-detail`, `concept`, `cross-post`, `negative`, etc. Each item was evaluated simultaneously against Chunked RAG (284 chunks), Document-level RAG (38 documents), and MiniSearch. The key metrics were Hit Rate @5 and MRR (Mean Reciprocal Rank).
+
+### 3-round results summary
+
+| Round | Change                                     | Chunked Hit Rate | Document-level Hit Rate | Delta |
+| ----- | ------------------------------------------ | ---------------- | ----------------------- | ----- |
+| 1st   | Baseline comparison                        | 87.9%            | 97.0%                   | -9.1% |
+| 2nd   | + Document-level dedup                     | 90.9%            | 97.0%                   | -6.1% |
+| 3rd   | Remove chunking (Document-level confirmed) | —                | 97.0%                   | 0     |
+
+**Chunking never outperformed Document-level in any round.** Even with dedup applied in round 2, improvement was limited. The cross-post category (eval-026~028) consistently failed under chunking because splitting fragments context, making it impossible to match broad queries spanning multiple posts.
+
+### Final performance comparison (Document-level RAG vs MiniSearch)
+
+| Metric           | Document-level RAG | MiniSearch |
+| ---------------- | ------------------ | ---------- |
+| Hit Rate @5      | **97.0%**          | 75.8%      |
+| MRR              | **64.6%**          | 42.5%      |
+| Keyword Coverage | 93.2%              | 94.0%      |
+| Avg Latency      | **0.6ms**          | 3.1ms      |
+
+RAG achieved **+21.2% Hit Rate** and **+22.1% MRR** improvement over MiniSearch. With only 38 documents indexed (vs 284 chunks), computational overhead was also reduced, improving latency.
+
+### Why Document-level won
+
+1. **Corpus fits within embedding context window**: With 16 blog posts (8 KO + 8 EN + custom docs), each document fits entirely within the embedding model's context window. Chunking is a technique needed for documents exceeding tens of thousands of words or containing completely unrelated topics within a single document. Neither applies here.
+2. **Chunking fragments context**: Splitting documents causes partial chunks to occupy top-K slots, missing the actual relevant document for broad queries like "Are there any posts about performance optimization?"
+3. **Computational efficiency**: 38 documents vs 284 chunks — fewer vectors yielded better results in both indexing and retrieval.
+
+Based on these results, the chunking module was removed and **Document-level RAG was confirmed as the final architecture**.
+
 ## Work planned next
 
 After Task 7, priorities are:
@@ -497,10 +576,10 @@ After Task 7, priorities are:
    - TTL and invalidation improvement
 
 3. **Task 11: Incremental indexing + manifest**
-   - `{postId}:{contentHash}:{chunkIndex}`
+   - `{postId}:{contentHash}`
    - Reindex only changed documents
 
-4. **Task 12~13: Failed-chunk reprocessing and operations**
+4. **Task 12~13: Failed-document reprocessing and operations**
    - Retry pipelines and DLQ
    - Faster recovery
 
