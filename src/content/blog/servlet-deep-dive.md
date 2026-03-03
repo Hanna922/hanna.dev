@@ -33,6 +33,16 @@ description: Tomcat 내부 디버깅부터 Spring의 DispatcherServlet까지 분
 - **요청 처리**: `service(req, resp)` → `doGet()`, `doPost()` 등으로 분기
 - **소멸**: `destroy()` 호출
 
+**Tomcat의 주요 구성 요소**
+
+Apache Tomcat은 크게 세 가지 핵심 구성 요소로 이루어져 있습니다.
+
+- **Coyote** — HTTP 커넥터. TCP 포트에서 클라이언트 연결을 수신하고 HTTP/1.1, HTTP/2, AJP 프로토콜을 파싱하여 내부 Request 객체를 만듭니다. 이 글의 `Http11Processor`가 Coyote 영역에 해당합니다.
+- **Catalina** — 서블릿 컨테이너. 서블릿의 생명주기(생성 → 초기화 → 요청 처리 → 소멸)를 관리하고, URL을 기반으로 적절한 서블릿에 요청을 라우팅합니다. `StandardWrapper`, `StandardContext` 등 컨테이너 계층이 모두 Catalina 영역입니다.
+- **Jasper** — JSP 엔진. JSP 파일을 Java 서블릿 소스 코드로 변환하고 컴파일합니다. JSP 파일이 변경되면 자동으로 재컴파일합니다. 이 글에서는 JSP를 다루지 않으므로 Jasper가 직접 등장하지는 않습니다.
+
+요청 처리 흐름에서 보면, **Coyote**가 네트워크에서 바이트를 수신하여 HTTP로 파싱한 뒤 **Catalina**에 전달하고, Catalina가 서블릿을 찾아 실행합니다. 요청 대상이 JSP라면 **Jasper**가 이를 서블릿으로 변환한 뒤 Catalina가 실행하는 구조입니다.
+
 **Tomcat의 컨테이너 계층 구조**
 
 Tomcat은 중첩된 컨테이너 구조로 되어 있으며, 각 컨테이너에는 Valve라는 처리기가 파이프라인으로 연결되어 있습니다.

@@ -33,6 +33,16 @@ A servlet is a server-side component written in Java that receives HTTP requests
 - **Request Handling**: `service(req, resp)` → dispatches to `doGet()`, `doPost()`, etc.
 - **Destruction**: `destroy()` is called
 
+**Core Components of Tomcat**
+
+Apache Tomcat consists of three core components:
+
+- **Coyote** — The HTTP connector. It accepts client connections on a TCP port, parses HTTP/1.1, HTTP/2, and AJP protocols, and creates internal Request objects. The `Http11Processor` discussed in this post belongs to the Coyote layer.
+- **Catalina** — The servlet container. It manages the servlet lifecycle (creation → initialization → request handling → destruction) and routes requests to the appropriate servlet based on the URL. The container hierarchy including `StandardWrapper`, `StandardContext`, and others all belong to the Catalina layer.
+- **Jasper** — The JSP engine. It converts JSP files into Java servlet source code and compiles them. It automatically recompiles when JSP files are modified. Since this post does not cover JSP, Jasper does not directly appear in the discussion.
+
+In terms of request processing flow, **Coyote** receives bytes from the network and parses them into HTTP, then passes the result to **Catalina**, which locates and executes the appropriate servlet. If the request targets a JSP, **Jasper** converts it into a servlet before Catalina executes it.
+
 **Tomcat's Container Hierarchy**
 
 Tomcat has a nested container structure, where each container has processors called Valves connected in a pipeline.
