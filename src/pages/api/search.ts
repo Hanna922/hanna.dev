@@ -100,20 +100,6 @@ export const POST: APIRoute = async ({ request }) => {
 
   const latencyMs = Math.round(performance.now() - startTime);
 
-  // fire-and-forget — 로깅 실패가 응답을 블로킹하지 않음
-  logPrompt({
-    prompt,
-    ragEnabled: isRAGEnabled(),
-    sourceCount: sourcesForClient.length,
-    hitCount,
-    topScore,
-    latencyMs,
-    userAgent: request.headers.get("user-agent") ?? undefined,
-    referer: request.headers.get("referer") ?? undefined,
-  })
-    .then(() => console.log("[PromptLog] ✅ logged successfully"))
-    .catch(err => console.error("[PromptLog] ❌ failed:", err));
-
   const systemPrompt = locale === "en" ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_KR;
   const languageInstruction =
     locale === "en"
@@ -131,6 +117,24 @@ export const POST: APIRoute = async ({ request }) => {
       { role: "user" as const, content: llmPrompt },
     ],
   });
+
+  // fire-and-forget — 스트림 완료 후 응답 포함하여 로깅
+  Promise.resolve(result.text)
+    .then(fullText =>
+      logPrompt({
+        prompt,
+        response: fullText,
+        ragEnabled: isRAGEnabled(),
+        sourceCount: sourcesForClient.length,
+        hitCount,
+        topScore,
+        latencyMs,
+        userAgent: request.headers.get("user-agent") ?? undefined,
+        referer: request.headers.get("referer") ?? undefined,
+      })
+    )
+    .then(() => console.log("[PromptLog] ✅ logged successfully"))
+    .catch(err => console.error("[PromptLog] ❌ failed:", err));
 
   const stream = mergeSourcesAndStream(result.textStream, sourcesForClient);
 

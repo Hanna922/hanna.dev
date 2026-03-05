@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 interface PromptLogEntry {
   prompt: string;
+  response: string;
   ragEnabled: boolean;
   sourceCount: number;
   hitCount: number;
@@ -31,6 +32,7 @@ export async function logPrompt(entry: PromptLogEntry): Promise<void> {
 
   await db.from("prompt_logs").insert({
     prompt: entry.prompt,
+    response: entry.response,
     rag_enabled: entry.ragEnabled,
     source_count: entry.sourceCount,
     hit_count: entry.hitCount,
