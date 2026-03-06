@@ -70,7 +70,7 @@ This keeps existing strengths while improving both recall and precision.
 The design doc recorded not only what was picked, but why alternatives were excluded.
 
 **Vercel AI SDK** was already used in the existing streaming pipeline, so integrating a second stack was low friction.
-The target vector store was **Upstash Vector**, chosen for its serverless compatibility and free tier suited to personal-blog scale. For embeddings, we fixed on **Gemini `gemini-embedding-001` (768-dim)** to balance cost and latency.
+The target vector store was **Upstash Vector**, chosen for its serverless compatibility and free tier suited to personal-blog scale. For embeddings, we fixed on **`gemini-embedding-001` (768-dim)** to balance cost and latency.
 
 LangChain was excluded due to integration complexity and bundle/runtime weight for this scale.
 
@@ -78,27 +78,104 @@ LangChain was excluded due to integration complexity and bundle/runtime weight f
 
 ### 3) Core decision: decouple the indexing pipeline
 
-To keep deployment stable, we separated `astro build` from index synchronization.  
-An independent `sync-rag-index` script can be run manually, scheduled, or through CI. This prevents an external embedding/API issue from breaking regular site deployment.
+To keep deployment stable, we separated `astro build` from index synchronization. An independent `sync-rag-index` script can be run manually, scheduled, or through CI. This prevents an external embedding/API issue from breaking regular site deployment.
 
-### 4) Incremental update strategy
+#### Script-level separation was not enough
 
-Full re-indexing wastes time and cost, so we needed deterministic identity rules.
-Document id is defined as `{postId}`, and a manifest stores `contentHash` and `lastUpdated` for each document.
-During sync, we compare hashes and perform `delete/upsert` only for changed documents. This makes re-indexing idempotent: reruns don't cause side effects.
+Separating `build` and `sync-rag-index` as distinct scripts in `package.json` was the first step.
 
-> **MVP status:** The current `sync-rag-index` script re-indexes all documents on every run. With Document-level RAG confirmed and only 38 documents to index, full re-indexing cost is negligible. Manifest-based incremental updates are planned for Task 11.
+```json
+"build": "astro check && astro build && jampack ./dist"
+"sync-rag-index": "npx tsx scripts/sync-rag-index.ts"
+```
 
-### 5) Splitting code-block treatment by search purpose
+However, in CI (`deploy.yml`), both ran sequentially within the same job (`sync-rag-index → vercel build → vercel deploy`), meaning **an embedding API outage would block the entire build and deployment**. Even with scripts separated, if the execution flow is coupled, failure isolation is not achieved.
 
-In technical blogs, code can be essential evidence. So we split handling:
+#### GitHub Workflows-level separation
 
-- MiniSearch index: remove code blocks to keep indexing light.
-- RAG embeddings: keep code blocks for accurate semantic context.
+To solve this, we split the single workflow into **an indexing workflow (`rag-index.yml`) and a deploy workflow (`deploy.yml`)**.
 
-Both tasks share content but require different representations.
+|           | rag-index.yml (indexing)   | deploy.yml (build/deploy)               |
+| --------- | -------------------------- | --------------------------------------- |
+| Trigger 1 | push (content paths only)  | push (excluding content paths)          |
+| Trigger 2 | workflow_dispatch (manual) | workflow_run (after indexing completes) |
 
-### 6) Score normalization and quality filters
+The indexing workflow triggers only when blog content (`src/content/blog/**`, `src/content/rag/**`) changes. The generated `rag-index.json` is uploaded as a GitHub Actions artifact, and the deploy workflow uses [`dawidd6/action-download-artifact`](https://github.com/dawidd6/action-download-artifact) to download the artifact from the most recent successful indexing run.
+
+#### Preventing duplicate deploys: paths-ignore + workflow_run
+
+```yaml
+# deploy.yml
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "src/content/blog/**"
+      - "src/content/rag/**"
+      - "scripts/sync-rag-index.ts"
+  workflow_run:
+    workflows: ["RAG Index"]
+    types: [completed]
+    branches: [master]
+```
+
+Content-only pushes no longer trigger `deploy.yml` directly — deployment happens only through `workflow_run` after `rag-index.yml` completes. When both code and content change simultaneously, both workflows trigger, but `concurrency: { group: deploy, cancel-in-progress: true }` ensures only the final deploy completes.
+
+This structure results in the following behavior per scenario:
+
+| Scenario                 | rag-index.yml                         | deploy.yml                                                                           |
+| ------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------ |
+| Code-only change         | Not triggered                         | push trigger → reuses previous artifact → deploy                                     |
+| Content-only change      | Generate embeddings → upload artifact | push trigger skipped → workflow_run deploy (fresh)                                   |
+| Code + content change    | Generate embeddings → upload artifact | push trigger deploy → workflow_run redeploy (concurrency ensures only one completes) |
+| Embedding API failure    | Fails                                 | Deploys normally with previous artifact (not blocked)                                |
+| First deploy (bootstrap) | —                                     | No artifact found → inline fallback generation                                       |
+
+When code and content are included in the same push, `deploy.yml` starts via push trigger first, then re-triggers via `workflow_run`, cancelling the first run. This is not a functional issue but log noise — the final deploy always completes successfully with a fresh index.
+
+#### Why we kept the push trigger on deploy.yml
+
+A simpler alternative would be to trigger `rag-index.yml` on all pushes and have `deploy.yml` trigger only via `workflow_run`. This would eliminate cancellation noise on mixed pushes. However, this design has a critical flaw: **all deployments become dependent on `rag-index.yml` succeeding**. If the embedding API goes down, even code-only changes cannot be deployed. Since the core purpose of workflow separation was to isolate embedding failures from deployment, the push trigger on `deploy.yml` must be retained.
+
+The key point is that **even if the embedding API is down, deployment is never blocked, and content-only changes never deploy with a stale index**. If script separation achieved "build command independence," workflow separation achieves "execution flow independence."
+
+### 4) Splitting code-block treatment by search purpose
+
+In technical blogs, code can be essential evidence. Since "finding content quickly by keyword" and "providing accurate evidence to an LLM" require different data representations, code blocks are handled differently depending on the search purpose when indexing the same blog post.
+
+In `search-index.json.ts`, which generates the MiniSearch index, the `stripMarkdown()` function removes code blocks before indexing. In keyword matching, code is mostly noise.
+
+````ts
+// src/pages/search-index.json.ts
+function stripMarkdown(md: string) {
+  return md
+    .replace(/```[\s\S]*?```/g, " ") // Remove multi-line code blocks
+    .replace(/`[^`]*`/g, " "); // Remove inline code
+  // ...
+}
+const content = stripMarkdown(post.body ?? "");
+````
+
+In contrast, the RAG embedding pipeline uses `post.body` as-is in `document-loader.ts`. The LLM needs code as evidence for its answers, so the original must be preserved.
+
+```ts
+// src/lib/rag/document-loader.ts
+return {
+  // ...
+  content: post.body ?? "", // Raw original — code blocks preserved
+};
+```
+
+In summary, even for the same blog post, each pipeline indexes a different representation of the data.
+
+|             | MiniSearch                       | RAG                            |
+| ----------- | -------------------------------- | ------------------------------ |
+| Processing  | `stripMarkdown(post.body)`       | `post.body` (raw)              |
+| Code blocks | Removed                          | Preserved                      |
+| Reason      | Code is noise for keyword search | Code is needed as LLM evidence |
+| Output      | `search-index.json`              | `rag-index.json`               |
+
+### 5) Score normalization and quality filters
 
 Because RRF is rank-based, low-quality results can pollute ranking.
 To prevent this, filtering happens before fusion: semantic score must be `>= 0.6`, keyword score must be `>= 0.5`, only then merge via RRF, then return top-K.
@@ -106,7 +183,7 @@ If we changed the order, low-quality matches could move up just because of rank 
 
 > **MVP status:** Currently only the semantic score threshold (0.6) is applied. Keyword score filtering and RRF merging will be implemented alongside Hybrid Search (Task 8).
 
-### 7) Gradual source-accuracy rollout
+### 6) Gradual source-accuracy rollout
 
 In streaming mode, it is hard to know which source was truly cited before answer completion.  
 So source accuracy was handled in two phases:
@@ -116,7 +193,7 @@ So source accuracy was handled in two phases:
 
 Trying to get perfect source accuracy in the first release risked schedule delay; phased delivery was the realistic choice.
 
-### 8) Timeout and cache behavior
+### 7) Timeout and cache behavior
 
 Stability is also about runtime boundaries.  
 We set:
@@ -576,8 +653,9 @@ After Task 7, priorities are:
    - TTL and invalidation improvement
 
 3. **Task 11: Incremental indexing + manifest**
-   - `{postId}:{contentHash}`
-   - Reindex only changed documents
+   - Currently, the `sync-rag-index` script re-indexes all documents on every run. With only 38 documents, the cost is negligible, so this approach is used for now.
+   - Goal: define document id as `{postId}`, store `contentHash` and `lastUpdated` per document in a manifest, and only delete/upsert documents whose hash has changed.
+   - Once applied, re-indexing becomes idempotent — running the script multiple times causes no side effects, updating only the changed documents.
 
 4. **Task 12~13: Failed-document reprocessing and operations**
    - Retry pipelines and DLQ
