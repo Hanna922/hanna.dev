@@ -1,0 +1,50 @@
+name: RAG Index
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "src/content/blog/**"
+      - "src/content/rag/**"
+      - "scripts/sync-rag-index.ts"
+  workflow_dispatch:
+
+concurrency:
+  group: rag-index
+  cancel-in-progress: true
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate RAG index
+        run: pnpm sync-rag-index
+
+      - name: Upload RAG index artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rag-index
+          path: public/rag-index.json
+          retention-days: 90
+          overwrite: true

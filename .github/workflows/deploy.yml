@@ -2,11 +2,27 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+    paths-ignore:
+      - "src/content/blog/**"
+      - "src/content/rag/**"
+      - "scripts/sync-rag-index.ts"
+  workflow_run:
+    workflows: ["RAG Index"]
+    types: [completed]
+    branches: [master]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     env:
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
@@ -21,7 +37,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,8 +54,22 @@ jobs:
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Generate RAG index
-        run: pnpm sync-rag-index
+      # --- RAG Index: artifact에서 다운로드하거나, 없으면 inline fallback ---
+      - name: Download RAG index from indexing workflow
+        id: download-index
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: rag-index.yml
+          name: rag-index
+          path: public/
+          branch: master
+          if_no_artifact_found: warn
+
+      - name: Fallback - Generate RAG index inline
+        if: steps.download-index.outputs.found_artifact != 'true'
+        run: |
+          echo "::warning::RAG index artifact 없음. inline 생성 (bootstrap mode)"
+          pnpm sync-rag-index
 
       - name: Build project
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
