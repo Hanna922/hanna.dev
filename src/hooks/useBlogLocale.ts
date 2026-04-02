@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  getLocaleFromValue,
+  DEFAULT_LOCALE,
+  resolveLocaleFromSources,
   t,
   type I18nParams,
   type LocaleCode,
@@ -23,32 +24,19 @@ export function getInitialLocale(
   initialLocaleFromServer?: LocaleCode
 ): LocaleCode {
   if (typeof window === "undefined") {
-    return getLocaleFromValue(initialLocaleFromServer ?? null) ?? "ko";
+    return initialLocaleFromServer ?? DEFAULT_LOCALE;
   }
 
-  const urlLocale = getLocaleFromValue(
-    new URLSearchParams(window.location.search).get("lang")
-  );
-  if (urlLocale) return urlLocale;
-
-  const serverLocale = getLocaleFromValue(initialLocaleFromServer ?? null);
-  if (serverLocale) return serverLocale;
-
-  const htmlLocale = getLocaleFromValue(
-    document.documentElement.dataset.locale ?? null
-  );
-  if (htmlLocale) return htmlLocale;
-
-  const windowLocale = getLocaleFromValue(
-    (window as Window & { __BLOG_INITIAL_LOCALE__?: LocaleCode })
-      .__BLOG_INITIAL_LOCALE__ ?? null
-  );
-  if (windowLocale) return windowLocale;
-
-  return "ko";
+  return resolveLocaleFromSources({
+    search: window.location.search,
+    serverLocale: initialLocaleFromServer ?? null,
+    htmlLocale: document.documentElement.dataset.locale ?? null,
+    windowLocale: window.__BLOG_INITIAL_LOCALE__ ?? null,
+    fallback: DEFAULT_LOCALE,
+  });
 }
 
-export function useBlogLocale(initial: LocaleCode = "ko") {
+export function useBlogLocale(initial: LocaleCode = DEFAULT_LOCALE) {
   const [locale, setLocale] = useState<LocaleCode>(initial);
 
   const translate = useCallback(

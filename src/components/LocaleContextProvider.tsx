@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import {
+  buildLocaleHref,
   buildLocaleUrl,
   DEFAULT_LOCALE,
   getLocaleFromValue,
@@ -18,6 +19,7 @@ interface WindowWithLocaleContext {
   __BLOG_LOCALE_CONTEXT__?: {
     getLocale: () => LocaleCode;
     setLocale: (locale: LocaleCode) => void;
+    buildLocaleHref: (href: string, locale: LocaleCode) => string;
     translate: (key: string, params?: I18nParams) => string;
     subscribe: (callback: (locale: LocaleCode) => void) => () => void;
   };
@@ -223,6 +225,7 @@ export default function LocaleContextProvider() {
     window.__BLOG_LOCALE_CONTEXT__ = {
       getLocale,
       setLocale,
+      buildLocaleHref: (href, locale) => buildLocaleHref(href, locale),
       translate: (key, params) => t(currentLocale, key, params),
       subscribe: callback => {
         listeners.add(callback);

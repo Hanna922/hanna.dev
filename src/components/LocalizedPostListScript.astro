@@ -18,11 +18,6 @@ const {
 >
   (function () {
     const getCurrentLocale = () => {
-      const queryLocale = new URLSearchParams(window.location.search).get(
-        "lang"
-      );
-      if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
-
       const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
       if (contextLocale === "en" || contextLocale === "ko")
         return contextLocale;
@@ -31,11 +26,9 @@ const {
     };
 
     const withLocale = (href, locale) => {
-      const url = new URL(href, window.location.origin);
-      if (url.origin !== window.location.origin) return href;
-      url.searchParams.set("lang", locale);
-      const query = url.searchParams.toString();
-      return query ? `${url.pathname}?${query}` : url.pathname;
+      return (
+        window.__BLOG_LOCALE_CONTEXT__?.buildLocaleHref?.(href, locale) ?? href
+      );
     };
 
     const applyLocalizedPostFilter = () => {
