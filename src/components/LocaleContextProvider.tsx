@@ -19,7 +19,11 @@ interface WindowWithLocaleContext {
   __BLOG_LOCALE_CONTEXT__?: {
     getLocale: () => LocaleCode;
     setLocale: (locale: LocaleCode) => void;
-    buildLocaleHref: (href: string, locale: LocaleCode) => string;
+    buildLocaleHref: (
+      href: string,
+      locale: LocaleCode,
+      options?: { includeDefaultLocale?: boolean }
+    ) => string;
     translate: (key: string, params?: I18nParams) => string;
     subscribe: (callback: (locale: LocaleCode) => void) => () => void;
   };
@@ -225,7 +229,8 @@ export default function LocaleContextProvider() {
     window.__BLOG_LOCALE_CONTEXT__ = {
       getLocale,
       setLocale,
-      buildLocaleHref: (href, locale) => buildLocaleHref(href, locale),
+      buildLocaleHref: (href, locale, options) =>
+        buildLocaleHref(href, locale, undefined, options),
       translate: (key, params) => t(currentLocale, key, params),
       subscribe: callback => {
         listeners.add(callback);

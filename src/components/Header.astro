@@ -257,6 +257,10 @@ const searchHref = locale === "en" ? "/search/?lang=en" : "/search/";
     return ctx?.translate?.(key) ?? fallback;
   }
 
+  function getLocaleContext() {
+    return window.__BLOG_LOCALE_CONTEXT__;
+  }
+
   function setMenuButtonLabel(open: boolean, menuBtn: HTMLElement | null) {
     if (!menuBtn) return;
     const key = open ? "nav.menuClose" : "nav.menuOpen";
@@ -269,17 +273,17 @@ const searchHref = locale === "en" ? "/search/?lang=en" : "/search/";
   }
 
   function getCurrentLocale() {
-    const queryLocale = new URLSearchParams(window.location.search).get("lang");
-    if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
-
-    const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+    const contextLocale = getLocaleContext()?.getLocale?.();
     if (contextLocale === "en" || contextLocale === "ko") return contextLocale;
 
     return document.documentElement.dataset.locale === "en" ? "en" : "ko";
   }
 
   function withLocale(path: string, locale: "en" | "ko") {
-    return locale === "en" ? `${path}?lang=en` : path;
+    return (
+      getLocaleContext()?.buildLocaleHref?.(path, locale) ??
+      (locale === "en" ? `${path}?lang=en` : path)
+    );
   }
 
   function syncLocaleAwareNavLinks() {
@@ -332,9 +336,15 @@ const searchHref = locale === "en" ? "/search/?lang=en" : "/search/";
 
     triggerBtn.dataset.localeBound = "1";
     triggerBtn.addEventListener("click", () => {
-      const lang = document.documentElement.dataset.locale;
-      const langQuery = lang === "en" || lang === "ko" ? `?lang=${lang}` : "";
-      window.location.href = `/${langQuery}`;
+      const locale = getCurrentLocale();
+      const includeDefaultLocale = new URLSearchParams(
+        window.location.search
+      ).has("lang");
+      const nextHref =
+        getLocaleContext()?.buildLocaleHref?.("/", locale, {
+          includeDefaultLocale,
+        }) ?? "/";
+      window.location.href = nextHref;
     });
   }
 

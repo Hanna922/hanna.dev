@@ -177,9 +177,6 @@ const layoutProps = {
   import { initPostEnhancements } from "@utils/postEnhancements";
 
   function getCurrentLocale() {
-    const queryLocale = new URLSearchParams(window.location.search).get("lang");
-    if (queryLocale === "en" || queryLocale === "ko") return queryLocale;
-
     const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
     if (contextLocale === "en" || contextLocale === "ko") return contextLocale;
 
@@ -187,11 +184,14 @@ const layoutProps = {
   }
 
   function withLocale(href: string, locale: "en" | "ko") {
-    const url = new URL(href, window.location.origin);
-    if (url.origin !== window.location.origin) return href;
-    url.searchParams.set("lang", locale);
-    const query = url.searchParams.toString();
-    return query ? `${url.pathname}?${query}` : url.pathname;
+    const includeDefaultLocale = new URLSearchParams(
+      window.location.search
+    ).has("lang");
+    return (
+      window.__BLOG_LOCALE_CONTEXT__?.buildLocaleHref?.(href, locale, {
+        includeDefaultLocale,
+      }) ?? href
+    );
   }
 
   function syncPostTagLinksLocale() {
@@ -236,16 +236,6 @@ const layoutProps = {
     const activeTitle = activeSection?.dataset.postTitle;
     if (activeTitle) {
       document.title = activeTitle;
-    }
-
-    const search = new URLSearchParams(window.location.search);
-    if (search.get("lang") !== effectiveLocale) {
-      search.set("lang", effectiveLocale);
-      const query = search.toString();
-      const targetUrl = query
-        ? `${window.location.pathname}?${query}`
-        : window.location.pathname;
-      window.history.replaceState({}, "", targetUrl);
     }
   }
 
