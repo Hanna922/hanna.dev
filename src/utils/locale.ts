@@ -15,6 +15,7 @@ export const DEFAULT_LOCALE: LocaleCode = "ko";
 export const STORAGE_KEY = "hanna-locale";
 export const SEARCH_PARAM = "lang";
 export const LOCALE_CHANGE_EVENT = "blog:locale-change";
+const DEFAULT_ORIGIN = "https://www.hanna-dev.co.kr";
 
 export const translations = {
   ko: {
@@ -203,6 +204,44 @@ function getValueForLocale(locale: LocaleCode, key: string) {
 
 export function getLocaleFromValue(raw: string | null): LocaleCode | null {
   return raw === "en" || raw === "ko" ? raw : null;
+}
+
+export function getLocaleFromSearchParams(
+  searchParams: URLSearchParams
+): LocaleCode | null {
+  return getLocaleFromValue(searchParams.get(SEARCH_PARAM));
+}
+
+export function resolveLocaleFromSearch(
+  search: string,
+  fallback: LocaleCode = DEFAULT_LOCALE
+): LocaleCode {
+  return getLocaleFromSearchParams(new URLSearchParams(search)) ?? fallback;
+}
+
+export function buildLocalePath(path: string, locale: LocaleCode): string {
+  return buildLocaleHref(path, locale);
+}
+
+export function buildLocaleHref(
+  href: string,
+  locale: LocaleCode,
+  origin = DEFAULT_ORIGIN
+): string {
+  const url = new URL(href, origin);
+
+  if (url.origin !== origin) {
+    return href;
+  }
+
+  if (locale === DEFAULT_LOCALE) {
+    url.searchParams.delete(SEARCH_PARAM);
+  } else {
+    url.searchParams.set(SEARCH_PARAM, locale);
+  }
+
+  const query = url.searchParams.toString();
+  return query ? `${url.pathname}?${query}` : url.pathname;
 }
 
 export function t(

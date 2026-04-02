@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",
+    "test:locale": "esbuild tests/locale-utils.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.locale-utils.test.mjs && node node_modules/.locale-utils.test.mjs",
     "format:check": "prettier --check . --plugin=prettier-plugin-astro",
     "format": "prettier --write . --plugin=prettier-plugin-astro",
     "cz": "cz",
