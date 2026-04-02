@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: rag-server
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+rag:
+  embedding:
+    model: gemini-embedding-001
+    dimension: 3072
+  top-k: 5
+  context-max-chars: 12000
+
+qdrant:
+  collection: hanna-dev-documents
