@@ -38,6 +38,7 @@ example/
 .claude
 .kiro
 .vercel
+.worktrees/
 
 rag-index.json
 eval-results.json
