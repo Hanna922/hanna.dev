@@ -14,7 +14,7 @@ import {
 import { SparkleIcon, SendIcon, ExternalLinkIcon, CloseIcon } from "./Icons";
 import { useLLMSearchCompletion } from "./useLLMSearchCompletion";
 import { generateId, getDisplayTitle, linkifySources } from "./llmSearchUtils";
-import { getLocaleFromValue, type LocaleCode } from "@utils/locale";
+import { type LocaleCode } from "@utils/locale";
 import { useBlogLocale, getInitialLocale } from "hooks/useBlogLocale";
 import "./llm-search.css";
 

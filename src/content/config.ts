@@ -25,12 +25,8 @@ const blog = defineCollection({
 });
 
 const rag = defineCollection({
-  schema: z.object({
-    title: z.string(),
-    titleEn: z.string().optional(),
-    description: z.string().optional(),
-    pubDate: z.date(),
-  }),
+  type: "data",
+  schema: z.any(),
 });
 
 export const collections = { blog, rag };

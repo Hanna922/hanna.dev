@@ -3,6 +3,7 @@
 
 interface ImportMetaEnv {
   readonly PUBLIC_LLM_MOCK_MODE?: string;
+  readonly PUBLIC_GOOGLE_SITE_VERIFICATION?: string;
   readonly GOOGLE_GENERATIVE_AI_API_KEY?: string;
   readonly RAG_ENABLED?: string;
   readonly RAG_EMBEDDING_MODEL?: string;
@@ -11,6 +12,8 @@ interface ImportMetaEnv {
   readonly RAG_TOP_K?: string;
   readonly RAG_SIMILARITY_THRESHOLD?: string;
   readonly RAG_EMBEDDING_BATCH_SIZE?: string;
+  readonly SUPABASE_URL?: string;
+  readonly SUPABASE_ANON_KEY?: string;
 }
 
 interface ImportMeta {
