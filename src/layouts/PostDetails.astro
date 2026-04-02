@@ -176,8 +176,23 @@ const layoutProps = {
   /* eslint-disable */
   import { initPostEnhancements } from "@utils/postEnhancements";
 
+  type PostDetailsLocaleContext = {
+    getLocale?: () => "en" | "ko";
+    buildLocaleHref?: (
+      href: string,
+      locale: "en" | "ko",
+      options?: { includeDefaultLocale?: boolean }
+    ) => string;
+  };
+
+  function getLocaleContext() {
+    return window.__BLOG_LOCALE_CONTEXT__ as
+      | PostDetailsLocaleContext
+      | undefined;
+  }
+
   function getCurrentLocale() {
-    const contextLocale = window.__BLOG_LOCALE_CONTEXT__?.getLocale?.();
+    const contextLocale = getLocaleContext()?.getLocale?.();
     if (contextLocale === "en" || contextLocale === "ko") return contextLocale;
 
     return document.documentElement.dataset.locale === "en" ? "en" : "ko";
@@ -188,7 +203,7 @@ const layoutProps = {
       window.location.search
     ).has("lang");
     return (
-      window.__BLOG_LOCALE_CONTEXT__?.buildLocaleHref?.(href, locale, {
+      getLocaleContext()?.buildLocaleHref?.(href, locale, {
         includeDefaultLocale,
       }) ?? href
     );

@@ -252,13 +252,23 @@ const searchHref = locale === "en" ? "/search/?lang=en" : "/search/";
 
 <script>
   /* eslint-disable */
+  type HeaderLocaleContext = {
+    getLocale?: () => "en" | "ko";
+    buildLocaleHref?: (
+      href: string,
+      locale: "en" | "ko",
+      options?: { includeDefaultLocale?: boolean }
+    ) => string;
+    translate?: (key: string) => string;
+  };
+
   function t(key: string, fallback: string) {
     const ctx = window.__BLOG_LOCALE_CONTEXT__;
     return ctx?.translate?.(key) ?? fallback;
   }
 
   function getLocaleContext() {
-    return window.__BLOG_LOCALE_CONTEXT__;
+    return window.__BLOG_LOCALE_CONTEXT__ as HeaderLocaleContext | undefined;
   }
 
   function setMenuButtonLabel(open: boolean, menuBtn: HTMLElement | null) {
