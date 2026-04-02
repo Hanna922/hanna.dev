@@ -144,6 +144,6 @@ const htmlLang = locale === "en" ? "en-US" : "ko-KR";
   <body>
     <LocaleContextProvider client:load />
     <slot />
-    {!isMainPage && <LLMSearchModal client:load />}
+    {!isMainPage && <LLMSearchModal client:load initialLocale={locale} />}
   </body>
 </html>

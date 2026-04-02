@@ -161,12 +161,13 @@ function ChatMessageBubble({
 
 export default function LLMSearchModal({
   exampleQuestions,
+  initialLocale,
 }: LLMSearchModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { locale, translate } = useBlogLocale(getInitialLocale());
+  const { locale, translate } = useBlogLocale(getInitialLocale(initialLocale));
   const isKorean = locale === "ko";
 
   const localizedExamples = useMemo(

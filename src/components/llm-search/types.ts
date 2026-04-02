@@ -1,3 +1,5 @@
+import type { LocaleCode } from "@utils/locale";
+
 export interface BlogPost {
   title: string;
   titleEn?: string;
@@ -18,6 +20,7 @@ export interface IconProps {
 
 export interface LLMSearchModalProps {
   exampleQuestions?: string[];
+  initialLocale?: LocaleCode;
 }
 
 export const EXAMPLE_QUESTIONS: string[] = [
