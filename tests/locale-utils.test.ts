@@ -4,7 +4,9 @@ import {
   SEARCH_PARAM,
   buildLocaleHref,
   buildLocalePath,
+  buildLocaleUrl,
   getLocaleFromSearchParams,
+  resolveLocaleFromSources,
   resolveLocaleFromSearch,
 } from "../src/utils/locale";
 
@@ -55,5 +57,72 @@ run("buildLocaleHref localizes only same-origin links", () => {
   assert.equal(
     buildLocaleHref("https://external.example/posts/?lang=en", "ko", origin),
     "https://external.example/posts/?lang=en"
+  );
+});
+
+run("resolveLocaleFromSources keeps URL search as the highest priority", () => {
+  assert.equal(
+    resolveLocaleFromSources({
+      search: "?lang=en",
+      serverLocale: "ko",
+      htmlLocale: "ko",
+      windowLocale: "ko",
+    }),
+    "en"
+  );
+  assert.equal(
+    resolveLocaleFromSources({
+      search: "",
+      serverLocale: "ko",
+      htmlLocale: "en",
+      windowLocale: "en",
+    }),
+    "ko"
+  );
+  assert.equal(
+    resolveLocaleFromSources({
+      search: "",
+      serverLocale: null,
+      htmlLocale: null,
+      windowLocale: "en",
+    }),
+    "en"
+  );
+  assert.equal(
+    resolveLocaleFromSources({
+      search: "",
+      serverLocale: null,
+      htmlLocale: null,
+      windowLocale: null,
+    }),
+    DEFAULT_LOCALE
+  );
+});
+
+run("buildLocaleUrl can keep or omit the default locale query intentionally", () => {
+  assert.equal(
+    buildLocaleUrl({
+      pathname: "/posts/react/",
+      search: "?page=2",
+      locale: "en",
+    }),
+    "/posts/react/?page=2&lang=en"
+  );
+  assert.equal(
+    buildLocaleUrl({
+      pathname: "/posts/react/",
+      search: "?page=2&lang=en",
+      locale: "ko",
+    }),
+    "/posts/react/?page=2"
+  );
+  assert.equal(
+    buildLocaleUrl({
+      pathname: "/posts/react/",
+      search: "?page=2",
+      locale: "ko",
+      includeDefaultLocale: true,
+    }),
+    "/posts/react/?page=2&lang=ko"
   );
 });

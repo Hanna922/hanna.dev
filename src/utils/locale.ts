@@ -6,6 +6,25 @@ export interface I18nParams {
   [key: string]: string | number;
 }
 
+interface LocaleResolutionSources {
+  search?: string;
+  serverLocale?: string | null;
+  htmlLocale?: string | null;
+  windowLocale?: string | null;
+  fallback?: LocaleCode;
+}
+
+interface BuildLocaleUrlInput {
+  pathname: string;
+  search?: string;
+  locale: LocaleCode;
+  includeDefaultLocale?: boolean;
+}
+
+interface BuildLocaleHrefOptions {
+  includeDefaultLocale?: boolean;
+}
+
 export const LOCALES: { code: LocaleCode; label: string }[] = [
   { code: "en", label: "EN" },
   { code: "ko", label: "KR" },
@@ -219,6 +238,40 @@ export function resolveLocaleFromSearch(
   return getLocaleFromSearchParams(new URLSearchParams(search)) ?? fallback;
 }
 
+export function resolveLocaleFromSources({
+  search = "",
+  serverLocale = null,
+  htmlLocale = null,
+  windowLocale = null,
+  fallback = DEFAULT_LOCALE,
+}: LocaleResolutionSources): LocaleCode {
+  return (
+    getLocaleFromSearchParams(new URLSearchParams(search)) ??
+    getLocaleFromValue(serverLocale) ??
+    getLocaleFromValue(htmlLocale) ??
+    getLocaleFromValue(windowLocale) ??
+    fallback
+  );
+}
+
+export function buildLocaleUrl({
+  pathname,
+  search = "",
+  locale,
+  includeDefaultLocale = false,
+}: BuildLocaleUrlInput): string {
+  const searchParams = new URLSearchParams(search);
+
+  if (locale === DEFAULT_LOCALE && !includeDefaultLocale) {
+    searchParams.delete(SEARCH_PARAM);
+  } else {
+    searchParams.set(SEARCH_PARAM, locale);
+  }
+
+  const query = searchParams.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
 export function buildLocalePath(path: string, locale: LocaleCode): string {
   return buildLocaleHref(path, locale);
 }
@@ -226,7 +279,8 @@ export function buildLocalePath(path: string, locale: LocaleCode): string {
 export function buildLocaleHref(
   href: string,
   locale: LocaleCode,
-  origin = DEFAULT_ORIGIN
+  origin = DEFAULT_ORIGIN,
+  options: BuildLocaleHrefOptions = {}
 ): string {
   const url = new URL(href, origin);
 
@@ -234,14 +288,12 @@ export function buildLocaleHref(
     return href;
   }
 
-  if (locale === DEFAULT_LOCALE) {
-    url.searchParams.delete(SEARCH_PARAM);
-  } else {
-    url.searchParams.set(SEARCH_PARAM, locale);
-  }
-
-  const query = url.searchParams.toString();
-  return query ? `${url.pathname}?${query}` : url.pathname;
+  return buildLocaleUrl({
+    pathname: url.pathname,
+    search: url.search,
+    locale,
+    includeDefaultLocale: options.includeDefaultLocale,
+  });
 }
 
 export function t(

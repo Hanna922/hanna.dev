@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import {
+  buildLocaleUrl,
   DEFAULT_LOCALE,
   getLocaleFromValue,
   LOCALE_CHANGE_EVENT,
   SEARCH_PARAM,
+  resolveLocaleFromSources,
   STORAGE_KEY,
   t,
   type I18nParams,
@@ -102,8 +104,6 @@ function syncLocalizedDatetimes(locale: LocaleCode) {
 
 export default function LocaleContextProvider() {
   useEffect(() => {
-    const searchOnLoad = new URLSearchParams(window.location.search);
-    const hasExplicitLocaleInUrl = searchOnLoad.has(SEARCH_PARAM);
     const initialLocaleFromHtml = getLocaleFromValue(
       document.documentElement.dataset.locale ?? null
     );
@@ -112,36 +112,24 @@ export default function LocaleContextProvider() {
     );
 
     const resolveBrowserLocale = () => {
-      const queryLocale = getLocaleFromValue(searchOnLoad.get(SEARCH_PARAM));
-      if (queryLocale) {
-        localStorage.setItem(STORAGE_KEY, queryLocale);
-        return queryLocale;
-      }
-
-      if (initialLocaleFromHtml) {
-        return initialLocaleFromHtml;
-      }
-
-      const initialLocale = getLocaleFromValue(
-        window.__BLOG_INITIAL_LOCALE__ ?? null
-      );
-      if (initialLocale) {
-        return initialLocale;
-      }
-
-      const storedLocale = getLocaleFromValue(
-        localStorage.getItem(STORAGE_KEY)
-      );
-      return storedLocale ?? DEFAULT_LOCALE;
+      return resolveLocaleFromSources({
+        search: window.location.search,
+        htmlLocale: document.documentElement.dataset.locale ?? null,
+        serverLocale: document.documentElement.dataset.localeServer ?? null,
+        windowLocale: window.__BLOG_INITIAL_LOCALE__ ?? null,
+        fallback: DEFAULT_LOCALE,
+      });
     };
 
     let currentLocale: LocaleCode = resolveBrowserLocale();
 
     const listeners = new Set<(locale: LocaleCode) => void>();
 
-    const getQueryLocale = () => {
-      return getLocaleFromValue(
-        new URLSearchParams(window.location.search).get(SEARCH_PARAM)
+    const dispatchLocaleChange = (locale: LocaleCode) => {
+      window.dispatchEvent(
+        new CustomEvent(LOCALE_CHANGE_EVENT, {
+          detail: { locale },
+        })
       );
     };
 
@@ -160,18 +148,18 @@ export default function LocaleContextProvider() {
       window.__BLOG_INITIAL_LOCALE__ = locale;
       localStorage.setItem(STORAGE_KEY, locale);
 
-      const search = new URLSearchParams(window.location.search);
-      const existingLocale = search.get(SEARCH_PARAM);
-      const hasQueryLocale = search.has(SEARCH_PARAM);
-      const shouldPersistInQuery =
-        persistInUrl || hasExplicitLocaleInUrl || hasQueryLocale;
+      const includeDefaultLocale =
+        persistInUrl ||
+        new URLSearchParams(window.location.search).has(SEARCH_PARAM);
+      const nextUrl = buildLocaleUrl({
+        pathname: window.location.pathname,
+        search: window.location.search,
+        locale,
+        includeDefaultLocale,
+      });
+      const currentUrl = `${window.location.pathname}${window.location.search}`;
 
-      if (shouldPersistInQuery && existingLocale !== locale) {
-        search.set(SEARCH_PARAM, locale);
-        const query = search.toString();
-        const nextUrl = query
-          ? `${window.location.pathname}?${query}`
-          : window.location.pathname;
+      if (nextUrl !== currentUrl) {
         window.history.replaceState({}, "", nextUrl);
       }
 
@@ -214,11 +202,7 @@ export default function LocaleContextProvider() {
 
       currentLocale = locale;
       applyLocale(locale, true);
-      window.dispatchEvent(
-        new CustomEvent(LOCALE_CHANGE_EVENT, {
-          detail: { locale },
-        })
-      );
+      dispatchLocaleChange(locale);
     };
 
     const getLocale = () => currentLocale;
@@ -251,12 +235,15 @@ export default function LocaleContextProvider() {
     applyLocale(currentLocale);
 
     const onAfterSwap = () => {
-      const urlLocale = getQueryLocale();
-      if (urlLocale && urlLocale !== currentLocale) {
-        setLocale(urlLocale);
-        return;
+      const nextLocale = resolveBrowserLocale();
+      const localeChanged = nextLocale !== currentLocale;
+      currentLocale = nextLocale;
+
+      applyLocale(currentLocale);
+
+      if (localeChanged) {
+        dispatchLocaleChange(currentLocale);
       }
-      applyLocale(currentLocale, true);
     };
     document.addEventListener("astro:after-swap", onAfterSwap);
 
