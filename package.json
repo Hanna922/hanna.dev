@@ -12,6 +12,7 @@
     "astro": "astro",
     "test:locale": "esbuild tests/locale-utils.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.locale-utils.test.mjs && node node_modules/.locale-utils.test.mjs",
     "test:llm-modal-ssr": "esbuild tests/llm-search-modal-ssr.test.tsx --bundle --platform=node --format=cjs --loader:.css=text --outfile=node_modules/.llm-search-modal-ssr.test.cjs && node node_modules/.llm-search-modal-ssr.test.cjs",
+    "test:locale-islands": "esbuild tests/locale-islands.test.ts --bundle --platform=node --format=cjs --outfile=node_modules/.locale-islands.test.cjs && node node_modules/.locale-islands.test.cjs",
     "format:check": "prettier --check . --plugin=prettier-plugin-astro",
     "format": "prettier --write . --plugin=prettier-plugin-astro",
     "cz": "cz",

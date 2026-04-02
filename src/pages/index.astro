@@ -10,5 +10,5 @@ const description = t(locale, "page.aiHomeDescription", { site: SITE.title });
 ---
 
 <Layout title={title} description={`${description} | ${SITE.title}`}>
-  <LLMSearchPage client:load initialLocale={locale} />
+  <LLMSearchPage client:only="react" initialLocale={locale} />
 </Layout>

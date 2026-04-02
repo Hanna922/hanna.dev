@@ -41,7 +41,11 @@ const pageDesc = "Search any article";
     pageDesc="Search any article ..."
     pageDescI18n="search.description"
   >
-    <SearchBar client:load searchList={searchList} initialLocale={locale} />
+    <SearchBar
+      client:only="react"
+      searchList={searchList}
+      initialLocale={locale}
+    />
   </Main>
   <Footer />
 </Layout>
