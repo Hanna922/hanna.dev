@@ -25,3 +25,8 @@ qdrant:
   use-tls: false
   collection: hanna-dev-documents
   bootstrap-enabled: true
+
+internal:
+  header-name: X-Internal-Api-Key
+  query-api-key: change-me
+  admin-api-key: change-me
