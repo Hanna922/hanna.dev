@@ -19,9 +19,9 @@
     "cz": "cz",
     "prepare": "husky install",
     "lint": "eslint .",
-    "sync-rag-index": "npx tsx scripts/sync-rag-index.ts",
-    "sync-rag-server": "npx tsx scripts/sync-rag-server.ts",
-    "eval": "npx tsx scripts/run-eval.ts"
+    "sync-rag-index": "tsx scripts/sync-rag-index.ts",
+    "sync-rag-server": "tsx scripts/sync-rag-server.ts",
+    "eval": "tsx scripts/run-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",
@@ -66,7 +66,9 @@
     "prettier-plugin-astro": "^0.13.0",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "resolve-pkg-maps": "^1.0.0",
+    "tsx": "^4.21.0"
   },
   "config": {
     "commitizen": {
