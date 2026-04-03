@@ -37,6 +37,10 @@ public class RagProperties {
 
 		private int dimension = 3072;
 
+		private String baseUrl = "https://generativelanguage.googleapis.com";
+
+		private String apiKey;
+
 		public String getModel() {
 			return model;
 		}
@@ -51,6 +55,22 @@ public class RagProperties {
 
 		public void setDimension(int dimension) {
 			this.dimension = dimension;
+		}
+
+		public String getBaseUrl() {
+			return baseUrl;
+		}
+
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+
+		public String getApiKey() {
+			return apiKey;
+		}
+
+		public void setApiKey(String apiKey) {
+			this.apiKey = apiKey;
 		}
 	}
 }
