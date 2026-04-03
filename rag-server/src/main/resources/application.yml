@@ -19,4 +19,9 @@ rag:
   context-max-chars: 12000
 
 qdrant:
+  host: localhost
+  grpc-port: 6334
+  api-key:
+  use-tls: false
   collection: hanna-dev-documents
+  bootstrap-enabled: true
