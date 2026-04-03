@@ -5,6 +5,7 @@ import {
   loadCanonicalRagDocuments,
   type CanonicalRagDocument,
 } from "../src/lib/rag/canonical-documents";
+import { firstNonBlank } from "../src/lib/rag/env-utils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,11 +45,18 @@ async function loadEnv() {
 async function main() {
   await loadEnv();
 
-  const ragServerUrl = process.env.RAG_SERVER_URL ?? DEFAULT_RAG_SERVER_URL;
-  const adminApiKey =
-    process.env.RAG_SERVER_ADMIN_API_KEY ?? process.env.INTERNAL_ADMIN_API_KEY;
-  const adminHeader =
-    process.env.RAG_SERVER_ADMIN_HEADER ?? DEFAULT_ADMIN_HEADER;
+  const ragServerUrl = firstNonBlank(
+    process.env.RAG_SERVER_URL,
+    DEFAULT_RAG_SERVER_URL
+  )!;
+  const adminApiKey = firstNonBlank(
+    process.env.RAG_SERVER_ADMIN_API_KEY,
+    process.env.INTERNAL_ADMIN_API_KEY
+  );
+  const adminHeader = firstNonBlank(
+    process.env.RAG_SERVER_ADMIN_HEADER,
+    DEFAULT_ADMIN_HEADER
+  )!;
 
   if (!adminApiKey) {
     throw new Error(

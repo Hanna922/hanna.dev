@@ -1,5 +1,6 @@
 import { buildLLMPrompt } from "@utils/llm-search/prompt";
 import type { SourceRef } from "@utils/llm-search/types";
+import { firstNonBlank } from "./env-utils";
 
 const DEFAULT_RAG_SERVER_URL = "http://localhost:8080";
 const INTERNAL_API_KEY_HEADER = "X-Internal-Api-Key";
@@ -28,15 +29,16 @@ export async function queryRagServer(input: {
   locale: "ko" | "en";
   topK: number;
 }) {
-  const apiKey =
-    import.meta.env.RAG_SERVER_QUERY_API_KEY ??
-    import.meta.env.INTERNAL_QUERY_API_KEY;
+  const apiKey = firstNonBlank(
+    import.meta.env.RAG_SERVER_QUERY_API_KEY,
+    import.meta.env.INTERNAL_QUERY_API_KEY
+  );
   if (!apiKey) {
     throw new Error("Missing RAG_SERVER_QUERY_API_KEY or INTERNAL_QUERY_API_KEY");
   }
 
   const baseUrl = normalizeBaseUrl(
-    import.meta.env.RAG_SERVER_URL ?? DEFAULT_RAG_SERVER_URL
+    firstNonBlank(import.meta.env.RAG_SERVER_URL, DEFAULT_RAG_SERVER_URL)!
   );
   const response = await fetch(`${baseUrl}/v1/rag/query`, {
     method: "POST",

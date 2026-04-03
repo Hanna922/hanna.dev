@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { firstNonBlank } from "../src/lib/rag/env-utils";
 import {
   buildRagServerPrompt,
   toClientSourceRefs,
@@ -21,6 +22,9 @@ assert.deepEqual(sources, [
     slug: "/posts/project-timeline/",
   },
 ]);
+
+assert.equal(firstNonBlank("", "   ", "fallback-key"), "fallback-key");
+assert.equal(firstNonBlank("", "   "), undefined);
 
 const prompt = buildRagServerPrompt(
   "대표 프로젝트 경험을 소개해주세요",
