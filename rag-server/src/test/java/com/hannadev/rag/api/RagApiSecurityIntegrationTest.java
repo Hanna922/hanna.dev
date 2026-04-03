@@ -3,17 +3,28 @@ package com.hannadev.rag.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.hannadev.rag.api.dto.RagQueryRequest;
+import com.hannadev.rag.api.dto.RagQueryResponse;
+import com.hannadev.rag.service.RagQueryUseCase;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 
 @SpringBootTest(
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+	classes = {
+		com.hannadev.rag.RagServerApplication.class,
+		RagApiSecurityIntegrationTest.QueryTestConfiguration.class
+	},
 	properties = {
 		"qdrant.bootstrap-enabled=false",
 		"internal.query-api-key=query-secret",
@@ -61,11 +72,11 @@ class RagApiSecurityIntegrationTest {
 			}
 			""");
 
-		assertEquals(501, response.statusCode());
-		assertTrue(response.body().contains("\"context\":\"\""));
-		assertTrue(response.body().contains("\"sources\":[]"));
+		assertEquals(200, response.statusCode());
+		assertTrue(response.body().contains("\"context\":\"stub context\""));
+		assertTrue(response.body().contains("\"docId\":\"stub-doc\""));
 		assertTrue(response.body().contains("\"topK\":5"));
-		assertTrue(response.body().contains("\"returned\":0"));
+		assertTrue(response.body().contains("\"returned\":1"));
 	}
 
 	@Test
@@ -125,5 +136,31 @@ class RagApiSecurityIntegrationTest {
 		}
 
 		return httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+	}
+
+	@TestConfiguration
+	static class QueryTestConfiguration {
+
+		@Bean
+		@Primary
+		RagQueryUseCase ragQueryUseCase() {
+			return new RagQueryUseCase() {
+				@Override
+				public RagQueryResponse query(RagQueryRequest request) {
+					return new RagQueryResponse(
+						"stub context",
+						List.of(new RagQueryResponse.SourceRef(
+							"stub-doc",
+							"Stub title",
+							"https://hanna.dev/stub-doc",
+							0.91d,
+							request.locale(),
+							"custom"
+						)),
+						new RagQueryResponse.RetrievalMetadata(request.topK(), 1, 1)
+					);
+				}
+			};
+		}
 	}
 }
