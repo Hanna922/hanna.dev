@@ -9,20 +9,19 @@ This server owns document-level retrieval for `hanna.dev`.
 - `pnpm install` already run in the repo root
 - A valid Gemini API key for embeddings
 
-## Required Environment Variables
+## Local Env File
 
-Set these in the shell before starting the stack:
+Use a local `.env` file in `rag-server/`. The file is ignored by git.
+
+1. Copy `.env.example` to `.env`
+2. Fill `GEMINI_API_KEY`
+3. Adjust ports or API keys only if you need to
 
 ```powershell
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-$env:INTERNAL_QUERY_API_KEY = "local-query-key"
-$env:INTERNAL_ADMIN_API_KEY = "local-admin-key"
-$env:RAG_SERVER_URL = "http://localhost:8080"
-$env:RAG_SERVER_QUERY_API_KEY = $env:INTERNAL_QUERY_API_KEY
-$env:RAG_SERVER_ADMIN_API_KEY = $env:INTERNAL_ADMIN_API_KEY
+Copy-Item .env.example .env
 ```
 
-Notes:
+Important variables:
 
 - `GEMINI_API_KEY` is required for sync and query requests.
 - `INTERNAL_QUERY_API_KEY` and `INTERNAL_ADMIN_API_KEY` protect the Spring server.
@@ -40,7 +39,13 @@ docker compose up -d qdrant
 Then start Spring locally:
 
 ```powershell
-./gradlew bootRun
+powershell -ExecutionPolicy Bypass -File .\dev-local.ps1
+```
+
+Validate `.env` parsing without starting Spring:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\dev-local.ps1 -ValidateOnly
 ```
 
 Health check:
@@ -57,8 +62,7 @@ From `rag-server/`:
 docker compose up --build
 ```
 
-The compose file reads `GEMINI_API_KEY`, `INTERNAL_QUERY_API_KEY`, and
-`INTERNAL_ADMIN_API_KEY` from the current shell.
+The compose file reads values from `rag-server/.env`.
 
 ## Sync Documents
 
@@ -81,10 +85,10 @@ Astro will call `http://localhost:8080/v1/rag/query` when RAG is enabled.
 ## Common Failure Modes
 
 - `Missing GOOGLE_GENERATIVE_AI_API_KEY` or `Missing GEMINI_API_KEY`
-  The embedding key is not set for the current shell.
+  `GEMINI_API_KEY` is blank in `.env`.
 - `Missing RAG_SERVER_ADMIN_API_KEY or INTERNAL_ADMIN_API_KEY`
-  The sync script does not have an admin key.
+  The local `.env` file is missing the admin key.
 - `RAG server query failed (401 Unauthorized)`
   `RAG_SERVER_QUERY_API_KEY` does not match `INTERNAL_QUERY_API_KEY`.
 - `Connection refused`
-  Qdrant or the Spring server is not running on the expected port.
+  Qdrant or the Spring server is not running on the expected port from `.env`.
