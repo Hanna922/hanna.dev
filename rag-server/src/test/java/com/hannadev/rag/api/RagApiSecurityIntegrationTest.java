@@ -73,7 +73,7 @@ class RagApiSecurityIntegrationTest {
 		var response = sendPost("/internal/admin/index/full-sync", "query-secret", """
 			{
 			  "syncId": "2026-04-03T09:00:00+09:00",
-			  "replaceMissing": true,
+			  "replaceMissing": false,
 			  "documents": []
 			}
 			""");
@@ -87,12 +87,12 @@ class RagApiSecurityIntegrationTest {
 		var response = sendPost("/internal/admin/index/full-sync", "admin-secret", """
 			{
 			  "syncId": "2026-04-03T09:00:00+09:00",
-			  "replaceMissing": true,
+			  "replaceMissing": false,
 			  "documents": []
 			}
 			""");
 
-		assertEquals(501, response.statusCode());
+		assertEquals(200, response.statusCode());
 		assertTrue(response.body().contains("\"total\":0"));
 		assertTrue(response.body().contains("\"inserted\":0"));
 		assertTrue(response.body().contains("\"updated\":0"));

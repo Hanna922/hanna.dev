@@ -2,9 +2,9 @@ package com.hannadev.rag.api;
 
 import com.hannadev.rag.api.dto.FullSyncRequest;
 import com.hannadev.rag.api.dto.FullSyncResponse;
+import com.hannadev.rag.service.RagIndexSyncService;
 import jakarta.validation.Valid;
 import java.util.Map;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,24 +18,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/internal/admin/index")
 public class RagAdminController {
 
+	private final RagIndexSyncService ragIndexSyncService;
+
+	public RagAdminController(RagIndexSyncService ragIndexSyncService) {
+		this.ragIndexSyncService = ragIndexSyncService;
+	}
+
 	@PostMapping("/full-sync")
 	public ResponseEntity<FullSyncResponse> fullSync(
 		@Valid @RequestBody FullSyncRequest request
 	) {
-		var total = request.documents() == null ? 0 : request.documents().size();
-		var response = new FullSyncResponse(total, 0, 0, 0, total);
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
+		return ResponseEntity.ok(this.ragIndexSyncService.fullSync(request));
 	}
 
 	@DeleteMapping("/{docId}")
 	public ResponseEntity<Map<String, Object>> delete(@PathVariable String docId) {
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-			.body(Map.of("docId", docId, "deleted", false));
+		var result = this.ragIndexSyncService.deleteDocument(docId);
+		return ResponseEntity.ok(Map.of("docId", result.docId(), "deleted", result.deleted()));
 	}
 
 	@GetMapping("/stats")
 	public ResponseEntity<Map<String, Object>> stats() {
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-			.body(Map.of("collection", "hanna-dev-documents"));
+		var stats = this.ragIndexSyncService.stats();
+		return ResponseEntity.ok(Map.of(
+			"collection",
+			stats.collection(),
+			"totalPoints",
+			stats.totalPoints()
+		));
 	}
 }
