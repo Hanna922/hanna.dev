@@ -39,4 +39,3 @@ out/
 ### Local env ###
 .env
 .env.local
-!.env.example

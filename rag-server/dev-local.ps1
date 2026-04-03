@@ -4,10 +4,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$envPath = Join-Path $PSScriptRoot ".env"
+$repoRoot = Split-Path $PSScriptRoot -Parent
+$envPath = Join-Path $repoRoot ".env"
 
 if (-not (Test-Path -LiteralPath $envPath)) {
-	throw "Missing .env at $envPath. Copy .env.example to .env first."
+	throw "Missing .env at $envPath. Copy the repo root .env.example to .env first."
 }
 
 $loadedNames = New-Object System.Collections.Generic.List[string]
@@ -37,8 +38,8 @@ Get-Content -LiteralPath $envPath | ForEach-Object {
 	$loadedNames.Add($name) | Out-Null
 }
 
-if (-not $env:GEMINI_API_KEY) {
-	Write-Warning "GEMINI_API_KEY is blank. Query and full-sync requests that need embeddings will fail."
+if (-not $env:GEMINI_API_KEY -and -not $env:GOOGLE_GENERATIVE_AI_API_KEY) {
+	Write-Warning "GOOGLE_GENERATIVE_AI_API_KEY is blank. Query and full-sync requests that need embeddings will fail."
 }
 
 foreach ($requiredName in @("INTERNAL_QUERY_API_KEY", "INTERNAL_ADMIN_API_KEY")) {

@@ -28,9 +28,11 @@ export async function queryRagServer(input: {
   locale: "ko" | "en";
   topK: number;
 }) {
-  const apiKey = import.meta.env.RAG_SERVER_QUERY_API_KEY;
+  const apiKey =
+    import.meta.env.RAG_SERVER_QUERY_API_KEY ??
+    import.meta.env.INTERNAL_QUERY_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing RAG_SERVER_QUERY_API_KEY");
+    throw new Error("Missing RAG_SERVER_QUERY_API_KEY or INTERNAL_QUERY_API_KEY");
   }
 
   const baseUrl = normalizeBaseUrl(

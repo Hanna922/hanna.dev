@@ -2,8 +2,8 @@ services:
   qdrant:
     image: qdrant/qdrant:v1.16.3
     ports:
-      - "${QDRANT_HTTP_PORT:-6333}:6333"
-      - "${QDRANT_GRPC_PORT:-6334}:6334"
+      - "6333:6333"
+      - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
 
@@ -12,25 +12,14 @@ services:
       context: .
     depends_on:
       - qdrant
+    env_file:
+      - ../.env
     ports:
-      - "${SERVER_PORT:-8080}:8080"
+      - "8080:8080"
     environment:
-      SERVER_PORT: ${SERVER_PORT:-8080}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      SERVER_PORT: 8080
       QDRANT_HOST: qdrant
-      QDRANT_GRPC_PORT: ${QDRANT_GRPC_PORT:-6334}
-      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      QDRANT_USE_TLS: ${QDRANT_USE_TLS:-false}
-      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-hanna-dev-documents}
-      QDRANT_BOOTSTRAP_ENABLED: ${QDRANT_BOOTSTRAP_ENABLED:-true}
-      RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-gemini-embedding-001}
-      RAG_EMBEDDING_DIMENSION: ${RAG_EMBEDDING_DIMENSION:-3072}
-      RAG_EMBEDDING_BASE_URL: ${RAG_EMBEDDING_BASE_URL:-https://generativelanguage.googleapis.com}
-      RAG_TOP_K: ${RAG_TOP_K:-5}
-      RAG_CONTEXT_MAX_CHARS: ${RAG_CONTEXT_MAX_CHARS:-12000}
-      INTERNAL_HEADER_NAME: ${INTERNAL_HEADER_NAME:-X-Internal-Api-Key}
-      INTERNAL_QUERY_API_KEY: ${INTERNAL_QUERY_API_KEY:-change-me}
-      INTERNAL_ADMIN_API_KEY: ${INTERNAL_ADMIN_API_KEY:-change-me}
+      QDRANT_GRPC_PORT: 6334
 
 volumes:
   qdrant_storage:
