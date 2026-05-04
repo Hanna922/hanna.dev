@@ -6,7 +6,7 @@
     "description": "소프트웨어 엔지니어 김나영의 핵심 소개와 연락처",
     "tags": ["profile", "contact", "summary", "김나영", "소개", "자기소개"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 퍼포먼스 최적화에 관심이 많고 효율적인 코드 작성을 지향하는 Software Engineer입니다. UX뿐 아니라 DX(Developer Experience), AX(Accessibility Experience) 향상을 주도하는 엔지니어를 목표로 합니다. 프론트엔드 개발을 중심으로 React, TypeScript, Next.js 등의 기술 스택을 활용하며, 디자인 시스템 구축, 모노레포 운영, 빌드 환경 마이그레이션, 실시간 데이터 시각화 등 폭넓은 경험을 보유하고 있습니다. 현재 우리FIS 아카데미 서비스 개발반 6기로 활동 중입니다. 이메일은 p.ping0922@gmail.com, GitHub는 github.com/Hanna922, 블로그는 hanna-dev.co.kr 입니다."
+    "content": "김나영은 프론트엔드를 기반으로 백엔드 서비스 설계와 LLM 기반 기능 개발까지 영역을 확장해 온 Software Engineer입니다. UX뿐 아니라 DX(Developer Experience), AX(Accessibility Experience) 향상을 주도하는 엔지니어를 목표로 하며, 퍼포먼스 최적화와 데이터 기반 아키텍처 의사결정에 관심이 많습니다. React, TypeScript, Next.js를 주력으로 사용하고, Spring Boot/Spring Cloud 기반 MSA, 디자인 시스템 구축, 모노레포 운영, 빌드 환경 마이그레이션, RAG 기반 AI 검색 등 폭넓은 경험을 보유하고 있습니다. 숭실대학교 소프트웨어학부를 2026년 2월에 졸업했고, 현재 Boeing Korea(보잉 코리아) PODS 부서에서 Frontend Engineer Intern으로 재직 중입니다. 이메일은 p.ping0922@gmail.com, GitHub는 github.com/Hanna922, 블로그는 hanna-dev.co.kr 입니다."
   },
   {
     "id": "profile-identity",
@@ -15,7 +15,26 @@
     "description": "이 블로그의 주인인 소프트웨어 엔지니어 김나영에 대한 소개",
     "tags": ["profile", "identity", "김나영", "누구", "소개", "about"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영(Hanna)은 이 블로그(hanna-dev.co.kr)의 주인이자 소프트웨어 엔지니어입니다. 숭실대학교 재학 중이며, 프론트엔드 개발을 전문으로 하고, React와 TypeScript를 주력으로 사용합니다. TechLabs에서 인턴십을 경험했고, Yourssu에서 디자인 시스템(YDS)과 모노레포(Yrano) 프로젝트를 리드했습니다. toss/es-toolkit, TanStack Query 등 오픈소스 기여 경험이 있으며, GDSC Web/Mobile 파트에서 활동하고 세미나 발표도 다수 진행했습니다. 캡스톤 프로젝트로 AI 기반 주식 분석 서비스(Stock Condition Analysis)를 개발했습니다. 현재는 우리FIS 아카데미(woorifisa) 서비스 개발반 6기로 활동하며 금융 IT 분야 역량을 키우고 있습니다. 블로그에서는 프론트엔드 기술, 프로젝트 회고, 마이그레이션 경험 등을 공유하고 있습니다."
+    "content": "김나영(Hanna)은 이 블로그(hanna-dev.co.kr)의 주인이자 소프트웨어 엔지니어입니다. 숭실대학교 소프트웨어학부를 2026년 2월에 졸업했으며, 프론트엔드 개발을 중심으로 React와 TypeScript를 주력 사용하면서 Spring Boot 기반 백엔드 서비스 설계까지 영역을 확장해 왔습니다. 현재 Boeing Korea(보잉 코리아) PODS 부서에서 Frontend Engineer Intern으로 재직 중입니다. 졸업 직후 우리FIS 아카데미(woorifisa) 서비스 개발반 6기에서 금융 IT 역량을 키우다 보잉 코리아 인턴 합격으로 중도 퇴소했습니다. 학부 시절에는 TechLabs에서 인턴십을 경험했고, Yourssu 동아리에서 디자인 시스템(YDS)과 모노레포(Yrano) 프로젝트를 리드했습니다. 2024년 가을학기에는 스페인 University of Vigo에서 미래에셋 박현주재단 장학생으로 교환학생 과정을 이수했습니다. toss/es-toolkit, Chromium, TanStack Query 등 글로벌 오픈소스 프로젝트에 기여 경험이 있으며, 캡스톤 프로젝트로 AI 기반 주식 분석 서비스(Stock Condition Analysis)를, 개인 프로젝트로 Spring Cloud 기반 카드 결제 게이트웨이 MSA(pg-msa)를 진행했습니다. 블로그에서는 프론트엔드 기술, 마이그레이션 경험, MSA 설계 회고, 오픈소스 기여 등을 공유합니다."
+  },
+  {
+    "id": "experience-boeing",
+    "title": "보잉 코리아 Frontend Engineer 인턴십",
+    "titleEn": "Boeing Korea Frontend Engineer Internship",
+    "description": "Boeing Korea PODS 부서 Frontend Engineer 인턴 재직 중",
+    "tags": [
+      "boeing",
+      "보잉",
+      "보잉코리아",
+      "PODS",
+      "frontend",
+      "intern",
+      "인턴",
+      "현재",
+      "재직"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 현재 Boeing Korea(보잉 코리아) PODS 부서에서 Frontend Engineer Intern으로 재직 중입니다. 근무 기간은 2026년 4월 13일부터 7월 10일까지이며, 글로벌 항공우주 엔지니어링 환경에서 프론트엔드 엔지니어로서의 실무 경험을 쌓고 있습니다."
   },
   {
     "id": "experience-woorifisa",
@@ -28,42 +47,94 @@
       "우리FIS아카데미",
       "서비스개발반",
       "금융",
-      "교육",
-      "현재",
-      "활동"
+      "교육"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 현재 우리FIS 아카데미(woorifisa) 서비스 개발반 6기로 활동하고 있습니다. 우리FIS 아카데미는 우리금융그룹 계열 IT 서비스 기업인 우리FIS에서 운영하는 개발자 양성 교육 프로그램입니다. 서비스 개발반에서는 금융 IT 서비스 개발에 필요한 역량을 갖추기 위한 교육을 받고 있으며, 실무 프로젝트 경험을 쌓고 있습니다. 우리FIS 아카데미 1차 기술 세미나에서 'Optimization of SEO, GEO'라는 주제로 발표하기도 했습니다."
+    "content": "김나영은 2025년 12월 30일부터 2026년 4월 4일까지 우리FIS 아카데미(woorifisa) 서비스 개발반 6기로 활동했습니다. 우리FIS 아카데미는 우리금융그룹 계열 IT 서비스 기업인 우리FIS에서 운영하는 개발자 양성 교육 프로그램으로, 서비스 개발반에서는 금융 IT 서비스 개발에 필요한 역량을 갖추기 위한 교육과 실무 프로젝트 경험을 쌓았습니다. 활동 중 Boeing Korea(보잉 코리아) Frontend Engineer Intern으로 합격하여 중도 퇴소했습니다. 아카데미 활동 기간 중 우리FIS 아카데미 1차 기술 세미나에서 'Optimization of SEO, GEO'라는 주제로 발표했고, 추가로 'Harness Engineering' 주제로도 발표를 진행했습니다."
   },
   {
     "id": "education-soongsil",
-    "title": "학력 - 숭실대학교",
-    "titleEn": "Education - Soongsil University",
+    "title": "학력 - 숭실대학교 소프트웨어학부 졸업",
+    "titleEn": "Education - Soongsil University B.S. in Software",
     "description": "김나영의 대학교 학력 정보",
-    "tags": ["education", "학력", "숭실대학교", "대학교", "학교"],
+    "tags": [
+      "education",
+      "학력",
+      "숭실대학교",
+      "대학교",
+      "학교",
+      "졸업",
+      "soongsil"
+    ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 숭실대학교에 재학 중입니다. 숭실대학교에서 Yourssu 동아리 활동을 하며 YDS(Yourssu Design System), Yrano(모노레포), Soomsil 등 다양한 프로젝트를 진행했습니다. 2025.03~2025.06에 캡스톤 디자인 종합 프로젝트(Capstone Design Comprehensive Project)로 Stock Condition Analysis를 개발했습니다. GDSC(Google Developer Student Club) Web/Mobile 파트에서도 활동했습니다."
+    "content": "김나영은 숭실대학교 소프트웨어학부에서 학사 학위를 취득했습니다(2021.03 입학, 2026.02 졸업). 재학 중 IT 동아리 Yourssu에서 활동하며 YDS(Yourssu Design System), Yrano(모노레포), Soomsil 등 다양한 프로젝트를 진행했고, 2025년 3월부터 6월까지 캡스톤 디자인 종합 프로젝트(Capstone Design Comprehensive Project)로 Stock Condition Analysis를 개발했습니다. GDSC(Google Developer Student Club) Web/Mobile 파트에서도 활동했습니다. 2024년 2학기에는 스페인 University of Vigo에서 교환학생 과정을 이수했습니다."
+  },
+  {
+    "id": "experience-vigo-exchange",
+    "title": "스페인 비고 대학교 교환학생 (미래에셋 박현주재단 장학생)",
+    "titleEn": "Exchange Student at University of Vigo, Spain (Mirae Asset Scholarship)",
+    "description": "2024년 2학기 University of Vigo 교환학생 및 미래에셋 박현주재단 장학생 활동",
+    "tags": [
+      "exchange",
+      "교환학생",
+      "스페인",
+      "vigo",
+      "비고",
+      "미래에셋",
+      "박현주재단",
+      "장학금",
+      "scholarship",
+      "글로벌"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 2024년 2학기(가을학기)에 스페인 비고 대학교(University of Vigo)에서 미래에셋 박현주재단(Mirae Asset Park Hyun-joo Foundation) 장학생으로 선발되어 교환학생 과정을 이수했습니다. 비고 대학교에서는 Telecommunication Engineering 전공 과목을 영어로 수강했으며, 글로벌 학생들과의 협업과 다양한 기술 이슈 해결 경험을 통해 영어 기반 기술 커뮤니케이션 역량을 키웠습니다. 이 경험은 이후 toss/es-toolkit과 Chromium 등 글로벌 오픈소스 프로젝트에 영어로 코드 리뷰를 주고받으며 기여하는 토대가 되었습니다."
+  },
+  {
+    "id": "project-pg-msa",
+    "title": "pg-msa: Spring Cloud 카드 결제 게이트웨이 MSA",
+    "titleEn": "pg-msa: Spring Cloud Card Payment Gateway MSA",
+    "description": "Spring Cloud 기반 7개 마이크로서비스 카드 결제 게이트웨이 시스템",
+    "tags": [
+      "project",
+      "pg-msa",
+      "msa",
+      "마이크로서비스",
+      "spring-cloud",
+      "spring-boot",
+      "java",
+      "결제",
+      "payment-gateway",
+      "circuit-breaker",
+      "resilience4j",
+      "openfeign",
+      "eureka",
+      "BIN",
+      "라우팅",
+      "백엔드",
+      "backend"
+    ],
+    "url": "https://hanna-dev.co.kr/posts/payment-gateway-msa",
+    "content": "pg-msa(2026.03~)는 실제 카드 결제 시스템 아키텍처를 참고하여 Spring Cloud 기반 7개 마이크로서비스로 구성한 카드 결제 게이트웨이(Payment Gateway) 프로젝트입니다. 구성 서비스는 eureka-server(서비스 디스커버리), api-gateway(API 게이트웨이), merchant-service(가맹점), pg-service(PG 게이트웨이), card-authorization-service 두 개(매입사 A: Visa / 매입사 B: MC·Amex·Discover·JCB), bank-service(은행)입니다. 핵심 설계 결정은 다음과 같습니다. 첫째, BIN(Bank Identification Number) 기반으로 카드 브랜드를 식별하여 적절한 매입사로 라우팅하는 Strategy 패턴을 적용해, 새로운 매입사 추가 시 기존 코드 수정 없이 확장 가능하도록 설계했습니다(OCP 준수). 둘째, 매입사별 독립 Resilience4j Circuit Breaker를 구성하여 한 매입사의 장애가 다른 매입사 결제 흐름에 전파되지 않도록 격리했습니다. 셋째, 거래 원장(Transaction Ledger) 기반 멱등성(Idempotency) 보장 체계를 구축하여 네트워크 장애로 인한 중복 요청 시에도 동일한 결과를 반환합니다. 넷째, 매입사별 이질적인 에러 코드를 통일된 형식으로 변환하는 ExternalErrorTranslator 계층을 두어 가맹점에 일관된 응답을 보장합니다. 다섯째, PaymentApprovalFacade 패턴으로 승인 오케스트레이션의 책임을 분리하여 테스트 가능성을 높였습니다. 사용 기술은 Java 17, Spring Boot 4, Spring Cloud(Eureka, OpenFeign, API Gateway), Resilience4j, PostgreSQL입니다. 자세한 6단계 고도화 과정은 블로그 글 'Spring Cloud MSA 실전 적용 — 카드 결제 게이트웨이를 6단계에 걸쳐 고도화하기'에서 확인할 수 있습니다."
   },
   {
     "id": "project-stock-condition-analysis",
     "title": "캡스톤 프로젝트: Stock Condition Analysis",
     "titleEn": "Capstone Project: Stock Condition Analysis",
-    "description": "실시간 주식 데이터와 AI 뉴스 감성 분석을 결합한 서비스",
+    "description": "실시간 주식 데이터와 AI 뉴스 감성 분석을 결합한 서비스의 프론트엔드 시각화 담당",
     "tags": [
       "project",
       "capstone",
+      "캡스톤",
       "nextjs",
-      "langchain",
-      "ollama",
-      "spark",
-      "kafka",
       "swr",
       "stock",
       "ai",
-      "실시간"
+      "실시간",
+      "datadog",
+      "monitoring"
     ],
     "url": "https://github.com/stock-condition-analysis",
-    "content": "2025.03~2025.06 캡스톤 디자인 종합 프로젝트(Capstone Design Comprehensive Project)로 Stock Condition Analysis를 개발했습니다. 실시간 주식 데이터와 AI 기반 뉴스 감성 분석을 통합한 주식 상태 분석 서비스입니다. Finnhub API를 통해 수집된 실시간 주식 데이터를 Kafka와 Spark로 처리했고, LangChain과 sLM(Ollama)을 활용한 뉴스 감성 분석을 적용했습니다. 프론트엔드는 Next.js와 SWR을 활용하여 대시보드, 실시간 차트, AI 분석 결과를 시각화했습니다. 주요 기여는 실시간 주식 가격 차트 및 기술적 지표 시각화 구현, AI 기반 뉴스 감성 분석 결과 요약 표시, SWR을 활용한 실시간 데이터 업데이트 및 캐싱 최적화, Tailwind CSS를 활용한 반응형 UI 디자인 구현입니다. 기술 스택은 Next.js, TypeScript, SWR, Tailwind CSS, FastAPI, LangChain, Ollama 등입니다. GitHub: https://github.com/stock-condition-analysis"
+    "content": "2025년 3월부터 6월까지 진행한 숭실대학교 캡스톤 디자인 종합 프로젝트입니다. Stock Condition Analysis는 실시간 미국 주식 시세 데이터와 AI 기반 뉴스 감성 분석을 통합한 주식 상태 분석 대시보드 서비스입니다. 김나영은 프로젝트에서 프론트엔드 시각화를 담당했습니다. 구체적으로 Next.js와 SWR을 활용한 실시간 차트 대시보드를 구현하고, 실시간 주식 가격 차트와 기술적 지표 시각화, AI 뉴스 감성 분석 결과의 시각적 표시, SWR 기반 실시간 데이터 업데이트 및 캐싱 최적화, Tailwind CSS 기반 반응형 UI를 개발했습니다. Datadog APM이 도입된 환경에서 개발하며 코드 변경이 실제 서비스 성능에 미치는 영향을 트레이스 단위로 확인하는 실무 감각을 익혔고, 시스템 내부 상태(데이터 수집 상태, 에러, API 호출 횟수, 마지막 실행 시각)를 실시간 노출하는 Health Endpoint 설계를 함께 진행했습니다. 백엔드 데이터 파이프라인(실시간 주식 데이터 수집·집계 등)은 팀원들이 분담했습니다. 프론트엔드 사용 기술은 Next.js, TypeScript, SWR, Tailwind CSS입니다."
   },
   {
     "id": "experience-techlabs-intern",
@@ -82,7 +153,7 @@
       "인턴"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "2024.03~2024.06 TechLabs AI 부서 개발팀 인턴으로 근무했습니다. 사내 서비스의 성과를 지표로 보여주는 어드민 페이지를 개발했고, 시각화에 사용되는 그래프들을 좋은 DX를 위해 공통 컴포넌트로 개발하여 재사용할 수 있도록 했습니다. Node14 + Webpack(CJS) + React16 환경의 서비스를 Node20 + Vite(ESM) + React18로 마이그레이션했습니다. 이 작업을 통해 yarn time을 1/5로 단축시켰으며 project size를 1/2로 경량화했습니다. 클릭, 세션에 따른 서비스 이용 및 조회 성과 데이터를 그래프와 표로 시각화하는 서비스를 개발했고, 매출액과 구매 전환율에 따른 성과 데이터를 그래프와 표로 시각화하는 서비스를 개발했습니다. 사용 기술은 React, TypeScript, Ant Design, TanStack Query입니다."
+    "content": "2024년 3월부터 6월까지 TechLabs(Eigene Korea) AI 부서 개발팀에서 Frontend Engineer Intern으로 근무했습니다. 사내 서비스의 성과를 지표로 보여주는 어드민 페이지를 개발하면서 시각화에 사용되는 그래프들을 좋은 DX를 위해 공통 컴포넌트로 개발하여 팀 전반에서 재사용할 수 있도록 했습니다. 클릭/세션 기반 서비스 이용 및 조회 성과 데이터, 매출액 및 구매 전환율 기반 성과 데이터를 그래프와 표로 시각화하는 서비스를 구현했습니다. 또한 Node14 + Webpack(CJS) + React16 환경의 레거시 프로젝트를 Node20 + Vite(ESM) + React18로 마이그레이션하여 yarn install 시간을 1/5로 단축하고 프로젝트 사이즈를 1/2로 경량화했습니다. 사용 기술은 React, TypeScript, Ant Design, TanStack Query입니다."
   },
   {
     "id": "experience-techlabs-migration-detail",
@@ -101,7 +172,7 @@
       "ESM"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "TechLabs 인턴십에서 수행한 레거시 마이그레이션은 Node14 + Webpack(CJS) + React16 환경을 Node20 + Vite(ESM) + React18로 전환하는 대규모 작업이었습니다. 이 과정에서 CJS에서 ESM으로의 모듈 시스템 전환, Webpack에서 Vite로의 번들러 교체, React 16에서 18로의 메이저 버전 업그레이드를 동시에 진행했습니다. 마이그레이션 결과 yarn install time이 1/5로 단축되었고, 전체 프로젝트 사이즈가 1/2로 경량화되었습니다. 라이브러리 충돌 해결과 체계적인 검증 과정을 거쳐 안정적으로 마이그레이션을 완료했습니다."
+    "content": "TechLabs 인턴십에서 수행한 레거시 마이그레이션은 Node14 + Webpack(CJS) + React16 환경을 Node20 + Vite(ESM) + React18로 전환하는 대규모 작업이었습니다. 이 과정에서 CJS에서 ESM으로의 모듈 시스템 전환, Webpack에서 Vite로의 번들러 교체, React 16에서 18로의 메이저 버전 업그레이드를 동시에 진행했습니다. 단순 도구 교체가 아니라 기존 CommonJS 모듈 구조가 빌드 속도에 미치는 영향을 단계별로 분석하고, 각 의존성의 로드 방식을 추적하여 ESM 전환 시 호환이 깨지는 지점을 사전 대응한 뒤 차례대로 전환했습니다. 결과적으로 yarn install time을 1/5로 단축, 전체 프로젝트 사이즈를 1/2로 경량화하면서도 런타임 오류 없이 안정적으로 마이그레이션을 완료했습니다."
   },
   {
     "id": "project-yrano-monorepo",
@@ -120,7 +191,7 @@
       "패키지"
     ],
     "url": "https://github.com/yourssu/Yrano",
-    "content": "2023.03~2025.07 동안 Yourssu에서 사용하는 TypeScript/JavaScript 패키지들을 Monorepo 형태로 관리하는 Yrano(Yourssu Resourceful and Noteworthy) 프로젝트를 진행했습니다. 서비스에서 사용 중인 utils function, hook 등의 공통 자산을 새로운 TF에서도 재사용할 수 있도록 설계했고 성능 최적화와 DX 향상에 집중했습니다. 기존에 사용하던 crypto-js sha256 함수를 별도 패키지로 구현함으로써 module size를 경량화했습니다. CJS, ESM, DTS 환경을 비교적 쉽게 지원할 수 있도록 Rollup과 Tsup를 비교 검토한 뒤 Tsup를 선택했습니다. Node.js와 브라우저 환경을 모두 지원하도록 개발했습니다. GitHub: https://github.com/yourssu/Yrano"
+    "content": "2023년 3월부터 2025년 7월까지 Yourssu에서 사용하는 TypeScript/JavaScript 패키지들을 모노레포 형태로 관리하는 Yrano(Yourssu Resourceful and Noteworthy) 프로젝트를 진행했습니다. 서비스에서 사용 중인 utils function, hook 등의 공통 자산을 새로운 TF에서도 재사용할 수 있도록 설계했고 성능 최적화와 DX 향상에 집중했습니다. 기존에 사용하던 crypto-js sha256 함수를 별도 패키지로 구현함으로써 module size를 경량화했습니다. CJS, ESM, DTS 환경을 비교적 쉽게 지원할 수 있도록 Rollup과 Tsup를 비교 검토한 뒤 Tsup를 선택했습니다. Node.js와 브라우저 환경을 모두 지원하도록 개발했습니다. GitHub: https://github.com/yourssu/Yrano"
   },
   {
     "id": "project-yrano-packages",
@@ -139,6 +210,7 @@
     "tags": [
       "project",
       "design-system",
+      "디자인시스템",
       "storybook",
       "react",
       "typescript",
@@ -147,7 +219,7 @@
       "컴포넌트"
     ],
     "url": "https://github.com/yourssu/YDS-React",
-    "content": "YDS(Yourssu Design System) 프로젝트에서는 일관된 디자인 퀄리티 보장과 UI Component 재사용성을 높여 코드 작성에 걸리는 시간을 단축시키는 데 집중했습니다. forwardRef 활용, HTML 속성 확장 등 Polymorphic Component 개발에 집중했고, webfontloader를 활용하여 비동기적으로 Font loading을 최적화했습니다. BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 등의 컴포넌트를 개발했습니다. 사용 기술은 React, TypeScript, Storybook, Styled Components, Vite, SWC입니다. GitHub: https://github.com/yourssu/YDS-React"
+    "content": "YDS(Yourssu Design System) 프로젝트에서는 일관된 디자인 퀄리티 보장과 UI Component 재사용성을 높여 코드 작성에 걸리는 시간을 단축시키는 데 집중했습니다. forwardRef 활용, HTML 속성 확장 등 Polymorphic Component 개발에 집중했고, webfontloader를 활용하여 비동기적으로 Font loading을 최적화했습니다. BoxButton, PlainButton, CheckBox, SuffixTextField, PasswordTextField, ListItem 등의 컴포넌트를 개발했습니다. 디자이너와 개발자 간의 요구사항 차이를 좁히기 위해 정기 피드백 세션을 통해 컴포넌트 인터페이스를 함께 검토했고, 시맨틱 버저닝 전략을 도입하여 이미 YDS를 사용 중인 프로젝트에 영향을 주지 않으면서 새 기능을 추가할 수 있도록 했습니다. 사용 기술은 React, TypeScript, Storybook, Styled Components, Vite, SWC입니다. GitHub: https://github.com/yourssu/YDS-React"
   },
   {
     "id": "project-yds-automation",
@@ -166,7 +238,7 @@
       "ci-cd"
     ],
     "url": "https://github.com/yourssu/YDS-React",
-    "content": "YDS 프로젝트에서는 Storybook 버전별 배포 자동화 및 NPM package 배포 자동화를 구축했습니다. GitHub Action과 AWS S3 Bucket Versioning을 활용하여 Storybook 문서를 버전별로 자동 배포하는 파이프라인을 구성했습니다. Storybook 문서화 및 release template 설정도 구축했습니다. 또한 yarn classic에서 pnpm으로 패키지 매니저를 마이그레이션하여 설치 속도와 디스크 사용량을 개선했습니다."
+    "content": "YDS 프로젝트에서는 Storybook 버전별 배포 자동화 및 NPM package 배포 자동화를 구축했습니다. GitHub Actions와 AWS S3 Bucket Versioning을 활용하여 Storybook 문서를 버전별로 자동 배포하는 파이프라인을 구성했습니다. Storybook 문서화 및 release template 설정도 구축했습니다. 또한 yarn classic에서 pnpm으로 패키지 매니저를 마이그레이션하여 설치 속도와 디스크 사용량을 개선했습니다."
   },
   {
     "id": "project-soomsil",
@@ -200,25 +272,27 @@
       "CMC"
     ],
     "url": "https://github.com/ALL-CHIVE/All-Chive-Mobile",
-    "content": "All:Chive(2023.06.18~2023.08.31)는 링크와 스크린샷을 쉽게 관리하고 큐레이션할 수 있는 아카이빙 서비스입니다. App Store 'Productivity' 랭킹 94위, Disquiet 'Trending Product' 1위를 달성했습니다. Archiving & Contents Upload 및 Search 기능을 개발했고, Tag 생성/수정/삭제 등 관리 및 필터링, 카테고리별 아카이빙 필터링 기능을 개발했습니다. MyPage 내부 기능(아카이빙 관리, 태그 관리, 차단 관리, 휴지통)을 개발했고, InAppBrowser 연결, dev/prod 환경 분리 및 Android 배포 설정을 담당했습니다. 사용 기술은 React Native, TypeScript, Emotion, TanStack Query, Recoil입니다. CMC(2023.05~2023.09) 기간에 진행한 프로젝트입니다. GitHub: https://github.com/ALL-CHIVE/All-Chive-Mobile"
+    "content": "All:Chive(2023.06.18~2023.08.31)는 링크와 스크린샷을 쉽게 관리하고 큐레이션할 수 있는 아카이빙 서비스입니다. App Store 'Productivity' 랭킹 94위, Disquiet 'Trending Product' 1위를 달성했습니다. Archiving & Contents Upload 및 Search 기능을 개발했고, Tag 생성/수정/삭제 등 관리 및 필터링, 카테고리별 아카이빙 필터링 기능을 개발했습니다. MyPage 내부 기능(아카이빙 관리, 태그 관리, 차단 관리, 휴지통)을 개발했고, InAppBrowser 연결, dev/prod 환경 분리 및 Android 배포 설정을 담당했습니다. 사용 기술은 React Native, TypeScript, Emotion, TanStack Query, Recoil입니다. CMC(Central MakeUs Challenge, 2023.05~2023.09) 13기 기간에 진행한 프로젝트입니다. GitHub: https://github.com/ALL-CHIVE/All-Chive-Mobile"
   },
   {
     "id": "opensource-contributions",
     "title": "오픈소스 기여 활동",
     "titleEn": "Open Source Contributions",
-    "description": "toss/es-toolkit, Storybook, TanStack Query 등 오픈소스 기여",
+    "description": "Chromium, toss/es-toolkit, Storybook, TanStack Query 등 오픈소스 기여",
     "tags": [
       "opensource",
+      "오픈소스",
+      "기여",
+      "contribution",
+      "chromium",
       "toss",
       "es-toolkit",
       "storybook",
       "tanstack",
-      "react",
-      "기여",
-      "contribution"
+      "react"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 더 나은 세상을 위한 오픈소스의 힘을 믿으며 여러 프로젝트에 기여했습니다. toss/es-toolkit에서는 debounce와 delay 함수에 AbortSignal을 지원하는 기능을 구현했습니다(PR #45, #52). storybookjs/storybook에서는 버그 이슈를 리포트했습니다(#26591). TanStack/query에서는 react-algolia 관련 오타를 수정했습니다(PR #7207). reactjs/ko.react.dev에서는 React 버전 관련 문서의 한국어 번역에 기여했습니다(PR #919)."
+    "content": "김나영은 더 나은 세상을 위한 오픈소스의 힘을 믿으며 여러 글로벌 프로젝트에 기여했습니다. 가장 큰 규모의 기여는 Google Chromium에 대한 것으로, 북마크 메뉴 UX 버그를 발견하고 코드베이스 분석을 통한 근본 원인 파악과 함께 수정 방안을 제안했습니다(이슈 #480332618). toss/es-toolkit(GitHub Star 10.8k+)에는 총 3건의 PR이 메인 브랜치에 병합되었습니다. debounce 함수에 AbortSignal 기반 비동기 취소 기능을 추가했고(PR #45), 동일한 패턴을 delay 함수에도 적용하면서 AbortError 공통 모듈을 분리하는 구조적 리팩토링을 수행했으며(PR #52), 다중 키 정렬과 타입 안전한 인터페이스를 갖춘 orderBy 유틸리티 함수를 새롭게 설계·구현했습니다(PR #123). 메인테이너와 영어로 코드 리뷰를 주고받으며 fetch API 옵션 패턴으로 인터페이스를 재설계하는 등 API 설계 결정 과정을 함께 논의했습니다. storybookjs/storybook(Star 85k+)에서는 MDX 코드 블록 렌더링 버그를 리포트하여 메인테이너로부터 Confirmed 판정을 받았습니다(이슈 #26591). TanStack/query(Star 43k+)에서는 react-algolia 통합 가이드의 문서 오류를 수정하여 PR #7207을 병합했습니다. reactjs/ko.react.dev에서는 React 버전 관련 문서를 한국어로 번역하여 PR #919를 기여했습니다."
   },
   {
     "id": "community-gdsc",
@@ -227,7 +301,7 @@
     "description": "GDSC Web/Mobile 파트 활동 및 스터디",
     "tags": ["community", "gdsc", "google", "study", "활동", "커뮤니티"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "2023.10~2024.09 동안 Google Developer Student Club(GDSC)에서 Web/Mobile Part 팀원으로 활동하며 각종 스터디 및 매주 세션 발표에 참여했습니다. Core JavaScript 스터디를 GDSC Web/Mobile Part에서 진행했고, Frameworkless Front-End Development 스터디도 진행했습니다."
+    "content": "2023년 10월부터 2024년 9월까지 Google Developer Student Club(GDSC)에서 Web/Mobile Part 팀원으로 활동하며 각종 스터디 및 매주 세션 발표에 참여했습니다. Core JavaScript 스터디를 GDSC Web/Mobile Part에서 진행했고, Frameworkless Front-End Development 스터디도 진행했습니다."
   },
   {
     "id": "study-lead",
@@ -242,12 +316,14 @@
     "id": "seminar-presentations",
     "title": "세미나 발표 경험",
     "titleEn": "Seminar Presentation Experience",
-    "description": "SEO/GEO 최적화, Next.js Hydration, DX 관련 세미나 발표",
+    "description": "SEO/GEO 최적화, Harness Engineering, Next.js Hydration, DX 관련 세미나 발표",
     "tags": [
       "seminar",
       "presentation",
       "seo",
       "geo",
+      "harness",
+      "harness-engineering",
       "nextjs",
       "hydration",
       "dx",
@@ -256,16 +332,25 @@
       "woorifisa"
     ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영은 다양한 기술 세미나에서 발표 경험이 있습니다. 'Optimization of SEO, GEO'라는 주제로 우리FIS 아카데미(Woori FIS Academy) 1차 기술 세미나에서 발표했습니다. SEO와 GEO(Generative Engine Optimization) 최적화 방법론에 대해 다뤘습니다. 'Next.js Hydration'이라는 주제로 CMC 세미나에서 발표했으며, Next.js의 서버 사이드 렌더링과 하이드레이션 메커니즘에 대해 설명했습니다. 'FE에서 개발자를 위한 개발하기'라는 주제로 GDSC 슈몰세미나에서 발표했으며, 프론트엔드에서 DX(Developer Experience)를 향상시키는 방법에 대해 공유했습니다."
+    "content": "김나영은 다양한 기술 세미나에서 발표 경험이 있습니다. 'Optimization of SEO, GEO'라는 주제로 우리FIS 아카데미(Woori FIS Academy) 1차 기술 세미나에서 발표했으며, SEO와 GEO(Generative Engine Optimization) 최적화 방법론에 대해 다뤘습니다. 같은 우리FIS 아카데미에서 'Harness Engineering' 주제로도 발표하여 엔지니어링 도구·플랫폼 활용 방법론을 공유했습니다. 'Next.js Hydration'이라는 주제로 CMC 세미나에서 발표하며 Next.js의 서버 사이드 렌더링과 하이드레이션 메커니즘을 설명했고, 'FE에서 개발자를 위한 개발하기'라는 주제로 GDSC 슈몰세미나에서 발표하며 프론트엔드 DX(Developer Experience) 향상 방법을 공유했습니다."
   },
   {
     "id": "skills-stack",
     "title": "기술 스택 요약",
     "titleEn": "Tech Stack Summary",
     "description": "이력서 기반 핵심 기술 스택 정리",
-    "tags": ["skills", "tech-stack", "기술", "스택", "react", "typescript"],
+    "tags": [
+      "skills",
+      "tech-stack",
+      "기술",
+      "스택",
+      "react",
+      "typescript",
+      "spring",
+      "java"
+    ],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영의 주요 기술 스택은 다음과 같습니다. 프론트엔드 프레임워크/라이브러리로는 React, Next.js, React Native를 사용합니다. 언어는 TypeScript를 주력으로 사용합니다. 상태 관리 및 데이터 페칭에는 SWR, TanStack Query, Recoil을 활용합니다. 스타일링에는 Tailwind CSS, Styled-Components, Emotion을 사용합니다. 빌드 도구로는 Vite, SWC, Turborepo, tsup을 활용합니다. 테스트에는 Vitest를 사용합니다. 문서화에는 Storybook과 Nextra를 활용합니다. UI 컴포넌트 라이브러리로 Ant Design 사용 경험이 있습니다. AI/백엔드 관련으로는 FastAPI, LangChain, Ollama 경험이 있습니다. 실시간 데이터 처리 파이프라인으로 Kafka와 Spark 활용 경험이 있습니다. 실시간 데이터 처리/시각화, 디자인 시스템 구축, 프론트엔드 성능 최적화와 마이그레이션, 모노레포 운영 경험이 풍부합니다."
+    "content": "김나영의 주요 기술 스택은 다음과 같습니다. 프론트엔드 프레임워크/라이브러리로는 React, Next.js, React Native, Astro를 사용합니다. 언어는 TypeScript를 주력으로 사용하고 백엔드 개발에는 Java를 사용합니다. 상태 관리 및 데이터 페칭에는 SWR, TanStack Query, Recoil을 활용합니다. 스타일링에는 Tailwind CSS, Styled Components, Emotion을 사용합니다. 빌드 도구로는 Vite, SWC, Turborepo, Tsup을 활용하고, 테스트에는 Vitest를 사용합니다. 문서화에는 Storybook과 Nextra를 활용합니다. 백엔드는 Spring Boot, Spring Cloud(Eureka, OpenFeign, API Gateway), Resilience4j, PostgreSQL을 사용하며, MSA 아키텍처 설계 경험이 있습니다. 인프라/운영은 AWS, Docker, GitHub Actions를 활용한 CI/CD 파이프라인 구축 경험이 있습니다. AI/RAG 영역에서는 Gemini API, vercel/ai-sdk, LangChain, Ollama를 활용한 검색·감성 분석 경험이 있습니다. 디자인 시스템 구축, 모노레포 운영, 빌드 환경 마이그레이션, 프론트엔드 성능 최적화, MSA 설계, RAG 기반 AI 검색 등 폭넓은 경험을 보유하고 있습니다."
   },
   {
     "id": "skills-frontend-core",
@@ -286,13 +371,31 @@
     "content": "김나영의 프론트엔드 핵심 역량은 다음과 같습니다. 퍼포먼스 최적화에 깊은 관심을 가지고 있으며, 빌드 시간 단축(yarn time 1/5 단축), 프로젝트 사이즈 경량화(1/2), 모듈 사이즈 최적화(crypto-js 별도 패키지화) 등의 성과를 냈습니다. Polymorphic Component, forwardRef 패턴 등 고급 컴포넌트 설계 경험이 있습니다. 비동기 폰트 로딩 최적화(webfontloader), SWR 기반 실시간 데이터 캐싱 최적화 등 성능 관련 작업 경험이 풍부합니다. Suspense와 ErrorBoundary를 활용한 선언적 코드 작성, 공통 컴포넌트 설계를 통한 DX 향상에 집중합니다. CJS/ESM/DTS 호환, 모듈 시스템 전환 등 빌드 환경에 대한 깊은 이해를 보유하고 있습니다."
   },
   {
+    "id": "skills-backend-core",
+    "title": "백엔드 핵심 역량",
+    "titleEn": "Backend Core Competencies",
+    "description": "Spring Boot/Spring Cloud 기반 MSA 설계 역량",
+    "tags": [
+      "skills",
+      "backend",
+      "백엔드",
+      "spring",
+      "spring-cloud",
+      "msa",
+      "java",
+      "역량"
+    ],
+    "url": "https://www.hanna-dev.co.kr/resume.pdf",
+    "content": "김나영은 프론트엔드를 기반으로 백엔드 영역까지 의도적으로 확장해 왔습니다. Spring Boot와 Spring Cloud를 활용한 MSA(Microservice Architecture) 설계 경험이 있으며, pg-msa 프로젝트에서 7개 마이크로서비스로 구성된 카드 결제 게이트웨이를 직접 설계·구현했습니다. 핵심 역량은 BIN 기반 라우팅을 위한 Strategy 패턴 적용, 매입사별 독립 Resilience4j Circuit Breaker를 통한 장애 격리, 거래 원장 기반 멱등성(Idempotency) 보장, ExternalErrorTranslator 계층을 통한 이질적 에러 코드 정규화, Facade 패턴 기반 승인 오케스트레이션 책임 분리 등 프로덕션 수준의 결제 시스템 설계 패턴을 적용한 점입니다. 데이터 정합성과 장애 격리가 핵심인 금융 도메인의 기술적 무게감을 직접 체감하며 백엔드 개발 역량을 키워 왔습니다."
+  },
+  {
     "id": "project-timeline",
     "title": "프로젝트 타임라인",
     "titleEn": "Project Timeline",
     "description": "김나영의 주요 프로젝트와 경험의 시간순 정리",
     "tags": ["timeline", "career", "경력", "타임라인", "프로젝트"],
     "url": "https://www.hanna-dev.co.kr/resume.pdf",
-    "content": "김나영의 주요 프로젝트 타임라인은 다음과 같습니다. 2023.03~2025.07: Yourssu에서 YDS(디자인 시스템), Yrano(모노레포), Soomsil 프로젝트 진행. 2023.05~2023.09: CMC에서 All:Chive 아카이빙 앱 개발(App Store 생산성 94위, Disquiet 1위). 2023.10~2024.09: Google Developer Student Club Web/Mobile 파트 활동. 2024.03~2024.06: TechLabs AI부서 개발팀 인턴십(Node14/Webpack→Node20/Vite 마이그레이션). 2025.03~2025.06: 캡스톤 프로젝트 Stock Condition Analysis 개발(실시간 주식+AI 감성 분석). 현재: 우리FIS 아카데미(woorifisa) 서비스 개발반 6기 활동 중."
+    "content": "김나영의 주요 프로젝트 타임라인은 다음과 같습니다. 2023.03~2025.07: Yourssu에서 YDS(디자인 시스템), Yrano(모노레포), Soomsil 프로젝트 진행. 2023.05~2023.09: CMC 13기에서 All:Chive 아카이빙 앱 개발(App Store 생산성 94위, Disquiet 1위). 2023.10~2024.09: Google Developer Student Club Web/Mobile 파트 활동. 2024.03~2024.06: TechLabs AI부서 Frontend Engineer 인턴십(Node14/Webpack→Node20/Vite 마이그레이션). 2024.09~2024.12: 스페인 University of Vigo 교환학생(미래에셋 박현주재단 장학생). 2025.01~현재: 개인 기술 블로그 hanna-dev.co.kr 및 RAG 기반 AI 포트폴리오 운영. 2025.03~2025.06: 캡스톤 프로젝트 Stock Condition Analysis 프론트엔드 시각화 담당. 2025.12.30~2026.04.04: 우리FIS 아카데미(woorifisa) 서비스 개발반 6기(보잉 코리아 인턴 합격으로 중도 퇴소). 2026.02: 숭실대학교 소프트웨어학부 졸업. 2026.03: pg-msa(Spring Cloud 기반 카드 결제 게이트웨이 MSA) 개인 프로젝트. 2026.04~2026.07: Boeing Korea PODS Frontend Engineer Intern 재직 중. 글로벌 오픈소스 기여(Chromium, toss/es-toolkit, Storybook, TanStack Query, React Korean docs)는 시기를 가리지 않고 꾸준히 진행해 왔습니다."
   },
   {
     "id": "project-github-links",
@@ -301,7 +404,7 @@
     "description": "김나영의 주요 프로젝트 GitHub 저장소 링크",
     "tags": ["github", "repository", "링크", "저장소", "코드"],
     "url": "https://github.com/Hanna922",
-    "content": "김나영의 주요 프로젝트 GitHub 저장소 링크는 다음과 같습니다. 개인 GitHub: github.com/Hanna922. Stock Condition Analysis(캡스톤): https://github.com/stock-condition-analysis. Yrano(모노레포): https://github.com/yourssu/Yrano. YDS(디자인 시스템): https://github.com/yourssu/YDS-React. Soomsil(숭실 서비스): https://github.com/yourssu/Soomsil-Web. All:Chive(아카이빙 앱): https://github.com/ALL-CHIVE/All-Chive-Mobile."
+    "content": "김나영의 주요 프로젝트 GitHub 저장소 링크는 다음과 같습니다. 개인 GitHub: github.com/Hanna922. Stock Condition Analysis(캡스톤): https://github.com/stock-condition-analysis. Yrano(모노레포): https://github.com/yourssu/Yrano. YDS(디자인 시스템): https://github.com/yourssu/YDS-React. Soomsil(숭실 서비스): https://github.com/yourssu/Soomsil-Web. All:Chive(아카이빙 앱): https://github.com/ALL-CHIVE/All-Chive-Mobile. pg-msa 프로젝트의 코드와 설계 회고는 hanna-dev.co.kr 블로그의 'Spring Cloud MSA 실전 적용' 시리즈 글에서 확인할 수 있습니다."
   },
   {
     "id": "blog-about",
@@ -310,6 +413,6 @@
     "description": "이 블로그의 목적과 다루는 주제",
     "tags": ["blog", "about", "블로그", "소개", "hanna-dev"],
     "url": "https://www.hanna-dev.co.kr",
-    "content": "hanna-dev.co.kr은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그입니다. 프론트엔드 개발 경험, 프로젝트 회고, 기술적 문제 해결 과정, 마이그레이션 경험, 오픈소스 기여 등을 공유합니다. 블로그에는 AI 기반 검색 기능(RAG)이 내장되어 있어, 블로그 콘텐츠를 기반으로 질문에 답변할 수 있습니다. 블로그 주인의 GitHub는 github.com/Hanna922이고, 이메일은 p.ping0922@gmail.com입니다."
+    "content": "hanna-dev.co.kr은 소프트웨어 엔지니어 김나영(Hanna)의 개인 기술 블로그이자 AI 기반 인터랙티브 포트폴리오입니다. 프론트엔드 개발 경험, 프로젝트 회고, 기술적 문제 해결 과정, 마이그레이션 경험, MSA 설계 회고, 오픈소스 기여 등을 한국어와 영어로 공유합니다. 블로그에는 Gemini API 기반 RAG(Retrieval-Augmented Generation) AI 검색 어시스턴트가 내장되어 있어, 채용 담당자가 자연어로 김나영의 기술 경험을 탐색할 수 있도록 설계되었습니다. 36개 쿼리 평가 프레임워크를 직접 구축하여 3가지 검색 전략(chunked RAG, document-level RAG, MiniSearch)을 비교 평가한 결과 Document Level RAG를 채택했고, Hit Rate 97%와 키워드 검색 대비 MRR +21% 향상을 달성했습니다. 블로그 주인의 GitHub는 github.com/Hanna922이고, 이메일은 p.ping0922@gmail.com입니다."
   }
 ]
