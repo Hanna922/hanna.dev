@@ -1,7 +1,8 @@
 ﻿import type { APIRoute } from "astro";
 import { streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { isRAGEnabled, runRAGSearch } from "lib/rag/index";
+import { isRAGEnabled } from "lib/rag/index";
+import { buildRagServerPrompt, queryRagServer } from "lib/rag/server-client";
 import { loadIndex } from "@utils/llm-search/indexLoader";
 import { createMockStream } from "@utils/llm-search/mock";
 import {
@@ -75,15 +76,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     if (isRAGEnabled()) {
-      const rag = await runRAGSearch(prompt, {
-        apiKey,
-        originRequestUrl: request.url,
+      const rag = await queryRagServer({
+        query: prompt,
         locale,
+        topK: 5,
       });
       sourcesForClient = rag.sources;
-      hitCount = rag.hits.length;
-      topScore = rag.hits[0]?.score ?? null;
-      llmPrompt = rag.prompt;
+      hitCount = rag.retrieval.returned;
+      topScore = null;
+      llmPrompt = buildRagServerPrompt(prompt, rag.context, locale);
     } else {
       const { mini } = await loadIndex(request.url, locale);
       const hits = searchDocs(prompt, mini);
