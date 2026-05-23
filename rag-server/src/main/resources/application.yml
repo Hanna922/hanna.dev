@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: rag-server
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+rag:
+  embedding:
+    model: ${RAG_EMBEDDING_MODEL:gemini-embedding-001}
+    dimension: ${RAG_EMBEDDING_DIMENSION:3072}
+    base-url: ${RAG_EMBEDDING_BASE_URL:https://generativelanguage.googleapis.com}
+    api-key: ${GEMINI_API_KEY:${GOOGLE_GENERATIVE_AI_API_KEY:}}
+  top-k: ${RAG_TOP_K:5}
+  context-max-chars: ${RAG_CONTEXT_MAX_CHARS:12000}
+
+qdrant:
+  host: ${QDRANT_HOST:localhost}
+  grpc-port: ${QDRANT_GRPC_PORT:6334}
+  api-key: ${QDRANT_API_KEY:}
+  use-tls: ${QDRANT_USE_TLS:false}
+  collection: ${QDRANT_COLLECTION:hanna-dev-documents}
+  bootstrap-enabled: ${QDRANT_BOOTSTRAP_ENABLED:true}
+
+internal:
+  header-name: ${INTERNAL_HEADER_NAME:X-Internal-Api-Key}
+  query-api-key: ${INTERNAL_QUERY_API_KEY:change-me}
+  admin-api-key: ${INTERNAL_ADMIN_API_KEY:change-me}

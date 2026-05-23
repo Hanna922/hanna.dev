@@ -16,6 +16,8 @@ export default [
       ".output/**",
       ".astro/**",
       ".yarn/**",
+      "rag-server/build/**",
+      "rag-server/.gradle/**",
       "src/components/Header.astro",
       "src/layouts/PostDetails.astro",
     ],

@@ -13,13 +13,15 @@
     "test:locale": "esbuild tests/locale-utils.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.locale-utils.test.mjs && node node_modules/.locale-utils.test.mjs",
     "test:llm-modal-ssr": "esbuild tests/llm-search-modal-ssr.test.tsx --bundle --platform=node --format=cjs --loader:.css=text --outfile=node_modules/.llm-search-modal-ssr.test.cjs && node node_modules/.llm-search-modal-ssr.test.cjs",
     "test:locale-islands": "esbuild tests/locale-islands.test.ts --bundle --platform=node --format=cjs --outfile=node_modules/.locale-islands.test.cjs && node node_modules/.locale-islands.test.cjs",
+    "test:canonical-rag-documents": "esbuild tests/canonical-rag-documents.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.canonical-rag-documents.test.mjs && node node_modules/.canonical-rag-documents.test.mjs",
     "format:check": "prettier --check . --plugin=prettier-plugin-astro",
     "format": "prettier --write . --plugin=prettier-plugin-astro",
     "cz": "cz",
     "prepare": "husky install",
     "lint": "eslint .",
-    "sync-rag-index": "npx tsx scripts/sync-rag-index.ts",
-    "eval": "npx tsx scripts/run-eval.ts"
+    "sync-rag-index": "tsx scripts/sync-rag-index.ts",
+    "sync-rag-server": "tsx scripts/sync-rag-server.ts",
+    "eval": "tsx scripts/run-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",
@@ -64,7 +66,9 @@
     "prettier-plugin-astro": "^0.13.0",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "resolve-pkg-maps": "^1.0.0",
+    "tsx": "^4.21.0"
   },
   "config": {
     "commitizen": {
