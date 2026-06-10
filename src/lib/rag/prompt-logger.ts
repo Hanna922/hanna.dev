@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-interface PromptLogEntry {
+export interface PromptLogEntry {
   prompt: string;
   response: string;
   ragEnabled: boolean;
@@ -13,6 +13,12 @@ interface PromptLogEntry {
 }
 
 let client: SupabaseClient | null = null;
+
+interface PromptLogDb {
+  from(table: "prompt_logs"): {
+    insert(row: Record<string, unknown>): PromiseLike<{ error: unknown }>;
+  };
+}
 
 function getClient(): SupabaseClient | null {
   if (client) return client;
@@ -30,7 +36,14 @@ export async function logPrompt(entry: PromptLogEntry): Promise<void> {
   const db = getClient();
   if (!db) return; // 설정 없으면 조용히 스킵
 
-  await db.from("prompt_logs").insert({
+  await insertPromptLog(db, entry);
+}
+
+export async function insertPromptLog(
+  db: PromptLogDb,
+  entry: PromptLogEntry
+): Promise<void> {
+  const { error } = await db.from("prompt_logs").insert({
     prompt: entry.prompt,
     response: entry.response,
     rag_enabled: entry.ragEnabled,
@@ -41,4 +54,8 @@ export async function logPrompt(entry: PromptLogEntry): Promise<void> {
     user_agent: entry.userAgent,
     referer: entry.referer,
   });
+
+  if (error) {
+    throw error;
+  }
 }

@@ -23,18 +23,25 @@ export function createTextStreamResponse(stream: ReadableStream<Uint8Array>) {
 
 export function mergeSourcesAndStream(
   textStream: AsyncIterable<string>,
-  sources: SourceRef[]
+  sources: SourceRef[],
+  options?: {
+    onTextComplete?: (text: string) => void | Promise<void>;
+  }
 ) {
   return new ReadableStream<Uint8Array>({
     async start(controller) {
+      const chunks: string[] = [];
+
       if (sources.length > 0) {
         controller.enqueue(encoder.encode(createSourcesPrefix(sources)));
       }
 
       for await (const chunk of textStream) {
+        chunks.push(chunk);
         controller.enqueue(encoder.encode(chunk));
       }
 
+      await options?.onTextComplete?.(chunks.join(""));
       controller.close();
     },
   });
